@@ -3,12 +3,47 @@ package main
 import (
 	"log"
 	"os"
+	"fmt"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
+
+type Settings struct {
+	ID uint
+	key *string
+	value *string
+}
+
+type PayloadFireResults struct {
+	ID uint
+	url string
+	ip_address string
+	referer string
+	user_agent string
+	cookies string
+	title string
+	dom string
+	text string
+	origin string
+	screenshot_id string
+	was_iframe bool
+	browser_timestamp uint
+}
+
+type CollectedPages struct {
+	ID uint
+	uri string
+	html string
+}
+
+type InjectionRequests struct {
+	ID uint
+	request string
+	injection_key string
+}
 
 func establish_database_connection() *gorm.DB {
 	err := godotenv.Load()
@@ -41,6 +76,23 @@ func establish_sqlite_connection() *gorm.DB {
 		panic("failed to connect to database")
 	}
 	return db
+}
+
+func initialize_users() {
+	new_password := get_secure_random_string(32)
+
+	new_user := setup_admin_user(new_password)
+
+	if new_user {
+		return
+	}
+
+	banner_message := get_default_user_created_banner(new_password)
+	fmt.Println(banner_message)
+}
+
+func setup_admin_user(password string) {
+
 }
 
 func get_default_user_created_banner(password string) string {
