@@ -139,7 +139,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(payload_fires)
 	} else if r.Method == "DELETE" {
-		ids_to_delete := r.URL.Query()["ids"]
+		ids_to_delete := r.FormValue("ids")
 		if len(ids_to_delete) == 0 {
 			http.Error(w, "No ids to delete", http.StatusBadRequest)
 			return
@@ -176,9 +176,44 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not authenticated", http.StatusUnauthorized)
 	}
 	if r.Method == "GET" {
+		page_string := r.URL.Query().Get("page")
+		limit_string := r.URL.Query().Get("limit")
+		page := parameter_to_int(page_string, 1) - 1
+		limit := parameter_to_int(limit_string, 10)
+		offset := page * limit
 
+		db := establish_database_connection()
+		defer db.Close()
+
+		rows, err := db.Query("SELECT id, uri FROM collected_pages ORDER BY created_at DESC LIMIT ? OFFSET ?", limit, offset)
+		if err != nil {
+			http.Error(w, "Error querying database", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		collected_pages := []CollectedPages{}
+		for rows.Next() {
+			var collected_page CollectedPages
+			err = rows.Scan(&collected_page.ID, &collected_page.uri)
+			if err != nil {
+				http.Error(w, "Error scanning database", http.StatusInternalServerError)
+				return
+			}
+			collected_pages = append(collected_pages, collected_page)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(collected_pages)
 	} else if r.Method == "DELETE" {
+		ids_to_delete := r.FormValue("ids")
+		if len(ids_to_delete) == 0 {
+			http.Error(w, "No ids to delete", http.StatusBadRequest)
+			return
+		}
+		db := establish_database_connection()
+		defer db.Close()
 
+		db.Exec("DELETE FROM collected_pages WHERE id IN (?)", ids_to_delete)
 	} else {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 	}
@@ -186,7 +221,17 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 
 func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
-	is_authenticated := get_and_validate_jwt(r)
+	owner_correlation_key := r.FormValue("owner_correlation_key")
+	if owner_correlation_key == "" {
+		http.Error(w, "No owner_correlation_key", http.StatusBadRequest)
+		return
+	}
+	db := establish_database_connection()
+	defer db.Close()
+
+	var is_authenticated bool
+	db.QueryRow("SELECT 1 FROM settings WHERE key = ? AND value = ?", CORRELATION_API_SECRET_SETTINGS_KEY, owner_correlation_key).Scan(&is_authenticated)
+
 	if !is_authenticated {
 		http.Error(w, "Not authenticated", http.StatusUnauthorized)
 	}
@@ -194,4 +239,7 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
+	db.Exec("INSERT INTO injection_requests (injection_key, request) VALUES (?, ?)", r.FormValue("injection_key"), r.FormValue("request"))
+
+	w.Write([]byte("Injection recorded"))
 }
