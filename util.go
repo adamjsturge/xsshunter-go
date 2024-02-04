@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -26,6 +25,11 @@ func hash_string(input string) (string, error) {
 	return string(hash), nil
 }
 
+func check_hash(input string, hashed string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashed), []byte(input))
+	return err == nil
+}
+
 // func generate_log(input string) {
 // 	datetime :=
 // }
@@ -38,7 +42,7 @@ func checkFileExists(filepath string) bool {
 func get_env(key string) string {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		return ""
 	}
 	return os.Getenv(key)
 }

@@ -20,7 +20,7 @@ $$ |      $$ |\$$$$$$$\ \$$$$$$$ |$$$$$$$  |\$$$$$$$\       $$ |  $$ |\$$$$$$$\ 
 
 This is a payload to test for Cross-site Scripting (XSS). It is meant to be used by security professionals and bug bounty hunters.
 
-This is a self-hosted instance of XSS Hunter Express. It is not the same as the XSS Hunter website.
+This is a self-hosted instance of XSS Hunter Go. It is not the same as the XSS Hunter website.
 */
 
 // FormData polyfill https://github.com/jimmywarting/FormData

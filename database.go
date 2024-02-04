@@ -7,8 +7,6 @@ import (
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
-
-	"github.com/joho/godotenv"
 	// "gorm.io/driver/postgres"
 	// "gorm.io/driver/sqlite"
 	// "gorm.io/gorm"
@@ -50,44 +48,48 @@ type InjectionRequests struct {
 }
 
 func initialize_database() {
-	if os.Getenv("DATABASE_URL") != "" {
+	if get_env("DATABASE_URL") != "" {
 		initialize_postgres_database()
 	} else {
 		initialize_sqlite_database()
 	}
+	initialize_settings()
 }
 
 func establish_database_connection() *sql.DB {
-	if os.Getenv("DATABASE_URL") != "" {
+	if get_env("DATABASE_URL") != "" {
 		return establish_postgres_database_connection()
 	}
 	return establish_sqlite_database_connection()
 }
 
 func initialize_sqlite_database() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if _, err := os.Stat("db"); os.IsNotExist(err) {
+		err = os.MkdirAll("db", 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
-
-	db := establish_sqlite_database_connection()
-	defer db.Close()
 	create_sqlite_tables()
 }
 
 func initialize_postgres_database() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	db := establish_postgres_database_connection()
-	defer db.Close()
 	create_postgres_tables()
 }
 
 func establish_sqlite_database_connection() *sql.DB {
-	db, err := sql.Open("sqlite3", get_sqlite_database_path())
+	dbPath := get_sqlite_database_path()
+
+	// // Ensure the directory for the database file exists
+	// dir := filepath.Dir(dbPath)
+	// if _, err := os.Stat(dir); os.IsNotExist(err) {
+	// 	err = os.MkdirAll(dir, 0755)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }
+
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -95,7 +97,7 @@ func establish_sqlite_database_connection() *sql.DB {
 }
 
 func establish_postgres_database_connection() *sql.DB {
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err := sql.Open("postgres", get_env("DATABASE_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -189,8 +191,9 @@ func create_postgres_tables() {
 }
 
 func initialize_settings() {
-	initialize_configs()
 	initialize_users()
+	initialize_configs()
+	initialize_correlation_api()
 }
 
 func initialize_users() {
@@ -254,8 +257,9 @@ func initialize_setting_helper(key string, value string) bool {
 }
 
 func get_default_user_created_banner(password string) string {
-	return `============================================================================
-	█████╗ ████████╗████████╗███████╗███╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
+	return `
+   ============================================================================
+    █████╗ ████████╗████████╗███████╗███╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
    ██╔══██╗╚══██╔══╝╚══██╔══╝██╔════╝████╗  ██║╚══██╔══╝██║██╔═══██╗████╗  ██║
    ███████║   ██║      ██║   █████╗  ██╔██╗ ██║   ██║   ██║██║   ██║██╔██╗ ██║
    ██╔══██║   ██║      ██║   ██╔══╝  ██║╚██╗██║   ██║   ██║██║   ██║██║╚██╗██║
@@ -268,13 +272,13 @@ func get_default_user_created_banner(password string) string {
    
 	   PASSWORD: ` + password + `
    
-	   XSS Hunter Express has only one user for the instance. Do not
+	   XSS Hunter Go has only one user for the instance. Do not
 	   share this password with anyone who you don't trust. Save it
 	   in your password manager and don't change it to anything that
 	   is bruteforcable.
    
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	█████╗ ████████╗████████╗███████╗███╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
+    █████╗ ████████╗████████╗███████╗███╗   ██╗████████╗██╗ ██████╗ ███╗   ██╗
    ██╔══██╗╚══██╔══╝╚══██╔══╝██╔════╝████╗  ██║╚══██╔══╝██║██╔═══██╗████╗  ██║
    ███████║   ██║      ██║   █████╗  ██╔██╗ ██║   ██║   ██║██║   ██║██╔██╗ ██║
    ██╔══██║   ██║      ██║   ██╔══╝  ██║╚██╗██║   ██║   ██║██║   ██║██║╚██╗██║

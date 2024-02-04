@@ -15,12 +15,24 @@ import (
 )
 
 func main() {
+	fmt.Println("Initializing Database...")
+	initialize_database()
+	fmt.Println("Database Initialized")
+
 	http.HandleFunc("/", probeHandler)
-	// http.HandleFunc("/:probe_id", probeHandler)
 	http.HandleFunc("/js_callback", jscallbackHandler)
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/screenshots/", screenshotHandler)
-	// http.HandleFunc("/admin", adminHandler)
+
+	CONTROL_PANEL_ENABLED := get_env("CONTROL_PANEL_ENABLED")
+	if CONTROL_PANEL_ENABLED == "show" || CONTROL_PANEL_ENABLED == "true" {
+		// http.HandleFunc("/admin", adminHandler)
+		http.HandleFunc(API_BASE_PATH+"/auth-check", authCheckHandler)
+		http.HandleFunc(API_BASE_PATH+"/settings", settingsHandler)
+		http.HandleFunc(API_BASE_PATH+"/login/", loginHandler)
+		http.HandleFunc(API_BASE_PATH+"/payloadfires", payloadFiresHandler)
+		http.HandleFunc(API_BASE_PATH+"/payloadfires/", collected_pages)
+	}
 
 	fmt.Println("Server is starting on port 8080...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
@@ -172,8 +184,10 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error reading file:", err)
 	}
 
+	host := get_host(r)
+
 	re := regexp.MustCompile(`\[HOST_URL\]`)
-	xss_payload_1 := re.ReplaceAllString(string(probe), "https://"+r.Host)
+	xss_payload_1 := re.ReplaceAllString(string(probe), host)
 
 	re = regexp.MustCompile(`\[COLLECT_PAGE_LIST_REPLACE_ME\]`)
 	xss_payload_2 := re.ReplaceAllString(xss_payload_1, college_pages)

@@ -1,7 +1,9 @@
 package main
 
+import "net/http"
+
 const (
-	// The default port to listen on
+	API_BASE_PATH                       = "/api/v1"
 	ADMIN_PASSWORD_SETTINGS_KEY         = "ADMIN_PASSWORD"
 	session_secret_key                  = "SESSION_SECRET"
 	CORRELATION_API_SECRET_SETTINGS_KEY = "CORRELATION_API_KEY"
@@ -10,6 +12,22 @@ const (
 	SEND_ALERTS_SETTINGS_KEY            = "SEND_ALERTS"
 	csrf_header_name                    = "X-CSRF-Buster"
 )
+
+func get_host(request *http.Request) string {
+	var protocol string
+	if request.TLS != nil {
+		protocol = "https://"
+	} else {
+		protocol = "http://"
+	}
+
+	host := get_env("HOSTNAME")
+	if host == "" {
+		host = request.Host
+	}
+
+	return protocol + host
+}
 
 func get_pages_to_collect() string {
 	db := establish_database_connection()
@@ -30,13 +48,13 @@ func get_chainload_uri() string {
 }
 
 func get_screenshot_directory() string {
-	return get_env("SCREENSHOT_DIRECTORY")
+	screenshot_directory := get_env("SCREENSHOT_DIRECTORY")
+	if screenshot_directory == "" {
+		return "./screenshots"
+	}
+	return screenshot_directory
 }
 
 func get_sqlite_database_path() string {
-	database := get_env("DATABASE_PATH")
-	if database == "" {
-		return "./db/xsshunter-go.db"
-	}
-	return database
+	return "./db/xsshunter-go.db"
 }
