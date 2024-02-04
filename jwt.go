@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/ed25519"
+	"crypto/rand"
 	"log"
 	"net/http"
 	"time"
@@ -8,22 +10,22 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = generate_jwt_secret()
+var jwtSecretPublic, jwtSecretPrivate = generate_jwt_secret()
 
 type Claims struct {
 	payload string
 	jwt.RegisteredClaims
 }
 
-func generate_jwt_secret() string {
-	newjwtSecret, err := get_secure_random_string(64)
+func generate_jwt_secret() (ed25519.PublicKey, ed25519.PrivateKey) {
+	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to generate ed25519 key pair: %v", err)
 	}
-	return newjwtSecret
+	return publicKey, privateKey
 }
 
-func generate_and_set_jwt(w http.ResponseWriter) {
+func generate_and_set_jwt(w http.ResponseWriter, r *http.Request) {
 	expiration_time := time.Now().Add(24 * time.Hour)
 	jwt, err := generate_jwt(expiration_time)
 	if err != nil {
@@ -34,6 +36,8 @@ func generate_and_set_jwt(w http.ResponseWriter) {
 		Name:    "jwt",
 		Value:   jwt,
 		Expires: expiration_time,
+		Path:    "/",
+		Secure:  r.TLS != nil,
 	})
 }
 
@@ -48,12 +52,11 @@ func get_and_validate_jwt(r *http.Request) bool {
 
 func validate_jwt(token string) bool {
 	parsed_token, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
+		return jwtSecretPublic, nil
 	})
 	if err != nil {
 		return false
 	}
-
 	return parsed_token.Valid
 }
 
@@ -66,5 +69,5 @@ func generate_jwt(expiration_time time.Time) (string, error) {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(jwtSecretPrivate)
 }

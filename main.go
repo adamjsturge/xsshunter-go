@@ -29,7 +29,7 @@ func main() {
 		// http.HandleFunc("/admin", adminHandler)
 		http.HandleFunc(API_BASE_PATH+"/auth-check", authCheckHandler)
 		http.HandleFunc(API_BASE_PATH+"/settings", settingsHandler)
-		http.HandleFunc(API_BASE_PATH+"/login/", loginHandler)
+		http.HandleFunc(API_BASE_PATH+"/login", loginHandler)
 		http.HandleFunc(API_BASE_PATH+"/payloadfires", payloadFiresHandler)
 		http.HandleFunc(API_BASE_PATH+"/collected_pages", collectedPagesHandler)
 		http.HandleFunc(API_BASE_PATH+"/record_injection", recordInjectionHandler)

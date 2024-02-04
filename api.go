@@ -49,7 +49,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if check_hash(r.FormValue("password"), password) {
-		generate_and_set_jwt(w)
+		generate_and_set_jwt(w, r)
 		w.WriteHeader(http.StatusOK)
 	} else {
 		http.Error(w, "Invalid password", http.StatusUnauthorized)
