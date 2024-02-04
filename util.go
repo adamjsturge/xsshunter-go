@@ -58,3 +58,9 @@ func parameter_to_int(input string, default_int int) int {
 	}
 	return value
 }
+
+func update_setting(setting_key string, setting_value string) {
+	db := establish_database_connection()
+	defer db.Close()
+	db.Exec("UPDATE settings SET value = :value WHERE key = :key", setting_value, setting_key)
+}

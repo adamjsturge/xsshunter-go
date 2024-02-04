@@ -23,9 +23,56 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not authenticated", http.StatusUnauthorized)
 	}
 	if r.Method == "GET" {
+		db := establish_database_connection()
+		defer db.Close()
 
+		rows, err := db.Query("SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?)", CORRELATION_API_SECRET_SETTINGS_KEY, CHAINLOAD_URI_SETTINGS_KEY, PAGES_TO_COLLECT_SETTINGS_KEY, SEND_ALERTS_SETTINGS_KEY)
+		if err != nil {
+			http.Error(w, "Error querying database", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		settings := map[string]string{}
+		for rows.Next() {
+			var key, value string
+			err = rows.Scan(&key, &value)
+			if err != nil {
+				http.Error(w, "Error scanning database", http.StatusInternalServerError)
+				return
+			}
+			settings[key] = value
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(settings)
 	} else if r.Method == "PUT" {
+		var setting_key = r.FormValue("key")
+		var setting_value = r.FormValue("value")
+		if setting_key == "" || setting_value == "" {
+			http.Error(w, "Invalid key or value", http.StatusBadRequest)
+			return
+		}
 
+		switch setting_key {
+		case ADMIN_PASSWORD_SETTINGS_KEY:
+			hashed_password, err := hash_string(setting_value)
+			if err != nil {
+				http.Error(w, "Error hashing password", http.StatusInternalServerError)
+				return
+			}
+			update_setting(ADMIN_PASSWORD_SETTINGS_KEY, hashed_password)
+		case CORRELATION_API_SECRET_SETTINGS_KEY:
+			update_setting(CORRELATION_API_SECRET_SETTINGS_KEY, setting_value)
+		case CHAINLOAD_URI_SETTINGS_KEY:
+			update_setting(CHAINLOAD_URI_SETTINGS_KEY, setting_value)
+		case PAGES_TO_COLLECT_SETTINGS_KEY:
+			update_setting(PAGES_TO_COLLECT_SETTINGS_KEY, setting_value)
+		case SEND_ALERTS_SETTINGS_KEY:
+			update_setting(SEND_ALERTS_SETTINGS_KEY, setting_value)
+		default:
+			http.Error(w, "Invalid key", http.StatusBadRequest)
+		}
 	} else {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 	}

@@ -79,16 +79,6 @@ func initialize_postgres_database() {
 
 func establish_sqlite_database_connection() *sql.DB {
 	dbPath := get_sqlite_database_path()
-
-	// // Ensure the directory for the database file exists
-	// dir := filepath.Dir(dbPath)
-	// if _, err := os.Stat(dir); os.IsNotExist(err) {
-	// 	err = os.MkdirAll(dir, 0755)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }
-
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		log.Fatal(err)
@@ -195,6 +185,9 @@ func initialize_settings() {
 	initialize_users()
 	initialize_configs()
 	initialize_correlation_api()
+	initialize_setting_helper(PAGES_TO_COLLECT_SETTINGS_KEY, "")
+	initialize_setting_helper(SEND_ALERTS_SETTINGS_KEY, "true")
+	initialize_setting_helper(CHAINLOAD_URI_SETTINGS_KEY, "")
 }
 
 func initialize_users() {
