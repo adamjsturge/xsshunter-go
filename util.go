@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
@@ -45,4 +46,15 @@ func get_env(key string) string {
 		return ""
 	}
 	return os.Getenv(key)
+}
+
+func parameter_to_int(input string, default_int int) int {
+	if input == "" {
+		return default_int
+	}
+	value, err := strconv.Atoi(input)
+	if err != nil {
+		return default_int
+	}
+	return value
 }

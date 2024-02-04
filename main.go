@@ -31,7 +31,8 @@ func main() {
 		http.HandleFunc(API_BASE_PATH+"/settings", settingsHandler)
 		http.HandleFunc(API_BASE_PATH+"/login/", loginHandler)
 		http.HandleFunc(API_BASE_PATH+"/payloadfires", payloadFiresHandler)
-		http.HandleFunc(API_BASE_PATH+"/payloadfires/", collected_pages)
+		http.HandleFunc(API_BASE_PATH+"/collected_pages", collectedPagesHandler)
+		http.HandleFunc(API_BASE_PATH+"/record_injection", recordInjectionHandler)
 	}
 
 	fmt.Println("Server is starting on port 8080...")
@@ -203,8 +204,11 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
-	w.Write([]byte("OK"))
-	w.WriteHeader(http.StatusInternalServerError)
+	if establish_database_connection() != nil {
+		w.Write([]byte("OK"))
+	} else {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
 
 func screenshotHandler(w http.ResponseWriter, r *http.Request) {

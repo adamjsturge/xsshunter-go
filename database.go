@@ -19,20 +19,20 @@ type Settings struct {
 }
 
 type PayloadFireResults struct {
-	ID                 string
-	url                string
-	ip_address         string
-	referer            string
-	user_agent         string
-	cookies            string
-	title              string
-	dom                string
-	text               string
-	origin             string
-	screenshot_id      string
-	was_iframe         bool
-	browser_timestamp  uint
-	correlated_request string
+	ID                 string // `json:"id"`
+	url                string // `json:"url"`
+	ip_address         string // `json:"ip_address"`
+	referer            string // `json:"referer"`
+	user_agent         string // `json:"user_agent"`
+	cookies            string // `json:"cookies"`
+	title              string // `json:"title"`
+	dom                string // `json:"dom"`
+	text               string // `json:"text"`
+	origin             string // `json:"origin"`
+	screenshot_id      string // `json:"screenshot_id"`
+	was_iframe         bool   // `json:"was_iframe"`
+	browser_timestamp  uint   // `json:"browser_timestamp"`
+	correlated_request string // `json:"correlated_request"`
 }
 
 type CollectedPages struct {
@@ -171,6 +171,7 @@ func create_postgres_tables() {
 		screenshot_id TEXT,
 		was_iframe BOOLEAN,
 		browser_timestamp INTEGER
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS collected_pages (
 		id SERIAL PRIMARY KEY,
