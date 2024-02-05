@@ -160,7 +160,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Error scanning database", http.StatusInternalServerError)
 				return
 			}
-			payload_fire_image_filename := get_env("SCREENSHOT_DIRECTORY") + "/" + screenshot_id + ".png.gz"
+			payload_fire_image_filename := get_screenshot_directory() + "/" + screenshot_id + ".png.gz"
 			os.Remove(payload_fire_image_filename)
 			db.Exec("DELETE FROM payload_fire_results WHERE screenshot_id = ?", screenshot_id)
 		}

@@ -1,10 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"compress/gzip"
 	"fmt"
-	"image"
-	"image/jpeg"
+	"io"
 	"os"
 	"regexp"
 	"strconv"
@@ -86,92 +86,97 @@ type JSCallbackSchema struct {
 
 func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 	set_callback_headers(w, r)
-	// response := map[string]string{"status": "success"}
-	// w.Header().Set("Content-Type", "application/json")
-	// json.NewEncoder(w).Encode(response)
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		// Handle error
+		fmt.Println(err)
+		return
+	}
+
+	ip_address := r.RemoteAddr
 
 	// Send the response immediately, they don't need to wait for us to store everything.
 	w.Write([]byte("OK"))
 
-	payload_fire_image_id := uuid.New().String()
-	payload_fire_image_filename := get_env("SCREENSHOT_DIRECTORY") + "/" + payload_fire_image_id + ".png.gz"
+	// Go routine to close the connection and process the data
+	go func(body []byte, ip_address string) {
+		r := &http.Request{
+			Body:   io.NopCloser(bytes.NewReader(body)),
+			Header: http.Header{"Content-Type": []string{r.Header.Get("Content-Type")}},
+		}
 
-	img, _, err := image.Decode(r.Body)
-	if err != nil {
-		// http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		err := r.ParseMultipartForm(32 << 20)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	// Create the output file
-	out, err := os.Create(payload_fire_image_filename)
-	if err != nil {
-		// http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer out.Close()
+		payload_fire_image_id := uuid.New().String()
 
-	// Create a gzip writer
-	gw := gzip.NewWriter(out)
-	defer gw.Close()
+		payload_fire_image_filename := get_screenshot_directory() + "/" + payload_fire_image_id + ".png.gz"
 
-	// Write the image data to the gzip writer
-	err = jpeg.Encode(gw, img, nil)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	/*
-			const payload_fire_id = uuid.v4();
-				var payload_fire_data = {
-					id: payload_fire_id,
-					url: req.body.uri,
-					ip_address: req.connection.remoteAddress.toString(),
-					referer: req.body.referrer,
-					user_agent: req.body['user-agent'],
-					cookies: req.body.cookies,
-					title: req.body.title,
-					dom: req.body.dom,
-					text: req.body.text,
-					origin: req.body.origin,
-					screenshot_id: payload_fire_image_id,
-					was_iframe: (req.body.was_iframe === 'true'),
-					browser_timestamp: parseInt(req.body['browser-time']),
-		            correlated_request: 'No correlated request found for this injection.',
+		// Grabbing Image and saving it
+		for _, files := range r.MultipartForm.File {
+			for _, file := range files {
+				fileContent, err := file.Open()
+				if err != nil {
+					fmt.Println(err)
+					return
 				}
-	*/
-	payload_fire_id := uuid.New().String()
-	browser_time, err := strconv.ParseUint(r.FormValue("browser-time"), 10, 64)
-	payload_fire_data := PayloadFireResults{
-		ID:                 payload_fire_id,
-		url:                r.FormValue("uri"),
-		ip_address:         r.RemoteAddr,
-		referer:            r.FormValue("referrer"),
-		user_agent:         r.FormValue("user-agent"),
-		cookies:            r.FormValue("cookies"),
-		title:              r.FormValue("title"),
-		dom:                r.FormValue("dom"),
-		text:               r.FormValue("text"),
-		origin:             r.FormValue("origin"),
-		screenshot_id:      payload_fire_image_id,
-		was_iframe:         r.FormValue("was_iframe") == "true",
-		browser_timestamp:  uint(browser_time),
-		correlated_request: "No correlated request found for this injection.",
-	}
+				defer fileContent.Close()
 
-	db := establish_database_connection()
+				newFile, err := os.Create(payload_fire_image_filename)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				defer newFile.Close()
 
-	var correlated_request_rec string
-	db.QueryRow("SELECT request FROM injection_requests WHERE injection_key = ?", r.FormValue("injection_key")).Scan(&correlated_request_rec)
-	if correlated_request_rec != "" {
-		payload_fire_data.correlated_request = correlated_request_rec
-	}
+				gw := gzip.NewWriter(newFile)
+				defer gw.Close()
 
-	// Insert the payload_fire_data into the database
-	_, err = db.Exec(`INSERT INTO payload_fire_results (id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp) 
-	VALUES (:id, :url, :ip_address, :referer, :user_agent, :cookies, :title, :dom, :text, :origin, :screenshot_id, :was_iframe, :browser_timestamp)`, payload_fire_data)
+				_, err = io.Copy(gw, fileContent)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+			}
+		}
 
-	send_notification()
+		payload_fire_id := uuid.New().String()
+		r.ParseForm()
+		browser_time, _ := strconv.ParseUint(r.FormValue("browser-time"), 10, 64)
+		payload_fire_data := PayloadFireResults{
+			ID:                 payload_fire_id,
+			url:                r.FormValue("uri"),
+			ip_address:         ip_address,
+			referer:            r.FormValue("referrer"),
+			user_agent:         r.FormValue("user-agent"),
+			cookies:            r.FormValue("cookies"),
+			title:              r.FormValue("title"),
+			dom:                r.FormValue("dom"),
+			text:               r.FormValue("text"),
+			origin:             r.FormValue("origin"),
+			screenshot_id:      payload_fire_image_id,
+			was_iframe:         r.FormValue("was_iframe") == "true",
+			browser_timestamp:  uint(browser_time),
+			correlated_request: "No correlated request found for this injection.",
+		}
+
+		db := establish_database_connection()
+
+		var correlated_request_rec string
+		db.QueryRow("SELECT request FROM injection_requests WHERE injection_key = ?", r.FormValue("injection_key")).Scan(&correlated_request_rec)
+		if correlated_request_rec != "" {
+			payload_fire_data.correlated_request = correlated_request_rec
+		}
+
+		db.Exec(`INSERT INTO payload_fire_results (id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp) 
+		VALUES (:id, :url, :ip_address, :referer, :user_agent, :cookies, :title, :dom, :text, :origin, :screenshot_id, :was_iframe, :browser_timestamp)`, payload_fire_data)
+
+		send_notification()
+	}(body, ip_address)
 }
 
 func probeHandler(w http.ResponseWriter, r *http.Request) {
@@ -223,7 +228,7 @@ func screenshotHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	gzImagePath := get_env("SCREENSHOT_DIRECTORY") + "/" + screenshotFilename + ".gz"
+	gzImagePath := get_screenshot_directory() + "/" + screenshotFilename + ".gz"
 
 	imageExists := checkFileExists(gzImagePath)
 
