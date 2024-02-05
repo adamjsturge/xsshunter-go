@@ -89,7 +89,6 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		// Handle error
 		fmt.Println(err)
 		return
 	}
@@ -113,7 +112,6 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		payload_fire_image_id := uuid.New().String()
-
 		payload_fire_image_filename := get_screenshot_directory() + "/" + payload_fire_image_id + ".png.gz"
 
 		// Grabbing Image and saving it
@@ -175,7 +173,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		db.Exec(`INSERT INTO payload_fire_results (id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp) 
 		VALUES (:id, :url, :ip_address, :referer, :user_agent, :cookies, :title, :dom, :text, :origin, :screenshot_id, :was_iframe, :browser_timestamp)`, payload_fire_data)
 
-		send_notification()
+		// send_notification()
 	}(body, ip_address)
 }
 
