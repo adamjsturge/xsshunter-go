@@ -18,6 +18,7 @@ func main() {
 	fmt.Println("Initializing Database...")
 	initialize_database()
 	fmt.Println("Database Initialized")
+	make_folder_if_not_exists(get_screenshot_directory())
 
 	http.HandleFunc("/", probeHandler)
 	http.HandleFunc("/js_callback", jscallbackHandler)

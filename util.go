@@ -64,3 +64,9 @@ func update_setting(setting_key string, setting_value string) {
 	defer db.Close()
 	db.Exec("UPDATE settings SET value = :value WHERE key = :key", setting_value, setting_key)
 }
+
+func make_folder_if_not_exists(folder string) {
+	if !checkFileExists(folder) {
+		os.MkdirAll(folder, 0755)
+	}
+}

@@ -1,6 +1,8 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+)
 
 const (
 	API_BASE_PATH                       = "/api/v1"
@@ -21,7 +23,7 @@ func get_host(request *http.Request) string {
 		protocol = "http://"
 	}
 
-	host := get_env("HOSTNAME")
+	host := get_env("DOMAIN")
 	if host == "" {
 		host = request.Host
 	}
@@ -35,7 +37,7 @@ func get_pages_to_collect() string {
 
 	var pages_to_collect string
 	db.QueryRow("SELECT value FROM settings WHERE key = ?", PAGES_TO_COLLECT_SETTINGS_KEY).Scan(&pages_to_collect)
-	return pages_to_collect
+	return "[" + pages_to_collect + "]"
 }
 
 func get_chainload_uri() string {
@@ -48,11 +50,7 @@ func get_chainload_uri() string {
 }
 
 func get_screenshot_directory() string {
-	screenshot_directory := get_env("SCREENSHOT_DIRECTORY")
-	if screenshot_directory == "" {
-		return "./screenshots"
-	}
-	return screenshot_directory
+	return "./screenshots"
 }
 
 func get_sqlite_database_path() string {
