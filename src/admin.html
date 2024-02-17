@@ -3,37 +3,99 @@
 <head>
     <title>Admin Page</title>
     <style>
+        /* General table styles for a cleaner look */
         table, th, td {
-            border: 1px solid black;
+            border-collapse: collapse; /* Removes double borders */
+            border: 1px solid #ddd; /* Lighter border color */
         }
 
+        th, td {
+            padding: 10px; /* More spacious padding */
+            text-align: left; /* Align text to the left for readability */
+        }
+
+        /* Modal styling for a more modern appearance */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            display: flex; /* Centering the modal content */
+            align-items: center;
+            justify-content: center;
         }
 
         .modal_div {
             background-color: white;
             margin: auto;
             padding: 20px;
-            width: 80%;
-            border: 1px solid black;
+            width: 60%; /* Adjusted width for better focus */
             border-radius: 10px;
-            box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Softer shadow for depth */
+            overflow: hidden; /* Ensures no overflow of child elements */
         }
+
+        .action_button {
+            background-color: #007bff; /* Blue button color */
+            color: white; /* White text for better contrast */
+            padding: 10px; /* More spacious padding */
+            border: none; /* No border for a cleaner look */
+            border-radius: 5px; /* Rounded corners for a modern appearance */
+            cursor: pointer; /* Pointer cursor for better usability */
+        }
+
+        .action_button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+
+        .close_button {
+            background-color: #dc3545; /* Red button color */
+            color: white; /* White text for better contrast */
+            padding: 10px; /* More spacious padding */
+            border: none; /* No border for a cleaner look */
+            border-radius: 5px; /* Rounded corners for a modern appearance */
+            cursor: pointer; /* Pointer cursor for better usability */
+        }
+
+        .close_button:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+
+        /* Table header styles with a subtle gradient */
+        .payload_fires_header {
+            background: linear-gradient(to right, #f8f9fa, #e9ecef); /* Subtle gradient */
+            color: #495057; /* Darker text for better contrast */
+        }
+
+        .payload_fires_title_cell {
+            font-weight: bold;
+        }
+
+        /* Alternating row colors for readability */
+        .payload_fires_row:nth-child(odd) {
+            background-color: #fefefe;
+        }
+
+        .payload_fires_row:nth-child(even) {
+            background-color: #f1f3f5;
+        }
+
+        .payload_fires_cell {
+            padding: 10px; /* Consistent padding with header */
+            border-bottom: 1px solid #dee2e6; /* Lighter border for separation */
+        }
+
     </style>
 </head>
 <body>
     <h1>Admin Page</h1>
-    <table id="payloadFiresTable">
-        <tr>
-            <th>ID</th>
-            <th>URI</th>
-            <th>Expand</th>
+    <table class="payload_fires_table" id="payloadFiresTable">
+        <tr class="payload_fires_header">
+            <th class="payload_fires_title_cell">ID</th>
+            <th class="payload_fires_title_cell">URI</th>
+            <th class="payload_fires_title_cell">Expand</th>
         </tr>
     </table>
     <script>
@@ -50,47 +112,13 @@
             .then(data => {
                 const table = document.getElementById('payloadFiresTable');
                 data.forEach(item => {
-                    /* Payload Example
-                    [
-    {
-        "id": "1",
-        "url": "https://www.w3schools.com/html/tryit.asp?filename=tryhtml_default",
-        "ip_address": "[::1]:53095",
-        "referer": "https://www.w3schools.com/html/tryit.asp?filename=tryhtml_default",
-        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-        "cookies": "_sharedID=4a8dce99-bd36-442e-b22c-bb53b68da3c7; _sharedID_cst=bCwtLCQsqQ%3D%3D; _sharedID_last=Thu%2C%2015%20Feb%202024%2008%3A01%3A53%20GMT; _lr_retry_request=true; _lr_env_src_ats=false; _ga=GA1.1.2143041537.1707984114; _cc_id=31d474b329c2eafcd5da1dc4f7e609a7; panoramaId_expiry=1708588914376; panoramaId=d5fde341f6cbacae7928574a6db3185ca02cae4520fd1cd3284c5155b1d69bdd; panoramaIdType=panoDevice; cto_bundle=cOxcrl9zUXVpeHVUQiUyRnoxU3RXNWVrTHYzWSUyQjZQeDZMZlhOMGdSMWp2JTJCVTBudmFTc2h0N3laUUp0QXp2bVV1RTBwUzdjUXRreTdtTkJIeiUyRjNBJTJCVndaY2pZMHRNQWlpdXFteGdNOVZ2ZThlYVkyaUtNRlh4aVB1VlNwZTZSb2tnQ09oM2gxbzM3b05oZ09QQUJadUN6YVBmSUZzQ0llRUVNOHMlMkIyQmtlTkVZd0FJT1k2UmQ5TjVVbXlCcENxRFdjaDFyS2JEZ0VpcGlWeVAxb3YyNlpERHVXVktnJTNEJTNE; __gads=ID=916caa58cf313119:T=1707984114:RT=1707986978:S=ALNI_MbbSHq_cNpS-0WbFvkoczanUndTkA; __gpi=UID=00000dca16389327:T=1707984114:RT=1707986978:S=ALNI_Marvsa7ZmGRGcjHVDZOe0Rzco-nog; __eoi=ID=6766731b1895c814:T=1707984114:RT=1707986978:S=AA-Afjb5WvnWlL6Ocy8uWdy8XcYQ; _ga_9YNMTB56NB=GS1.1.1707984113.1.1.1707987134.20.0.0",
-        "title": "Page Title",
-        "dom": "\u003chtml\u003e\u003chead\u003e\r\n\u003ctitle\u003ePage Title\u003c/title\u003e\r\n\u003c/head\u003e\r\n\u003cbody contenteditable=\"false\"\u003e\r\n\r\n\u003ch1\u003eThis is a Heading\u003c/h1\u003e\r\n\u003cp\u003eThis is a paragraph.\u003c/p\u003e\r\n\u003cscript src=\"http://localhost:8080\"\u003e\u003c/script\u003e\r\n\r\n\r\n\r\n\r\n\u003c/body\u003e\u003c/html\u003e",
-        "text": "This is a Heading\r\n\r\nThis is a paragraph.",
-        "origin": "https://www.w3schools.com",
-        "screenshot_id": "3a6c8c43-2d38-4496-aa2f-60a270f9b509",
-        "was_iframe": true,
-        "browser_timestamp": 1707987227024,
-        "correlated_request": ""
-    }
-]
-                    */
-                    const row = table.insertRow();
-                    const idCell = row.insertCell();
-                    const urlCell = row.insertCell();
-                    const expandCell = document.createElement('button');
-
-                    idCell.textContent = item.id;
-                    urlCell.textContent = item.url;
-                    expandCell.textContent = 'Expand';
-                    expandCell.onclick = function() {
+                    const row = make_table_row(table, 'payload_fires_row');
+                    make_table_cell(item.id, row, 'payload_fires_cell');
+                    make_table_cell(item.url, row, 'payload_fires_cell');
+                    const actionCell = make_table_cell(null, row, 'payload_fires_cell');
+                    make_element('button', 'Expand', actionCell, 'action_button', function() {
                         expandPayloadFire(item);
-                    };
-                    row.appendChild(expandCell);
-
-                    
-                    
-                    const deleteButton = document.createElement('button');
-                    deleteButton.textContent = 'Delete';
-                    deleteButton.onclick = function() {
-                        deletePayloadFire(item.id);
-                    };
-                    // actionCell.appendChild(deleteButton);
+                    });
                 });
             });
         }
@@ -117,7 +145,7 @@
             make_element('p', `Browser Timestamp: ${payloadFire.browser_timestamp}`, modalContent);
             make_element('p', `Correlated Request: ${payloadFire.correlated_request}`, modalContent);
 
-            make_element('button', 'Close', modalContent, null, modal.remove.bind(modal));
+            make_element('button', 'Close', modalContent, 'close_button', modal.remove.bind(modal));
 
             document.body.appendChild(modal);
         }
@@ -208,6 +236,28 @@
         function make_div(style_class, parent = null) {
             var div = make_element('div', null, parent, style_class);
             return div;
+        }
+
+        function make_table(style_class, parent = null) {
+            var table = make_element('table', null, parent);
+            return table;
+        }
+
+        function make_table_row(table, style_class = null) {
+            var row = table.insertRow();
+            if (style_class) {
+                row.className = style_class;
+            }
+            return row;
+        }
+
+        function make_table_cell(text, row, style_class = null) {
+            var cell = row.insertCell();
+            cell.textContent = text;
+            if (style_class) {
+                cell.className = style_class;
+            }
+            return cell;
         }
     </script>
 </body>
