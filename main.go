@@ -27,7 +27,7 @@ func main() {
 
 	CONTROL_PANEL_ENABLED := get_env("CONTROL_PANEL_ENABLED")
 	if CONTROL_PANEL_ENABLED == "show" || CONTROL_PANEL_ENABLED == "true" {
-		// http.HandleFunc("/admin", adminHandler)
+		http.HandleFunc("/admin", adminHandler)
 		http.HandleFunc(API_BASE_PATH+"/auth-check", authCheckHandler)
 		http.HandleFunc(API_BASE_PATH+"/settings", settingsHandler)
 		http.HandleFunc(API_BASE_PATH+"/login", loginHandler)
@@ -67,6 +67,11 @@ func set_callback_headers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Requested-With")
 	w.Header().Set("Access-Control-Max-Age", "86400")
+}
+
+func set_no_cache(w http.ResponseWriter) {
+	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+	w.Header().Set("Pragma", "no-cache")
 }
 
 type JSCallbackSchema struct {
@@ -142,24 +147,24 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		payload_fire_id := uuid.New().String()
+		// payload_fire_id := uuid.New().String()
 		r.ParseForm()
 		browser_time, _ := strconv.ParseUint(r.FormValue("browser-time"), 10, 64)
 		payload_fire_data := PayloadFireResults{
-			ID:                 payload_fire_id,
-			url:                r.FormValue("uri"),
-			ip_address:         ip_address,
-			referer:            r.FormValue("referrer"),
-			user_agent:         r.FormValue("user-agent"),
-			cookies:            r.FormValue("cookies"),
-			title:              r.FormValue("title"),
-			dom:                r.FormValue("dom"),
-			text:               r.FormValue("text"),
-			origin:             r.FormValue("origin"),
-			screenshot_id:      payload_fire_image_id,
-			was_iframe:         r.FormValue("was_iframe") == "true",
-			browser_timestamp:  uint(browser_time),
-			correlated_request: "No correlated request found for this injection.",
+			// ID:                 payload_fire_id,
+			Url:                r.FormValue("uri"),
+			Ip_address:         ip_address,
+			Referer:            r.FormValue("referrer"),
+			User_agent:         r.FormValue("user-agent"),
+			Cookies:            r.FormValue("cookies"),
+			Title:              r.FormValue("title"),
+			Dom:                r.FormValue("dom"),
+			Text:               r.FormValue("text"),
+			Origin:             r.FormValue("origin"),
+			Screenshot_id:      payload_fire_image_id,
+			Was_iframe:         r.FormValue("was_iframe") == "true",
+			Browser_timestamp:  uint(browser_time),
+			Correlated_request: "No correlated request found for this injection.",
 		}
 
 		db := establish_database_connection()
@@ -167,12 +172,18 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		var correlated_request_rec string
 		db.QueryRow("SELECT request FROM injection_requests WHERE injection_key = ?", r.FormValue("injection_key")).Scan(&correlated_request_rec)
 		if correlated_request_rec != "" {
-			payload_fire_data.correlated_request = correlated_request_rec
+			payload_fire_data.Correlated_request = correlated_request_rec
 		}
 
-		db.Exec(`INSERT INTO payload_fire_results (id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp) 
-		VALUES (:id, :url, :ip_address, :referer, :user_agent, :cookies, :title, :dom, :text, :origin, :screenshot_id, :was_iframe, :browser_timestamp)`, payload_fire_data)
+		stmt, _ := db.Prepare(`INSERT INTO payload_fire_results (url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp) 
+		VALUES (:url, :ip_address, :referer, :user_agent, :cookies, :title, :dom, :text, :origin, :screenshot_id, :was_iframe, :browser_timestamp)`)
+		_, err = stmt.Exec(payload_fire_data.Url, payload_fire_data.Ip_address, payload_fire_data.Referer, payload_fire_data.User_agent, payload_fire_data.Cookies, payload_fire_data.Title, payload_fire_data.Dom, payload_fire_data.Text, payload_fire_data.Origin, payload_fire_data.Screenshot_id, payload_fire_data.Was_iframe, payload_fire_data.Browser_timestamp)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
+		fmt.Println("Payload Fire Data Inserted")
 		// send_notification()
 	}(body, ip_address)
 }
@@ -204,6 +215,17 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	xss_payload_4 := re.ReplaceAllString(xss_payload_3, probe_id)
 
 	w.Write([]byte(xss_payload_4))
+}
+
+func adminHandler(w http.ResponseWriter, r *http.Request) {
+	set_secure_headers(w, r)
+	set_no_cache(w)
+	is_authenticated := get_and_validate_jwt(r)
+	if !is_authenticated {
+		http.ServeFile(w, r, "./src/login.html")
+	} else {
+		http.ServeFile(w, r, "./src/admin.html")
+	}
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {

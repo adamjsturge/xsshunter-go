@@ -129,7 +129,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 		payload_fires := []PayloadFireResults{}
 		for rows.Next() {
 			var payload_fire PayloadFireResults
-			err = rows.Scan(&payload_fire.ID, &payload_fire.url, &payload_fire.ip_address, &payload_fire.referer, &payload_fire.user_agent, &payload_fire.cookies, &payload_fire.title, &payload_fire.dom, &payload_fire.text, &payload_fire.origin, &payload_fire.screenshot_id, &payload_fire.was_iframe, &payload_fire.browser_timestamp)
+			err = rows.Scan(&payload_fire.ID, &payload_fire.Url, &payload_fire.Ip_address, &payload_fire.Referer, &payload_fire.User_agent, &payload_fire.Cookies, &payload_fire.Title, &payload_fire.Dom, &payload_fire.Text, &payload_fire.Origin, &payload_fire.Screenshot_id, &payload_fire.Was_iframe, &payload_fire.Browser_timestamp)
 			if err != nil {
 				http.Error(w, "Error scanning database", http.StatusInternalServerError)
 				return
@@ -195,7 +195,7 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 		collected_pages := []CollectedPages{}
 		for rows.Next() {
 			var collected_page CollectedPages
-			err = rows.Scan(&collected_page.ID, &collected_page.uri)
+			err = rows.Scan(&collected_page.ID, &collected_page.Uri)
 			if err != nil {
 				http.Error(w, "Error scanning database", http.StatusInternalServerError)
 				return

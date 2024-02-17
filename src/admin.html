@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Page</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal_div {
+            background-color: white;
+            margin: auto;
+            padding: 20px;
+            width: 80%;
+            border: 1px solid black;
+            border-radius: 10px;
+            box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Page</h1>
+    <table id="payloadFiresTable">
+        <tr>
+            <th>ID</th>
+            <th>URI</th>
+            <th>Expand</th>
+        </tr>
+    </table>
+    <script>
+        function loadPayloadFires() {
+            var page = 1;
+            var limit = 10;
+            fetch(`/api/v1/payloadfires?page=${page}&limit=${limit}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const table = document.getElementById('payloadFiresTable');
+                data.forEach(item => {
+                    /* Payload Example
+                    [
+    {
+        "id": "1",
+        "url": "https://www.w3schools.com/html/tryit.asp?filename=tryhtml_default",
+        "ip_address": "[::1]:53095",
+        "referer": "https://www.w3schools.com/html/tryit.asp?filename=tryhtml_default",
+        "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+        "cookies": "_sharedID=4a8dce99-bd36-442e-b22c-bb53b68da3c7; _sharedID_cst=bCwtLCQsqQ%3D%3D; _sharedID_last=Thu%2C%2015%20Feb%202024%2008%3A01%3A53%20GMT; _lr_retry_request=true; _lr_env_src_ats=false; _ga=GA1.1.2143041537.1707984114; _cc_id=31d474b329c2eafcd5da1dc4f7e609a7; panoramaId_expiry=1708588914376; panoramaId=d5fde341f6cbacae7928574a6db3185ca02cae4520fd1cd3284c5155b1d69bdd; panoramaIdType=panoDevice; cto_bundle=cOxcrl9zUXVpeHVUQiUyRnoxU3RXNWVrTHYzWSUyQjZQeDZMZlhOMGdSMWp2JTJCVTBudmFTc2h0N3laUUp0QXp2bVV1RTBwUzdjUXRreTdtTkJIeiUyRjNBJTJCVndaY2pZMHRNQWlpdXFteGdNOVZ2ZThlYVkyaUtNRlh4aVB1VlNwZTZSb2tnQ09oM2gxbzM3b05oZ09QQUJadUN6YVBmSUZzQ0llRUVNOHMlMkIyQmtlTkVZd0FJT1k2UmQ5TjVVbXlCcENxRFdjaDFyS2JEZ0VpcGlWeVAxb3YyNlpERHVXVktnJTNEJTNE; __gads=ID=916caa58cf313119:T=1707984114:RT=1707986978:S=ALNI_MbbSHq_cNpS-0WbFvkoczanUndTkA; __gpi=UID=00000dca16389327:T=1707984114:RT=1707986978:S=ALNI_Marvsa7ZmGRGcjHVDZOe0Rzco-nog; __eoi=ID=6766731b1895c814:T=1707984114:RT=1707986978:S=AA-Afjb5WvnWlL6Ocy8uWdy8XcYQ; _ga_9YNMTB56NB=GS1.1.1707984113.1.1.1707987134.20.0.0",
+        "title": "Page Title",
+        "dom": "\u003chtml\u003e\u003chead\u003e\r\n\u003ctitle\u003ePage Title\u003c/title\u003e\r\n\u003c/head\u003e\r\n\u003cbody contenteditable=\"false\"\u003e\r\n\r\n\u003ch1\u003eThis is a Heading\u003c/h1\u003e\r\n\u003cp\u003eThis is a paragraph.\u003c/p\u003e\r\n\u003cscript src=\"http://localhost:8080\"\u003e\u003c/script\u003e\r\n\r\n\r\n\r\n\r\n\u003c/body\u003e\u003c/html\u003e",
+        "text": "This is a Heading\r\n\r\nThis is a paragraph.",
+        "origin": "https://www.w3schools.com",
+        "screenshot_id": "3a6c8c43-2d38-4496-aa2f-60a270f9b509",
+        "was_iframe": true,
+        "browser_timestamp": 1707987227024,
+        "correlated_request": ""
+    }
+]
+                    */
+                    const row = table.insertRow();
+                    const idCell = row.insertCell();
+                    const urlCell = row.insertCell();
+                    const expandCell = document.createElement('button');
+
+                    idCell.textContent = item.id;
+                    urlCell.textContent = item.url;
+                    expandCell.textContent = 'Expand';
+                    expandCell.onclick = function() {
+                        expandPayloadFire(item);
+                    };
+                    row.appendChild(expandCell);
+
+                    
+                    
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.onclick = function() {
+                        deletePayloadFire(item.id);
+                    };
+                    // actionCell.appendChild(deleteButton);
+                });
+            });
+        }
+
+        function expandPayloadFire(payloadFire) {
+            const modal = make_modal('modal');
+
+            const modalContent = make_div('modal_div', modal);
+
+            make_element('h2', 'Payload Fire', modalContent);
+
+            make_element('p', `ID: ${payloadFire.id}`, modalContent);
+            make_element('p', `URL: ${payloadFire.url}`, modalContent);
+            make_element('p', `IP Address: ${payloadFire.ip_address}`, modalContent);
+            make_element('p', `Referer: ${payloadFire.referer}`, modalContent);
+            make_element('p', `User Agent: ${payloadFire.user_agent}`, modalContent);
+            make_element('p', `Cookies: ${payloadFire.cookies}`, modalContent);
+            make_element('p', `Title: ${payloadFire.title}`, modalContent);
+            make_element('p', `DOM: ${payloadFire.dom}`, modalContent);
+            make_element('p', `Text: ${payloadFire.text}`, modalContent);
+            make_element('p', `Origin: ${payloadFire.origin}`, modalContent);
+            make_element('p', `Screenshot ID: ${payloadFire.screenshot_id}`, modalContent);
+            make_element('p', `Was Iframe: ${payloadFire.was_iframe}`, modalContent);
+            make_element('p', `Browser Timestamp: ${payloadFire.browser_timestamp}`, modalContent);
+            make_element('p', `Correlated Request: ${payloadFire.correlated_request}`, modalContent);
+
+            make_element('button', 'Close', modalContent, null, modal.remove.bind(modal));
+
+            document.body.appendChild(modal);
+        }
+
+        function deletePayloadFire(id) {
+            console.log('deletePayloadFire', id)
+            // var form_data = new FormData();
+            // form_data.append("ids", id);
+
+            // fetch('/api/v1/payloadfires', {
+            //     method: 'DELETE',
+            //     body: form_data
+            // })
+            // .then(() => {
+            //     // Reload the page to get the updated list
+            //     location.reload();
+            // });
+        }
+
+        function loadCollectedPages() {
+            fetch('/api/v1/collected_pages', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const table = document.getElementById('pagesTable');
+                data.forEach(item => {
+                    const row = table.insertRow();
+                    const idCell = row.insertCell();
+                    const uriCell = row.insertCell();
+                    const actionCell = row.insertCell();
+
+                    idCell.textContent = item.id;
+                    uriCell.textContent = item.uri;
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.onclick = function() {
+                        deleteCollectedPage(item.id);
+                    };
+                    actionCell.appendChild(deleteButton);
+                });
+            });
+        }
+
+        function deleteCollectedPage(id) {
+            var form_data = new FormData();
+            form_data.append("ids", id);
+
+            fetch('/api/v1/collected_pages', {
+                method: 'DELETE',
+                body: form_data
+            })
+            .then(() => {
+                // Reload the page to get the updated list
+                location.reload();
+            });
+        }
+
+        // Load the collected pages when the page loads
+        window.onload = loadPayloadFires;
+    </script>
+
+    <script>
+        function make_element(tag, text = null, parent = null, style_class = null, onclick_function = null) {
+            var element = document.createElement(tag);
+            element.textContent = text;
+            if (style_class) {
+                element.className = style_class;
+            }
+            if (onclick_function) {
+                element.onclick = onclick_function;
+            }
+            if (parent) {
+                parent.appendChild(element);
+            }
+            return element;
+        }
+
+        function make_modal(style_class) {
+            var modal = make_element('div', null, null, style_class);
+            return modal;
+        }
+
+        function make_div(style_class, parent = null) {
+            var div = make_element('div', null, parent, style_class);
+            return div;
+        }
+    </script>
+</body>
+</html>

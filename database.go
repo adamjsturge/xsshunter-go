@@ -14,37 +14,37 @@ import (
 
 type Settings struct {
 	ID    uint
-	key   *string
-	value *string
+	Key   *string
+	Value *string
 }
 
 type PayloadFireResults struct {
-	ID                 string // `json:"id"`
-	url                string // `json:"url"`
-	ip_address         string // `json:"ip_address"`
-	referer            string // `json:"referer"`
-	user_agent         string // `json:"user_agent"`
-	cookies            string // `json:"cookies"`
-	title              string // `json:"title"`
-	dom                string // `json:"dom"`
-	text               string // `json:"text"`
-	origin             string // `json:"origin"`
-	screenshot_id      string // `json:"screenshot_id"`
-	was_iframe         bool   // `json:"was_iframe"`
-	browser_timestamp  uint   // `json:"browser_timestamp"`
-	correlated_request string // `json:"correlated_request"`
+	ID                 string `json:"id"`
+	Url                string `json:"url"`
+	Ip_address         string `json:"ip_address"`
+	Referer            string `json:"referer"`
+	User_agent         string `json:"user_agent"`
+	Cookies            string `json:"cookies"`
+	Title              string `json:"title"`
+	Dom                string `json:"dom"`
+	Text               string `json:"text"`
+	Origin             string `json:"origin"`
+	Screenshot_id      string `json:"screenshot_id"`
+	Was_iframe         bool   `json:"was_iframe"`
+	Browser_timestamp  uint   `json:"browser_timestamp"`
+	Correlated_request string `json:"correlated_request"`
 }
 
 type CollectedPages struct {
 	ID   uint
-	uri  string
-	html string
+	Uri  string
+	Html string
 }
 
 type InjectionRequests struct {
 	ID            uint
-	request       string
-	injection_key string
+	Request       string
+	Injection_key string
 }
 
 func initialize_database() {
@@ -117,17 +117,20 @@ func create_sqlite_tables() {
 		origin TEXT,
 		screenshot_id TEXT,
 		was_iframe BOOLEAN,
-		browser_timestamp INTEGER
+		browser_timestamp UNSIGNED INT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS collected_pages (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		uri TEXT,
-		html TEXT
+		html TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS injection_requests (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		request TEXT,
-		injection_key TEXT
+		injection_key TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	`
 	_, err := db.Exec(sqlStmt)
@@ -160,18 +163,20 @@ func create_postgres_tables() {
 		origin TEXT,
 		screenshot_id TEXT,
 		was_iframe BOOLEAN,
-		browser_timestamp INTEGER
+		browser_timestamp UNSIGNED INT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS collected_pages (
 		id SERIAL PRIMARY KEY,
 		uri TEXT,
-		html TEXT
+		html TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS injection_requests (
 		id SERIAL PRIMARY KEY,
 		request TEXT,
-		injection_key TEXT
+		injection_key TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	`
 	_, err := db.Exec(sqlStmt)

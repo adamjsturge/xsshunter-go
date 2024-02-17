@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <div id="error" hidden></div>
+    <form id="loginForm">
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        var failed_login_count = 0;
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            set_error_message('', true)
+            var password = document.getElementById('password').value;
+            var form_data = new FormData();
+            form_data.append('password', password);
+            fetch('/api/v1/login', {
+                method: 'POST',
+                body: form_data,
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('HTTP error, status = ' + response.status);
+                }
+                location.reload();
+            })
+            .catch(function(error) {
+                failed_login_count++;
+                // set_error_message('Invalid password. Attempt ' + failed_login_count, false);
+                set_error_message('Invalid password', false);
+            });
+        });
+
+        function set_error_message(message, is_hidden) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').hidden = is_hidden;
+        }
+    </script>
+</body>
+</html>
