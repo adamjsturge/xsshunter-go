@@ -3,77 +3,98 @@
 <head>
     <title>Admin Page</title>
     <style>
-        /* General table styles for a cleaner look */
+        body {
+            background-color: darkslategray;
+            color: white;
+        }
+
+        
         table, th, td {
-            border-collapse: collapse; /* Removes double borders */
-            border: 1px solid #ddd; /* Lighter border color */
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            background-color: #1c2f2f;
         }
 
         th, td {
-            padding: 10px; /* More spacious padding */
-            text-align: left; /* Align text to the left for readability */
+            padding: 10px;
+            text-align: left;
         }
 
-        /* Modal styling for a more modern appearance */
+        .navbar {
+            border-radius: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 5px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .navbar:hover {
+            background-color: #45a049;
+        }
+        
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-            display: flex; /* Centering the modal content */
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
             align-items: center;
             justify-content: center;
+            overflow: scroll;
         }
 
         .modal_div {
-            background-color: white;
+            background-color: #121f1f;
             margin: auto;
             padding: 20px;
-            width: 60%; /* Adjusted width for better focus */
+            width: 80%;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Softer shadow for depth */
-            overflow: hidden; /* Ensures no overflow of child elements */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: auto;
         }
 
         .action_button {
-            background-color: #007bff; /* Blue button color */
-            color: white; /* White text for better contrast */
-            padding: 10px; /* More spacious padding */
-            border: none; /* No border for a cleaner look */
-            border-radius: 5px; /* Rounded corners for a modern appearance */
-            cursor: pointer; /* Pointer cursor for better usability */
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
         .action_button:hover {
-            background-color: #0056b3; /* Darker blue on hover */
+            background-color: #0056b3;
         }
 
         .close_button {
-            background-color: #dc3545; /* Red button color */
-            color: white; /* White text for better contrast */
-            padding: 10px; /* More spacious padding */
-            border: none; /* No border for a cleaner look */
-            border-radius: 5px; /* Rounded corners for a modern appearance */
-            cursor: pointer; /* Pointer cursor for better usability */
+            background-color: #dc3545;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            position: absolute;
+            right: 10%;
         }
 
         .close_button:hover {
-            background-color: #c82333; /* Darker red on hover */
+            background-color: #c82333;
         }
 
-        /* Table header styles with a subtle gradient */
+        
         .payload_fires_header {
-            background: linear-gradient(to right, #f8f9fa, #e9ecef); /* Subtle gradient */
-            color: #495057; /* Darker text for better contrast */
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            color: #495057;
         }
 
         .payload_fires_title_cell {
             font-weight: bold;
         }
 
-        /* Alternating row colors for readability */
+        
         .payload_fires_row:nth-child(odd) {
             background-color: #fefefe;
         }
@@ -83,11 +104,32 @@
         }
 
         .payload_fires_cell {
-            padding: 10px; /* Consistent padding with header */
-            border-bottom: 1px solid #dee2e6; /* Lighter border for separation */
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .modal_element_div {
+            padding-top: 4px;
+            padding-bottom: 4px;
+            overflow: scroll;
+
+        }
+
+        .modal_element_label {
+            display: inline;
+            font-weight: bold;
+        }
+
+        .modal_element_item {
+            display: inline;
+        }
+
+        .image {
+            background-color: white;
         }
 
         .thumbnail {
+            background-color: white;
             width: 100px;
             height: 100px;
         }
@@ -95,15 +137,32 @@
     </style>
 </head>
 <body>
-    <h1>Admin Page</h1>
-    <table class="payload_fires_table" id="payloadFiresTable">
-        <tr class="payload_fires_header">
-            <th class="payload_fires_title_cell">ID</th>
-            <th class="payload_fires_title_cell">Image</th>
-            <th class="payload_fires_title_cell">URI</th>
-            <th class="payload_fires_title_cell">Expand</th>
-        </tr>
-    </table>
+    <div id="navvar">
+        <button class="navbar" onclick="navbar('payload_fires')">Payload Fires</button>
+        <button class="navbar" onclick="navbar('collected_pages')">Collected Pages</button>
+        <button class="navbar" onclick="navbar('settings')">Settings</button>
+        <button class="navbar" onclick="navbar('payloads')">Payloads</button>
+    </div>
+    <div id="payload_fires">
+        <h1>Admin Page</h1>
+        <table class="payload_fires_table" id="payloadFiresTable">
+            <tr class="payload_fires_header">
+                <th class="payload_fires_title_cell">ID</th>
+                <th class="payload_fires_title_cell">Image</th>
+                <th class="payload_fires_title_cell">URI</th>
+                <th class="payload_fires_title_cell">Expand</th>
+            </tr>
+        </table>
+    </div>
+    <div id="collected_pages" hidden>
+        <h1>Collected Pages</h1>
+    </div>
+    <div id="settings" hidden>
+        <h1>Settings</h1>
+    </div>
+    <div id="payloads" hidden>
+        <h1>Payloads</h1>
+    </div>
     <script>
         function loadPayloadFires() {
             var page = 1;
@@ -134,26 +193,26 @@
             const modal = make_modal('modal');
 
             const modalContent = make_div('modal_div', modal);
+            make_element('button', 'Close', modalContent, 'close_button', modal.remove.bind(modal));
 
             make_element('h2', 'Payload Fire', modalContent);
 
-            make_element('p', `ID: ${payloadFire.id}`, modalContent);
-            make_element('p', `URL: ${payloadFire.url}`, modalContent);
-            make_element('p', `IP Address: ${payloadFire.ip_address}`, modalContent);
-            make_element('p', `Referer: ${payloadFire.referer}`, modalContent);
-            make_element('p', `User Agent: ${payloadFire.user_agent}`, modalContent);
-            make_element('p', `Cookies: ${payloadFire.cookies}`, modalContent);
-            make_element('p', `Title: ${payloadFire.title}`, modalContent);
-            make_element('p', `DOM: ${payloadFire.dom}`, modalContent);
-            make_element('p', `Text: ${payloadFire.text}`, modalContent);
-            make_element('p', `Origin: ${payloadFire.origin}`, modalContent);
-            make_image(payloadFire.screenshot_id, 'Screenshot', modalContent);
-            // make_element('p', `Screenshot ID: ${payloadFire.screenshot_id}`, modalContent);
-            make_element('p', `Was Iframe: ${payloadFire.was_iframe}`, modalContent);
-            make_element('p', `Browser Timestamp: ${payloadFire.browser_timestamp}`, modalContent);
-            make_element('p', `Correlated Request: ${payloadFire.correlated_request}`, modalContent);
+            make_modal_element('b', 'p', `ID: `, payloadFire.id, modalContent);
+            make_modal_element('b', 'p', `URL: `, payloadFire.url, modalContent);
+            make_image(payloadFire.screenshot_id, payloadFire.screenshot_id, modalContent, 'image');
+            make_modal_element('b', 'p', `IP Address: `, payloadFire.ip_address, modalContent);
+            make_modal_element('b', 'p', `Referer: `, payloadFire.referer, modalContent);
+            make_modal_element('b', 'p', `User Agent: `, payloadFire.user_agent, modalContent);
+            make_modal_element('b', 'p', `Cookies: `, payloadFire.cookies, modalContent);
+            make_modal_element('b', 'p', `Title: `, payloadFire.title, modalContent);
+            make_modal_element('b', 'code', 'DOM: ', payloadFire.dom, modalContent);
+            make_modal_element('b', 'p', `Text: `, payloadFire.text, modalContent);
+            make_modal_element('b', 'p', `Origin: `, payloadFire.origin, modalContent);
+            make_modal_element('b', 'p', `Was Iframe: `, payloadFire.was_iframe, modalContent);
+            make_modal_element('b', 'p', `Browser Timestamp: `, payloadFire.browser_timestamp, modalContent);
+            make_modal_element('b', 'p', `Correlated Request: `, payloadFire.correlated_request, modalContent);
 
-            make_element('button', 'Close', modalContent, 'close_button', modal.remove.bind(modal));
+            // make_element('button', 'Close', modalContent, 'close_button', modal.remove.bind(modal));
 
             document.body.appendChild(modal);
         }
@@ -221,6 +280,29 @@
     </script>
 
     <script>
+        function navbar(page) {
+            document.getElementById('payload_fires').hidden = true;
+            document.getElementById('collected_pages').hidden = true;
+            document.getElementById('settings').hidden = true;
+            document.getElementById('payloads').hidden = true;
+            switch (page) {
+                case 'payload_fires':
+                    document.getElementById('payload_fires').hidden = false;
+                    break;
+                case 'collected_pages':
+                    document.getElementById('collected_pages').hidden = false;
+                    break;
+                case 'settings':
+                    document.getElementById('settings').hidden = false;
+                    break;
+                case 'payloads':
+                    document.getElementById('payloads').hidden = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         function make_element(tag, text = null, parent = null, style_class = null, onclick_function = null) {
             var element = document.createElement(tag);
             element.textContent = text;
@@ -252,6 +334,13 @@
         function make_modal(style_class) {
             var modal = make_element('div', null, null, style_class);
             return modal;
+        }
+        //'modal_element_div', 'modal_element_label', 'modal_element_item'
+        function make_modal_element(label_tag, item_tag, label, text = null, parent = null, div_style_class = 'modal_element_div', label_style_class = 'modal_element_label', item_style_class = 'modal_element_item', onclick_function = null) {
+            var parent_div = make_div(div_style_class, parent);
+            var div = make_element(label_tag, label, parent_div, label_style_class, onclick_function)
+            var element = make_element(item_tag, text, parent_div, item_style_class, onclick_function);
+            return element;
         }
 
         function make_div(style_class, parent = null) {
