@@ -239,10 +239,9 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 func screenshotHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
-	screenshotFilename := r.URL.Query().Get("screenshotFilename")
+	screenshotFilename := r.URL.Path[len("/screenshots/"):]
 
-	SCREENSHOT_FILENAME_REGEX := regexp.MustCompile(`/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}\.png$/i`)
-
+	SCREENSHOT_FILENAME_REGEX := regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\.png$`)
 	if !SCREENSHOT_FILENAME_REGEX.MatchString(screenshotFilename) {
 		http.NotFound(w, r)
 		return

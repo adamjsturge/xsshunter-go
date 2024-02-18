@@ -87,6 +87,11 @@
             border-bottom: 1px solid #dee2e6; /* Lighter border for separation */
         }
 
+        .thumbnail {
+            width: 100px;
+            height: 100px;
+        }
+
     </style>
 </head>
 <body>
@@ -94,6 +99,7 @@
     <table class="payload_fires_table" id="payloadFiresTable">
         <tr class="payload_fires_header">
             <th class="payload_fires_title_cell">ID</th>
+            <th class="payload_fires_title_cell">Image</th>
             <th class="payload_fires_title_cell">URI</th>
             <th class="payload_fires_title_cell">Expand</th>
         </tr>
@@ -115,6 +121,7 @@
                     const row = make_table_row(table, 'payload_fires_row');
                     make_table_cell(item.id, row, 'payload_fires_cell');
                     make_table_cell(item.url, row, 'payload_fires_cell');
+                    make_table_cell(null, row, 'payload_fires_cell').appendChild(make_image(item.screenshot_id, 'Screenshot', null, 'thumbnail'));
                     const actionCell = make_table_cell(null, row, 'payload_fires_cell');
                     make_element('button', 'Expand', actionCell, 'action_button', function() {
                         expandPayloadFire(item);
@@ -140,7 +147,8 @@
             make_element('p', `DOM: ${payloadFire.dom}`, modalContent);
             make_element('p', `Text: ${payloadFire.text}`, modalContent);
             make_element('p', `Origin: ${payloadFire.origin}`, modalContent);
-            make_element('p', `Screenshot ID: ${payloadFire.screenshot_id}`, modalContent);
+            make_image(payloadFire.screenshot_id, 'Screenshot', modalContent);
+            // make_element('p', `Screenshot ID: ${payloadFire.screenshot_id}`, modalContent);
             make_element('p', `Was Iframe: ${payloadFire.was_iframe}`, modalContent);
             make_element('p', `Browser Timestamp: ${payloadFire.browser_timestamp}`, modalContent);
             make_element('p', `Correlated Request: ${payloadFire.correlated_request}`, modalContent);
@@ -226,6 +234,19 @@
                 parent.appendChild(element);
             }
             return element;
+        }
+
+        function make_image(src, alt, parent = null, style_class = null) {
+            var image = document.createElement('img');
+            image.src = `/screenshots/${src}.png`;
+            image.alt = alt;
+            if (style_class) {
+                image.className = style_class;
+            }
+            if (parent) {
+                parent.appendChild(image);
+            }
+            return image;
         }
 
         function make_modal(style_class) {
