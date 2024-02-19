@@ -335,7 +335,7 @@
             var modal = make_element('div', null, null, style_class);
             return modal;
         }
-        //'modal_element_div', 'modal_element_label', 'modal_element_item'
+
         function make_modal_element(label_tag, item_tag, label, text = null, parent = null, div_style_class = 'modal_element_div', label_style_class = 'modal_element_label', item_style_class = 'modal_element_item', onclick_function = null) {
             var parent_div = make_div(div_style_class, parent);
             var div = make_element(label_tag, label, parent_div, label_style_class, onclick_function)

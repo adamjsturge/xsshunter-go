@@ -2,14 +2,86 @@
 <html>
 <head>
     <title>Login</title>
+    <style>
+        body {
+            background-color: darkslategray;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: inline;
+        }
+    
+        .login {
+            background-color: #2f2f2f;
+            padding: 20px;
+            border-radius: 5px;
+            width: 300px;
+        }
+    
+        #loginForm {
+            display: flex;
+            flex-direction: column;
+        }
+    
+        #loginForm label {
+            margin-bottom: 10px;
+        }
+    
+        #loginForm input[type="password"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+        }
+    
+        #loginForm input[type="submit"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+    
+        #loginForm input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    
+        #error {
+    color: white;
+    background-color: red;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    visibility: hidden;
+    min-height: 40px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    margin-top: -60px;
+}
+
+    </style>
 </head>
 <body>
-    <div id="error" hidden></div>
-    <form id="loginForm">
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password"><br>
-        <input type="submit" value="Submit">
-    </form>
+    <div class="container">
+        <div id="error"></div>
+        <div class="login">
+            <form id="loginForm">
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password"><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
 
     <script>
         var failed_login_count = 0;
@@ -37,8 +109,9 @@
         });
 
         function set_error_message(message, is_hidden) {
-            document.getElementById('error').textContent = message;
-            document.getElementById('error').hidden = is_hidden;
+            var errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.visibility = is_hidden ? 'hidden' : 'visible';
         }
     </script>
 </body>
