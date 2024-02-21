@@ -49,8 +49,8 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == "PUT" {
 		var setting_key = r.FormValue("key")
 		var setting_value = r.FormValue("value")
-		if setting_key == "" || setting_value == "" {
-			http.Error(w, "Invalid key or value", http.StatusBadRequest)
+		if setting_key == "" {
+			http.Error(w, "Invalid key", http.StatusBadRequest)
 			return
 		}
 

