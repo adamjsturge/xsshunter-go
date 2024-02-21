@@ -4,20 +4,32 @@
     <title>Admin Page</title>
     <style>
         body {
-            background-color: darkslategray;
-            color: white;
+            background-color: #03396c;
+            color: #b3cde0;
         }
-
         
         table, th, td {
             border-collapse: collapse;
             border: 1px solid #ddd;
-            background-color: #1c2f2f;
+            /* background-color: #005b96; */
         }
 
         th, td {
             padding: 10px;
             text-align: left;
+        }
+
+        th {
+            background-color: #011f4b;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #004878;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #005b96;
         }
 
         input[type="text"] {
@@ -28,13 +40,22 @@
             width: 97%;
         }
 
+        .flex-table {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .invisible {
+            display: none;
+        }
+
         .value_cell {
             width: 85%;
         }
 
         .navbar {
             border-radius: 10px;
-            background-color: #004242;
+            background-color: #011f4b;
             color: white;
             padding: 8px 5px;
             border: none;
@@ -42,7 +63,7 @@
         }
 
         .navbar:hover {
-            background-color: #003232;
+            background-color: #00183c;
         }
         
         .modal {
@@ -59,7 +80,7 @@
         }
 
         .modal_div {
-            background-color: #121f1f;
+            background-color: #03396c;
             margin: auto;
             padding: 20px;
             width: 80%;
@@ -69,7 +90,7 @@
         }
 
         .action_button {
-            background-color: #367588;
+            background-color: #6497b1;
             color: white;
             padding: 10px;
             border: none;
@@ -79,7 +100,7 @@
 
         .action_button:hover {
             /* background-color: #0056b3; */
-            background-color: #2b4d4d;
+            background-color: #4a7d96;
         }
 
         .close_button {
@@ -97,23 +118,8 @@
             background-color: #c82333;
         }
 
-        
-        .payload_fires_header {
-            background: linear-gradient(to right, #f8f9fa, #e9ecef);
-            color: #495057;
-        }
-
         .payload_fires_title_cell {
             font-weight: bold;
-        }
-
-        
-        .payload_fires_row:nth-child(odd) {
-            background-color: #fefefe;
-        }
-
-        .payload_fires_row:nth-child(even) {
-            background-color: #f1f3f5;
         }
 
         .payload_fires_cell {
@@ -121,16 +127,8 @@
             border-bottom: 1px solid #dee2e6;
         }
 
-        .settings_row {
-            background-color: #f8f9fa;
-        }
-
-        .settings_row:nth-child(odd) {
-            background-color: #fefefe;
-        }
-
-        .settings_row:nth-child(even) {
-            background-color: #f1f3f5;
+        #settingsTable {
+            margin-bottom: 10px;
         }
 
         .settings_cell {
@@ -160,7 +158,7 @@
         }
 
         .payload_code:hover {
-            background-color: #272727;
+            background-color: #00183c;
         }
 
         .payload_author {
@@ -207,7 +205,7 @@
         <button class="navbar" onclick="navbar('settings')">Settings</button>
         <button class="navbar" onclick="navbar('payloads')">Payloads</button>
     </div>
-    <div id="payload_fires">
+    <div id="payload_fires" class="flex-table">
         <h1>Admin Page</h1>
         <table class="payload_fires_table" id="payloadFiresTable">
             <tr class="payload_fires_header">
@@ -218,10 +216,10 @@
             </tr>
         </table>
     </div>
-    <div id="collected_pages" hidden>
+    <div id="collected_pages" class="flex-table invisible">
         <h1>Collected Pages</h1>
     </div>
-    <div id="settings" hidden>
+    <div id="settings" class="flex-table invisible">
         <h1>Settings</h1>
         <form id="settings_form">
             <table id="settingsTable">
@@ -233,7 +231,7 @@
             <input class="action_button" type="submit" value="Save">
         </form>
     </div>
-    <div id="payloads" hidden>
+    <div id="payloads" class="flex-table invisible">
         <h1 style="margin-bottom:0px;">Payloads</h1>
         <h3 style="margin:0px;">Click Desired Payload to Copy to Clipboard</h3>
         <div id="payloadsTable">
@@ -453,24 +451,25 @@
             settings_form: {},
         };
         function navbar(page) {
-            document.getElementById('payload_fires').hidden = true;
-            document.getElementById('collected_pages').hidden = true;
-            document.getElementById('settings').hidden = true;
-            document.getElementById('payloads').hidden = true;
+            document.getElementById('payload_fires').style.display = 'none';
+            document.getElementById('collected_pages').style.display = 'none';
+            document.getElementById('settings').style.display = 'none';
+            document.getElementById('payloads').style.display = 'none';
+
             switch (page) {
                 case 'payload_fires':
-                    document.getElementById('payload_fires').hidden = false;
+                    document.getElementById('payload_fires').style.display = 'flex';
                     break;
                 case 'collected_pages':
-                    document.getElementById('collected_pages').hidden = false;
+                    document.getElementById('collected_pages').style.display = 'flex';
                     break;
                 case 'settings':
                     loadSettings();
-                    document.getElementById('settings').hidden = false;
+                    document.getElementById('settings').style.display = 'flex';
                     break;
                 case 'payloads':
                     makePayloadsTable();
-                    document.getElementById('payloads').hidden = false;
+                    document.getElementById('payloads').style.display = 'flex';
                     break;
                 default:
                     break;
