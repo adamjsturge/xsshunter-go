@@ -36,8 +36,8 @@ func main() {
 		http.HandleFunc(API_BASE_PATH+"/record_injection", recordInjectionHandler)
 	}
 
-	fmt.Println("Server is starting on port 8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	fmt.Println("Server is starting on port 1449...")
+	if err := http.ListenAndServe(":1449", nil); err != nil {
 		fmt.Println("Error starting server:", err)
 	}
 }

@@ -1,13 +1,11 @@
 version: '3'
 services:
   xsshunter-go:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: adamjsturge/xsshunter-go:main
     volumes:
       - ./db/:/app/db/
       - ./screenshots/:/app/screenshots/
     ports:
       - "1449:1449"
     environment:
-      - GO_ENV=development
+      - CONTROL_PANEL_ENABLED=true

@@ -11,6 +11,6 @@ RUN go build -o main .
 # WORKDIR /app
 # COPY --from=builder /app/main ./main
 
-EXPOSE 8080
+EXPOSE 1449
 
 CMD ["./main"]
