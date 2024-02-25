@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -69,4 +70,12 @@ func make_folder_if_not_exists(folder string) {
 	if !checkFileExists(folder) {
 		os.MkdirAll(folder, 0755)
 	}
+}
+
+func generate_screenshot_url(request *http.Request, screenshot_id string) string {
+	if get_env("SCREENSHOTS_REQUIRE_AUTH") == "true" {
+		return ""
+		// return get_host(request) + "/screenshot/" + screenshot_id + "?auth=" +
+	}
+	return get_host(request) + "/screenshots/" + screenshot_id
 }

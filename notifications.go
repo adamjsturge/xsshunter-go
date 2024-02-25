@@ -1,43 +1,27 @@
 package main
 
 import (
-	"context"
+	"fmt"
+	"strings"
 
-	"github.com/nikoksr/notify"
-	"github.com/nikoksr/notify/service/discord"
-	"github.com/nikoksr/notify/service/msteams"
-	"github.com/nikoksr/notify/service/slack"
-	"github.com/nikoksr/notify/service/telegram"
+	"github.com/containrrr/shoutrrr"
+	"github.com/containrrr/shoutrrr/pkg/types"
 )
 
-func send_notification(title string, message string) {
-	notify.Send(context.Background(), title, message)
-}
-
-func initialize_notify() {
-	notify := notify.New()
-
-	NOTIFY_KEY := get_env("NOTIFY_KEY")
-	if NOTIFY_KEY == "" {
+func send_notification(message string, screenshot_url string) {
+	notify_urls := get_env("NOTIFY")
+	if notify_urls == "" {
 		return
 	}
 
-	switch get_env("NOTIFY_PROVIDER") {
-	case "slack":
-		slack_service := slack.New(NOTIFY_KEY)
-		notify.UseServices(slack_service)
-	case "discord":
-		discord_service := discord.New()
-		discord_service.AuthenticateWithBotToken(NOTIFY_KEY)
-		notify.UseServices(discord_service)
-	case "telegram":
-		telegram_service, _ := telegram.New(NOTIFY_KEY)
-		notify.UseServices(telegram_service)
-	case "msteams":
-		msteams_service := msteams.New()
-		msteams_service.AddReceivers(NOTIFY_KEY)
-		notify.UseServices(msteams_service)
-	default:
-	}
+	message_with_screenshot := message + " " + screenshot_url
 
+	urls := strings.Split(notify_urls, ",")
+
+	sender, err := shoutrrr.CreateSender(urls...)
+	params := &types.Params{}
+	sender.Send(message_with_screenshot, params)
+	if err != nil {
+		fmt.Println("Error sending notification:", err)
+	}
 }

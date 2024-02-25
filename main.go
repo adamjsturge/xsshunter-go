@@ -15,9 +15,9 @@ import (
 )
 
 func main() {
-	fmt.Println("Initializing Database...")
+	fmt.Println("Initializing...")
 	initialize_database()
-	fmt.Println("Database Initialized")
+	fmt.Println("Initialized")
 	make_folder_if_not_exists(get_screenshot_directory())
 
 	http.HandleFunc("/", probeHandler)
@@ -98,16 +98,15 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ip_address := r.RemoteAddr
-
 	// Send the response immediately, they don't need to wait for us to store everything.
 	w.Write([]byte("OK"))
 
 	// Go routine to close the connection and process the data
-	go func(body []byte, ip_address string) {
+	go func(body []byte, ip_address string, host string) {
 		r := &http.Request{
 			Body:   io.NopCloser(bytes.NewReader(body)),
 			Header: http.Header{"Content-Type": []string{r.Header.Get("Content-Type")}},
+			Host:   host,
 		}
 
 		err := r.ParseMultipartForm(32 << 20)
@@ -179,13 +178,13 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		VALUES (:url, :ip_address, :referer, :user_agent, :cookies, :title, :dom, :text, :origin, :screenshot_id, :was_iframe, :browser_timestamp)`)
 		_, err = stmt.Exec(payload_fire_data.Url, payload_fire_data.Ip_address, payload_fire_data.Referer, payload_fire_data.User_agent, payload_fire_data.Cookies, payload_fire_data.Title, payload_fire_data.Dom, payload_fire_data.Text, payload_fire_data.Origin, payload_fire_data.Screenshot_id, payload_fire_data.Was_iframe, payload_fire_data.Browser_timestamp)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error Inserting Payload Fire Data:", err)
 			return
 		}
 
-		fmt.Println("Payload Fire Data Inserted")
-		// send_notification()
-	}(body, ip_address)
+		screenshot_url := generate_screenshot_url(r, payload_fire_image_id)
+		send_notification("Payload Fire: A payload fire has been detected on "+payload_fire_data.Url, screenshot_url)
+	}(body, r.RemoteAddr, r.Host)
 }
 
 func probeHandler(w http.ResponseWriter, r *http.Request) {
@@ -239,6 +238,15 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 func screenshotHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
+
+	if get_env("SCREENSHOTS_REQUIRE_AUTH") == "true" {
+		is_authenticated := get_and_validate_jwt(r)
+		if !is_authenticated {
+			http.Error(w, "Not authenticated", http.StatusUnauthorized)
+			return
+		}
+	}
+
 	screenshotFilename := r.URL.Path[len("/screenshots/"):]
 
 	SCREENSHOT_FILENAME_REGEX := regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\.png$`)
