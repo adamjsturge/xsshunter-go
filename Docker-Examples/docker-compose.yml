@@ -1,11 +1,36 @@
-version: '3'
+version: '3.9'
 services:
-  xsshunter-go:
-    image: adamjsturge/xsshunter-go:main
-    volumes:
-      - ./db/:/app/db/
-      - ./screenshots/:/app/screenshots/
-    ports:
-      - "1449:1449"
-    environment:
-      - CONTROL_PANEL_ENABLED=true
+    xsshunter-go:
+        image: adamjsturge/xsshunter-go:main
+        volumes:
+            - ./db/:/app/db/
+            - ./screenshots/:/app/screenshots/
+        environment:
+            - CONTROL_PANEL_ENABLED=true
+            - NOTIFY=discord://...,slack://...
+            - DOMAIN=xsshunter.example.com
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.bugcrowd-webhook-manager.entrypoints=web, websecure"
+            - "traefik.http.routers.bugcrowd-webhook-manager.rule=Host(`xsshunter.example.com`)"
+            - "traefik.http.routers.bugcrowd-webhook-manager.tls.certresolver=myresolver"
+            - "traefik.http.routers.bugcrowd-webhook-manager.tls.domains[0].main=xsshunter.example.com"
+            - "traefik.http.services.bugcrowd-webhook-manager.loadbalancer.server.port=1449"
+    traefik:
+        image: "traefik:v2.8"
+        container_name: "traefik"
+        command:
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
+            - "--entrypoints.web.address=:80"
+            - "--entrypoints.websecure.address=:443"
+            - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+            - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+            - "--certificatesresolvers.myresolver.acme.email=xsshunter@example.com"
+            - "--certificatesresolvers.myresolver.acme.storage=/shared/acme.json"
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock:ro"
+            - "./shared:/shared"
