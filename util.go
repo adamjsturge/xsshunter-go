@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -42,10 +41,10 @@ func checkFileExists(filepath string) bool {
 }
 
 func get_env(key string) string {
-	err := godotenv.Load()
-	if err != nil {
-		return ""
-	}
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	return ""
+	// }
 	return os.Getenv(key)
 }
 
