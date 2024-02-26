@@ -8,7 +8,7 @@ services:
         environment:
             - CONTROL_PANEL_ENABLED=true
             - NOTIFY=discord://...,slack://...
-            - DOMAIN=xsshunter.example.com
+            - DOMAIN=https://xsshunter.example.com
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.bugcrowd-webhook-manager.entrypoints=web, websecure"

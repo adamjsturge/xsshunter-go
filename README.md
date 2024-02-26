@@ -41,7 +41,7 @@ services:
 | CONTROL_PANEL_ENABLED | Enable the control panel | false |
 | NOTIFY | Comma separated list of notification URLs |  |
 | SCREENSHOTS_REQUIRE_AUTH | Require authentication to view screenshots | false |
-| DOMAIN | Domain put into script | Based off URL |
+| DOMAIN | Domain put into script | Based off URL (Defaults to HTTPS) |
 | DATABASE_URL | Postgres Database URL | (Uses sqlite if no postgres db is present) |
 
 ## Volumes
@@ -75,7 +75,7 @@ services:
         environment:
             - CONTROL_PANEL_ENABLED=true
             - NOTIFY=discord://...,slack://...
-            - DOMAIN=xsshunter.example.com
+            - DOMAIN=https://xsshunter.example.com
         labels:
             - "traefik.enable=true"
             - "traefik.http.routers.bugcrowd-webhook-manager.entrypoints=web, websecure"

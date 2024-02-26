@@ -16,19 +16,12 @@ const (
 )
 
 func get_host(request *http.Request) string {
-	var protocol string
-	if request.TLS != nil {
-		protocol = "https://"
-	} else {
-		protocol = "http://"
-	}
-
 	host := get_env("DOMAIN")
 	if host == "" {
-		host = request.Host
+		host = "https://" + request.Host
 	}
 
-	return protocol + host
+	return host
 }
 
 func get_pages_to_collect() string {
