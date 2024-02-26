@@ -76,5 +76,5 @@ func generate_screenshot_url(request *http.Request, screenshot_id string) string
 		return ""
 		// return get_host(request) + "/screenshot/" + screenshot_id + "?auth=" +
 	}
-	return get_host(request) + "/screenshots/" + screenshot_id
+	return get_host(request) + "/screenshots/" + screenshot_id + ".png"
 }
