@@ -53,7 +53,7 @@ services:
 
 ## Notifications
 
-Notifcations use from shoutrrr
+For notifications xsshunter-go uses shoutrrr.
 To make your own notification URL, go to https://containrrr.dev/shoutrrr/v0.8/services/overview/ or see these examples:
 
 | Service | URL |
