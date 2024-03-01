@@ -1,6 +1,6 @@
 # XSSHunter-go
 
-![](https://github.com/adamjsturge/xsshunter-go/.github/setup-xsshunter-go.gif)
+![](https://github.com/adamjsturge/xsshunter-go/blob/main/.github/setup-xsshunter-go.gif?raw=true)
 
 XSSHunter-go is a self-hosted XSS hunter that allows you to create a custom XSS payload and track when it is triggered. It is a based off the original [XSSHunter-express](https://github.com/mandatoryprogrammer/xsshunter-express) but written in Go.
 
