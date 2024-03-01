@@ -1,0 +1,29 @@
+.git
+.github
+
+docker-examples
+.gitignore
+
+.vscode
+
+# Ignore Go build files
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Ignore test and documentation files
+*_test.go
+*.md
+
+# Ignore all log files
+*.log
+
+# Ignore all .env files
+*.env
+
+# Ignore OS generated files
+.DS_Store
+ehthumbs.db
+Thumbs.db
