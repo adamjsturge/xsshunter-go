@@ -9,7 +9,5 @@ services:
       - ./screenshots/:/app/screenshots/
     ports:
       - "1449:1449"
-    environment:
-      - GO_ENV=development
     env_file:
       - .env

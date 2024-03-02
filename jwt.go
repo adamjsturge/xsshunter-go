@@ -37,7 +37,7 @@ func generate_and_set_jwt(w http.ResponseWriter, r *http.Request) {
 		Value:   jwt,
 		Expires: expiration_time,
 		Path:    "/",
-		Secure:  r.TLS != nil,
+		Secure:  true, //r.TLS != nil,
 	})
 }
 
