@@ -35,7 +35,7 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=sha
-            latest=${{ github.ref == 'refs/heads/main' }}
+            latest=${{ github.ref == 'refs/heads/main' and 'true' }}
 
       - name: Create .env file
         run: touch .env
