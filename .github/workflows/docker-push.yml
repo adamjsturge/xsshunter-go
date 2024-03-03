@@ -46,9 +46,9 @@ jobs:
       - name: Create .env file
         run: touch .env
 
-      - name: Inject version into .env (if needed)
+      - name: Inject version
         # if: ${{ !env.ACT }}
-        run: echo "VERSION=${{ steps.get_version.outputs.VERSION }}" >> .env
+        run: echo "VERSION=${{ steps.get_version.outputs.VERSION }}" >> .version
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
