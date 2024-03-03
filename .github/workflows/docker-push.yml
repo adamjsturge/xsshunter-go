@@ -2,7 +2,7 @@ name: Push Docker Image to Docker Hub
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "dev" ]
     tags: [ "*.*.*" ]
 
 env:
@@ -39,8 +39,8 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}},value=${{ steps.get_version.outputs.VERSION }}
-            type=ref,value=dev,enable=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/dev') }}
             type=ref,value=main,enable=${{ github.event_name == 'release' }}
+            type=ref,event=branch,enable=${{ github.event_name == 'push' && github.ref == 'refs/heads/dev'}}
             type=ref,event=tag
             type=raw,value=latest,enable=${{ github.event_name == 'release' }}
 
