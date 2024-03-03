@@ -184,7 +184,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 		screenshot_url := generate_screenshot_url(r, payload_fire_image_id)
 		send_notification("Payload Fire: A payload fire has been detected on "+payload_fire_data.Url, screenshot_url)
-	}(body, r.RemoteAddr, r.Host)
+	}(body, get_client_ip(r), r.Host)
 }
 
 func probeHandler(w http.ResponseWriter, r *http.Request) {

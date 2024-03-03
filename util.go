@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -77,4 +78,17 @@ func generate_screenshot_url(request *http.Request, screenshot_id string) string
 		// return get_host(request) + "/screenshot/" + screenshot_id + "?auth=" +
 	}
 	return get_host(request) + "/screenshots/" + screenshot_id + ".png"
+}
+
+func get_client_ip(request *http.Request) string {
+	clientIP := request.Header.Get("X-Forwarded-For")
+	if clientIP == "" {
+		return request.RemoteAddr
+	}
+
+	ips := strings.Split(clientIP, ",")
+	if len(ips) > 0 {
+		clientIP = ips[0]
+	}
+	return clientIP
 }
