@@ -196,6 +196,21 @@
             height: 100px;
         }
 
+        .update_div {
+            padding: 5px;
+            margin-bottom: 20px;
+            background-color: #011f4b;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .update_header {
+            font-weight: 600;
+            /* color: #03396c; */
+            margin-bottom: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -221,6 +236,7 @@
     </div>
     <div id="settings" class="flex-table invisible">
         <h1>Settings</h1>
+        <div id="update_container"></div>
         <form id="settings_form">
             <table id="settingsTable">
                 <tr>
@@ -306,11 +322,48 @@
             // });
         }
 
+        function loadVersion() {
+            const settings_div = document.getElementById('settings');
+            const update_container = document.getElementById('update_container');
+            const update_div = document.getElementById('update_div');
+            
+            if (update_div) {
+                update_div.remove();
+            }
+
+            fetch('/api/v1/version', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const div = make_div('update_div', update_container);
+                div.id = 'update_div';
+                if (data.latest_version != data.current_version) {
+                    make_element('h2', 'Update Available', div, 'update_header');
+                    make_element('p', `Current Version: ${data.current_version}`, div);
+                    make_element('p', `Latest Version: ${data.latest_version}`, div);
+                } else {
+                    make_element('p', `Current Version: ${data.current_version}`, div);
+                    make_element('button', 'Check for Updates', div, 'action_button', function() {
+                        loadVersion();
+                    });
+                }
+            });
+        }
+
         function loadSettings() {
             if (state.settings) {
                 return;
             }
             state.settings = 1;
+            
+            const table = document.getElementById('settingsTable');
+
+            loadVersion();
+
             fetch('/api/v1/settings', {
                 method: 'GET',
                 headers: {
@@ -319,7 +372,6 @@
             })
             .then(response => response.json())
             .then(data => {
-                const table = document.getElementById('settingsTable');
                 for (const [key, value] of Object.entries(data)) {
                     state.settings_form[key] = value;
                     if (key === 'SEND_ALERTS') {

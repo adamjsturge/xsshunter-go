@@ -15,9 +15,9 @@ import (
 )
 
 func main() {
-	PrintVersion()
 	fmt.Println("Initializing...")
 	initialize_database()
+	PrintVersion()
 	fmt.Println("Initialized")
 	make_folder_if_not_exists(get_screenshot_directory())
 
@@ -35,6 +35,7 @@ func main() {
 		http.HandleFunc(API_BASE_PATH+"/payloadfires", payloadFiresHandler)
 		http.HandleFunc(API_BASE_PATH+"/collected_pages", collectedPagesHandler)
 		http.HandleFunc(API_BASE_PATH+"/record_injection", recordInjectionHandler)
+		http.HandleFunc(API_BASE_PATH+"/version", versionHandler)
 	}
 
 	fmt.Println("Server is starting on port 1449...")
