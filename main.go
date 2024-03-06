@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	PrintVersion()
 	fmt.Println("Initializing...")
 	initialize_database()
 	fmt.Println("Initialized")
