@@ -3,7 +3,7 @@ name: Push Docker Image to Docker Hub
 on:
   push:
     branches: [ "main", "dev" ]
-    tags: [ "*.*.*" ]
+    # tags: [ "*.*.*" ]
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -37,7 +37,7 @@ jobs:
             type=semver,pattern={{version}}
             type=ref,event=branch
             type=ref,event=tag
-            type=raw,value=latest,enable=${{ github.event_name == 'release' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Create .env file
         run: touch .env
