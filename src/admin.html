@@ -342,7 +342,7 @@
                 const div = make_div('update_div', update_container);
                 div.id = 'update_div';
                     
-                var new_version_avaliable = (data.current_git_commit != data.latest_git_commit || (!!data.current_version && data.current_version != "unknown" && data.current_version != data.latest_version))
+                var new_version_avaliable = (data.current_git_commit != data.latest_git_commit || (data.git_branch != "main" && data.git_branch != "dev" && data.current_version != data.latest_version))
                 if (new_version_avaliable) {
                     make_element('h2', `Update Available on ${data.git_branch}`, div, 'update_header');
                     make_element('p', `Current Version: ${data.current_version}`, div);
