@@ -15,6 +15,10 @@ type Tag struct {
 	} `json:"commit"`
 }
 
+type Commit struct {
+	SHA string `json:"sha"`
+}
+
 var (
 	// Populated by the Go linker during build
 	version   = "unknown"
@@ -27,23 +31,16 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
 	set_no_cache(w)
 
-	latestGit := getLatestGit()
-	latestVersion := ""
 	latestCommit := ""
-	if latestGit != nil {
-		latestVersion = latestGit.Name
-		latestCommit = latestGit.Commit.SHA
-	}
 
-	if gitBranch == "dev" || gitBranch == "main" {
-		latestCommit = getLatestCommitFromBranch(gitBranch)
+	latestCommitObj := getLatestCommitFromBranch(gitBranch)
+	if latestCommitObj != nil {
+		latestCommit = latestCommitObj.SHA
 	}
 
 	json.NewEncoder(w).Encode(map[string]string{
-		"current_version":    version,
 		"current_git_commit": gitCommit,
 		"git_branch":         gitBranch,
-		"latest_version":     latestVersion,
 		"latest_git_commit":  latestCommit,
 	})
 }
@@ -84,27 +81,25 @@ func getLatestGit() *Tag {
 	return nil
 }
 
-func getLatestCommitFromBranch(branch string) string {
+func getLatestCommitFromBranch(branch string) *Commit {
 	url := fmt.Sprintf("https://api.github.com/repos/adamjsturge/xsshunter-go/commits/%s", branch)
 	resp, err := http.Get(url)
 	if err != nil {
-		return ""
+		return nil
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		fmt.Printf("error fetching commit: %s", resp.Status)
-		return ""
+		return nil
 	}
 
-	var commit struct {
-		SHA string `json:"sha"`
-	}
+	var commit Commit
 	err = json.NewDecoder(resp.Body).Decode(&commit)
 	if err != nil {
 		fmt.Printf("error decoding response: %v", err)
-		return ""
+		return nil
 	}
 
-	return commit.SHA
+	return &commit
 }
