@@ -8,9 +8,9 @@ COPY . .
 ARG GIT_TAG
 ARG GIT_COMMIT
 ARG GIT_BRANCH
-ARG BUILD_DATE
 
-RUN go build -ldflags "-X 'main.version=${GIT_TAG}' -X 'main.gitCommit=${GIT_COMMIT}' -X 'main.gitBranch=${GIT_BRANCH}' -X 'main.buildDate=${BUILD_DATE}'" -o main
+RUN BUILD_DATE=$(date +'%Y-%m-%dT%H:%M:%S%z') && \
+    go build -ldflags "-X 'main.version=${GIT_TAG}' -X 'main.gitCommit=${GIT_COMMIT}' -X 'main.gitBranch=${GIT_BRANCH}' -X 'main.buildDate=${BUILD_DATE}'" -o main
 
 EXPOSE 1449
 
