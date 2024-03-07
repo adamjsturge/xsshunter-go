@@ -344,11 +344,11 @@
                     
                 var new_version_avaliable = (data.current_git_commit != data.latest_git_commit || (!!data.current_version && data.current_version != "unknown" && data.current_version != data.latest_version))
                 if (new_version_avaliable) {
-                    make_element('h2', 'Update Available', div, 'update_header');
+                    make_element('h2', `Update Available on ${data.git_branch}`, div, 'update_header');
                     make_element('p', `Current Version: ${data.current_version}`, div);
                     make_element('p', `Latest Version: ${data.latest_version}`, div);
                 } else {
-                    make_element('p', `Current Version: ${data.current_version}`, div);
+                    make_element('p', `Current Version: ${data.current_version} on ${data.git_branch}`, div);
                     make_element('button', 'Check for Updates', div, 'action_button', function() {
                         loadVersion();
                     });
