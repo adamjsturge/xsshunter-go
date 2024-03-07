@@ -53,5 +53,5 @@ jobs:
           build-args: |
             GIT_TAG=${{ github.ref_name }}
             GIT_COMMIT=${{ github.sha }}
-            GIT_BRANCH=${GITHUB_REF##*/}
+            GIT_BRANCH=${{ github.ref_name }}
             BUILD_DATE=$(date +'%Y-%m-%dT%H:%M:%S%z')
