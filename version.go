@@ -8,12 +8,16 @@ import (
 )
 
 type Tag struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
+	Commit struct {
+		SHA string `json:"sha"`
+		URL string `json:"url"`
+	} `json:"commit"`
 }
 
 var (
 	// Populated by the Go linker during build
-	version   = "dev"
+	version   = "unknown"
 	gitCommit = "unknown"
 	gitBranch = "unknown"
 	buildDate = "unknown"
@@ -23,10 +27,20 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
 	set_no_cache(w)
 
+	latestGit := getLatestGit()
+	latestVersion := ""
+	latestCommit := ""
+	if latestGit != nil {
+		latestVersion = latestGit.Name
+		latestCommit = latestGit.Commit.SHA
+	}
+
 	json.NewEncoder(w).Encode(map[string]string{
-		"current_version": version,
-		"git_branch":      gitBranch,
-		"latest_version":  getLatestTag(),
+		"current_version":    version,
+		"current_git_commit": gitCommit,
+		"git_branch":         gitBranch,
+		"latest_version":     latestVersion,
+		"latest_git_commit":  latestCommit,
 	})
 }
 
@@ -35,24 +49,24 @@ func PrintVersion() {
 		version, gitCommit, gitBranch, runtime.Version(), runtime.GOOS, runtime.GOARCH, buildDate)
 }
 
-func getLatestTag() string {
+func getLatestGit() *Tag {
 	url := "https://api.github.com/repos/adamjsturge/xsshunter-go/tags"
 	resp, err := http.Get(url)
 	if err != nil {
-		return ""
+		return nil
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		fmt.Printf("error fetching tags: %s", resp.Status)
-		return ""
+		return nil
 	}
 
 	var tags []Tag
 	err = json.NewDecoder(resp.Body).Decode(&tags)
 	if err != nil {
 		fmt.Printf("error decoding response: %v", err)
-		return ""
+		return nil
 	}
 
 	// sort.Slice(tags, func(i, j int) bool {
@@ -60,8 +74,8 @@ func getLatestTag() string {
 	// })
 
 	if len(tags) > 0 {
-		return tags[0].Name
+		return &tags[0]
 	}
 
-	return ""
+	return nil
 }
