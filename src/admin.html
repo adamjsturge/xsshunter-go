@@ -197,6 +197,7 @@
         }
 
         .update_div {
+            display: flex;
             padding: 5px;
             margin-bottom: 20px;
             background-color: #011f4b;
@@ -347,10 +348,10 @@
                     // make_element('p', `Current Version: ${data.current_version}`, div);
                     // make_element('p', `Latest Version: ${data.latest_version}`, div);
                 } else {
-                    make_element('p', `Current Version on ${data.git_branch}`, div);
                     make_element('button', 'Check for Updates', div, 'action_button', function() {
                         loadVersion();
                     });
+                    make_element('p', `    Current Version on ${data.git_branch}`, div);
                 }
             });
         }
