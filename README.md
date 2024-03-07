@@ -25,7 +25,7 @@ The idea of why I decided to code this in Go is because I wanted this to be a ma
 version: '3'
 services:
   xsshunter-go:
-    image: adamjsturge/xsshunter-go:main
+    image: adamjsturge/xsshunter-go:latest
     volumes:
       - ./db/:/app/db/
       - ./screenshots/:/app/screenshots/
@@ -70,7 +70,7 @@ To make your own notification URL, go to https://containrrr.dev/shoutrrr/v0.8/se
 version: '3'
 services:
     xsshunter-go:
-        image: adamjsturge/xsshunter-go:main
+        image: adamjsturge/xsshunter-go:latest
         volumes:
             - ./db/:/app/db/
             - ./screenshots/:/app/screenshots/

@@ -1,18 +1,16 @@
 FROM golang:1.22
-# AS builder
 
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-# RUN go build -o main .
 
-RUN go build -ldflags "-X 'main.version=$(git describe --tags --abbrev=0)' -X 'main.gitCommit=$(git rev-parse HEAD)' -X 'main.gitBranch=$(git rev-parse --abbrev-ref HEAD)' -X 'main.buildDate=$(date +'%Y-%m-%dT%H:%M:%S%z')'" -o main
+ARG GIT_TAG
+ARG GIT_COMMIT
+ARG GIT_BRANCH
+ARG BUILD_DATE
 
-# FROM golang:1.22-alpine
-# WORKDIR /app
-# COPY --from=builder /app/main ./main
-
+RUN go build -ldflags "-X 'main.version=$GIT_TAG' -X 'main.gitCommit=$GIT_COMMIT' -X 'main.gitBranch=$GIT_BRANCH' -X 'main.buildDate=$BUILD_DATE'" -o main
 
 EXPOSE 1449
 

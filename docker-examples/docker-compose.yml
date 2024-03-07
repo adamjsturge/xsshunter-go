@@ -1,7 +1,7 @@
 version: '3.9'
 services:
     xsshunter-go:
-        image: adamjsturge/xsshunter-go:main
+        image: adamjsturge/xsshunter-go:latest
         volumes:
             - ./db/:/app/db/
             - ./screenshots/:/app/screenshots/
