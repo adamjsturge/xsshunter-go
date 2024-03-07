@@ -35,6 +35,10 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 		latestCommit = latestGit.Commit.SHA
 	}
 
+	if gitBranch == "dev" || gitBranch == "main" {
+		latestCommit = getLatestCommitFromBranch(gitBranch)
+	}
+
 	json.NewEncoder(w).Encode(map[string]string{
 		"current_version":    version,
 		"current_git_commit": gitCommit,
@@ -78,4 +82,29 @@ func getLatestGit() *Tag {
 	}
 
 	return nil
+}
+
+func getLatestCommitFromBranch(branch string) string {
+	url := fmt.Sprintf("https://api.github.com/repos/adamjsturge/xsshunter-go/commits/%s", branch)
+	resp, err := http.Get(url)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Printf("error fetching commit: %s", resp.Status)
+		return ""
+	}
+
+	var commit struct {
+		SHA string `json:"sha"`
+	}
+	err = json.NewDecoder(resp.Body).Decode(&commit)
+	if err != nil {
+		fmt.Printf("error decoding response: %v", err)
+		return ""
+	}
+
+	return commit.SHA
 }
