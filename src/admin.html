@@ -352,6 +352,8 @@
                         loadVersion();
                     });
                     make_element('p', `    Current Version on ${data.git_branch}`, div);
+                } else {
+                    div.remove();
                 }
             });
         }
