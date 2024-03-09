@@ -222,6 +222,7 @@
     </div>
     <div id="payload_fires" class="flex-table">
         <h1>Admin Page</h1>
+        <div id="special_update_div"></div>
         <table class="payload_fires_table" id="payloadFiresTable">
             <tr class="payload_fires_header">
                 <th class="payload_fires_title_cell">ID</th>
@@ -322,10 +323,11 @@
             // });
         }
 
-        function loadVersion() {
+        function loadVersion(onload = false) {
             const settings_div = document.getElementById('settings');
             const update_container = document.getElementById('update_container');
             const update_div = document.getElementById('update_div');
+            const special_update_div = document.getElementById('special_update_div');
             
             if (update_div) {
                 update_div.remove();
@@ -343,10 +345,9 @@
                 div.id = 'update_div';
 
                 if (data.current_git_commit != data.latest_git_commit) {
-                    make_element('h2', `Update Available on ${data.git_branch}`, div, 'update_header');
-                    // make_element('p', `Current Version: ${data.current_version}`, div);
-                    // make_element('p', `Latest Version: ${data.latest_version}`, div);
-                } else {
+                    parent_div = onload ? special_update_div : div;
+                    make_element('h2', `Update Available on ${data.git_branch}`, parent_div, 'update_header');
+                } else if (!onload) {
                     make_element('button', 'Check for Updates', div, 'action_button', function() {
                         loadVersion();
                     });
@@ -492,7 +493,7 @@
         }
 
         // Load the collected pages when the page loads
-        window.onload = loadPayloadFires;
+        window.onload = start;
     </script>
 
     <script>
@@ -503,6 +504,13 @@
             payloads: 0,
             settings_form: {},
         };
+
+        function start() {
+            loadVersion(true);
+            loadPayloadFires();
+
+        }
+
         function navbar(page) {
             document.getElementById('payload_fires').style.display = 'none';
             document.getElementById('collected_pages').style.display = 'none';

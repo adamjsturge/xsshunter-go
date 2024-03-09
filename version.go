@@ -50,36 +50,36 @@ func PrintVersion() {
 		version, gitCommit, gitBranch, runtime.Version(), runtime.GOOS, runtime.GOARCH, buildDate)
 }
 
-func getLatestGit() *Tag {
-	url := "https://api.github.com/repos/adamjsturge/xsshunter-go/tags"
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil
-	}
-	defer resp.Body.Close()
+// func getLatestGit() *Tag {
+// 	url := "https://api.github.com/repos/adamjsturge/xsshunter-go/tags"
+// 	resp, err := http.Get(url)
+// 	if err != nil {
+// 		return nil
+// 	}
+// 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		fmt.Printf("error fetching tags: %s", resp.Status)
-		return nil
-	}
+// 	if resp.StatusCode != http.StatusOK {
+// 		fmt.Printf("error fetching tags: %s", resp.Status)
+// 		return nil
+// 	}
 
-	var tags []Tag
-	err = json.NewDecoder(resp.Body).Decode(&tags)
-	if err != nil {
-		fmt.Printf("error decoding response: %v", err)
-		return nil
-	}
+// 	var tags []Tag
+// 	err = json.NewDecoder(resp.Body).Decode(&tags)
+// 	if err != nil {
+// 		fmt.Printf("error decoding response: %v", err)
+// 		return nil
+// 	}
 
-	// sort.Slice(tags, func(i, j int) bool {
-	// 	return tags[i].Name > tags[j].Name
-	// })
+// 	// sort.Slice(tags, func(i, j int) bool {
+// 	// 	return tags[i].Name > tags[j].Name
+// 	// })
 
-	if len(tags) > 0 {
-		return &tags[0]
-	}
+// 	if len(tags) > 0 {
+// 		return &tags[0]
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func getLatestCommitFromBranch(branch string) *Commit {
 	url := fmt.Sprintf("https://api.github.com/repos/adamjsturge/xsshunter-go/commits/%s", branch)
