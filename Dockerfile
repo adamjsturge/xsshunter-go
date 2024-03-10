@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine
+FROM golang:1.22-alpine as builder
 
 RUN apk update && apk add --no-cache gcc musl-dev
 
@@ -13,6 +13,13 @@ ARG GIT_BRANCH
 
 RUN BUILD_DATE=$(date +'%Y-%m-%dT%H:%M:%S%z') && \
     go build -ldflags "-X 'main.version=${GIT_TAG}' -X 'main.gitCommit=${GIT_COMMIT}' -X 'main.gitBranch=${GIT_BRANCH}' -X 'main.buildDate=${BUILD_DATE}'" -o main
+
+FROM alpine:latest
+WORKDIR /app
+
+COPY --from=builder /app/main .
+COPY --from=builder /app/probe.js .
+COPY --from=builder /app/src ./src
 
 EXPOSE 1449
 
