@@ -28,6 +28,7 @@ func main() {
 
 	CONTROL_PANEL_ENABLED := get_env("CONTROL_PANEL_ENABLED")
 	if CONTROL_PANEL_ENABLED == "show" || CONTROL_PANEL_ENABLED == "true" {
+		fmt.Println("Control Panel Enabled")
 		http.HandleFunc("/admin", adminHandler)
 		http.HandleFunc(API_BASE_PATH+"/auth-check", authCheckHandler)
 		http.HandleFunc(API_BASE_PATH+"/settings", settingsHandler)
