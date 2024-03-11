@@ -48,7 +48,7 @@ type InjectionRequests struct {
 }
 
 func initialize_database() {
-	if get_env("DATABASE_URL") != "" {
+	if is_postgres {
 		initialize_postgres_database()
 	} else {
 		initialize_sqlite_database()
@@ -57,7 +57,7 @@ func initialize_database() {
 }
 
 func establish_database_connection() *sql.DB {
-	if get_env("DATABASE_URL") != "" {
+	if is_postgres {
 		return establish_postgres_database_connection()
 	}
 	return establish_sqlite_database_connection()
@@ -191,8 +191,11 @@ func initialize_settings() {
 	initialize_configs()
 	initialize_correlation_api()
 	initialize_setting_helper(PAGES_TO_COLLECT_SETTINGS_KEY, "")
+	set_pages_to_collect()
 	initialize_setting_helper(SEND_ALERTS_SETTINGS_KEY, "true")
+	set_send_alerts()
 	initialize_setting_helper(CHAINLOAD_URI_SETTINGS_KEY, "")
+	set_chainload_uri()
 }
 
 func initialize_users() {
