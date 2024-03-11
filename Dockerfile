@@ -1,6 +1,6 @@
 FROM golang:1.22-alpine as builder
 
-RUN apk update && apk add --no-cache gcc musl-dev
+RUN apk update && apk add --no-cache gcc musl-dev ca-certificates
 
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -18,8 +18,9 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /app/main .
-COPY --from=builder /app/probe.js .
-COPY --from=builder /app/src ./src
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY probe.js .
+COPY src ./src
 
 EXPOSE 1449
 
