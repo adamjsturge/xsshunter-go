@@ -66,10 +66,13 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 			update_setting(CORRELATION_API_SECRET_SETTINGS_KEY, setting_value)
 		case CHAINLOAD_URI_SETTINGS_KEY:
 			update_setting(CHAINLOAD_URI_SETTINGS_KEY, setting_value)
+			set_chainload_uri()
 		case PAGES_TO_COLLECT_SETTINGS_KEY:
 			update_setting(PAGES_TO_COLLECT_SETTINGS_KEY, setting_value)
+			set_pages_to_collect()
 		case SEND_ALERTS_SETTINGS_KEY:
 			update_setting(SEND_ALERTS_SETTINGS_KEY, setting_value)
+			set_send_alerts()
 		default:
 			http.Error(w, "Invalid key", http.StatusBadRequest)
 		}

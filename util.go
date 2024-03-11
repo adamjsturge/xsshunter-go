@@ -42,11 +42,10 @@ func checkFileExists(filepath string) bool {
 }
 
 func get_env(key string) string {
-	// err := godotenv.Load()
-	// if err != nil {
-	// 	return ""
-	// }
-	return os.Getenv(key)
+	if constant[key] == "" {
+		constant[key] = os.Getenv(key)
+	}
+	return constant[key]
 }
 
 func parameter_to_int(input string, default_int int) int {
@@ -92,3 +91,10 @@ func get_client_ip(request *http.Request) string {
 	}
 	return clientIP
 }
+
+// func remember(variable *string, reload bool, function func() string) string {
+// 	if reload || *variable == "" {
+// 		*variable = function()
+// 	}
+// 	return *variable
+// }

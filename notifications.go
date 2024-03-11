@@ -14,6 +14,10 @@ func send_notification(message string, screenshot_url string) {
 		return
 	}
 
+	if !get_send_alerts() {
+		return
+	}
+
 	message_with_screenshot := message + " " + screenshot_url
 
 	urls := strings.Split(notify_urls, ",")
