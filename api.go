@@ -6,6 +6,15 @@ import (
 	"os"
 )
 
+type UserXSSPayloads struct {
+	ID          uint   `json:"id"`
+	Payload     string `json:"payload"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Author      string `json:"author"`
+	Author_link string `json:"author_link"`
+}
+
 func authCheckHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
 	is_authenticated := get_and_validate_jwt(r)
@@ -245,4 +254,65 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 	db.Exec("INSERT INTO injection_requests (injection_key, request) VALUES (?, ?)", r.FormValue("injection_key"), r.FormValue("request"))
 
 	w.Write([]byte("Injection recorded"))
+}
+
+func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
+	set_secure_headers(w, r)
+	is_authenticated := get_and_validate_jwt(r)
+	if !is_authenticated {
+		http.Error(w, "Not authenticated", http.StatusUnauthorized)
+	}
+	if r.Method == "GET" {
+		page_string := r.URL.Query().Get("page")
+		limit_string := r.URL.Query().Get("limit")
+		page := parameter_to_int(page_string, 1) - 1
+		limit := parameter_to_int(limit_string, 10)
+		offset := page * limit
+
+		db := establish_database_connection()
+		defer db.Close()
+
+		rows, err := db.Query("SELECT id, payload, title, description, author, author_link FROM user_xss_payloads ORDER BY created_at ASC LIMIT ? OFFSET ?", limit, offset)
+		if err != nil {
+			http.Error(w, "Error querying database", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		user_payloads := []UserXSSPayloads{}
+		for rows.Next() {
+			var user_payload UserXSSPayloads
+			err = rows.Scan(&user_payload.ID, &user_payload.Payload, &user_payload.Title, &user_payload.Description, &user_payload.Author, &user_payload.Author_link)
+			if err != nil {
+				http.Error(w, "Error scanning database", http.StatusInternalServerError)
+				return
+			}
+			user_payloads = append(user_payloads, user_payload)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(user_payloads)
+
+	} else if r.Method == "POST" {
+		db := establish_database_connection()
+		defer db.Close()
+
+		stmt, _ := db.Prepare(`INSERT INTO user_xss_payloads (payload, title, description, author, author_link) VALUES (?, ?, ?, ?, ?)`)
+		_, err := stmt.Exec(r.FormValue("payload"), r.FormValue("title"), r.FormValue("description"), r.FormValue("author"), r.FormValue("author_link"))
+		if err != nil {
+			http.Error(w, "Error inserting user payload", http.StatusInternalServerError)
+			return
+		}
+	} else if r.Method == "DELETE" {
+		ids_to_delete := r.FormValue("ids")
+		if len(ids_to_delete) == 0 {
+			http.Error(w, "No ids to delete", http.StatusBadRequest)
+			return
+		}
+		db := establish_database_connection()
+		defer db.Close()
+
+		db.Exec("DELETE FROM user_xss_payloads WHERE id IN (?)", ids_to_delete)
+	} else {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+	}
 }
