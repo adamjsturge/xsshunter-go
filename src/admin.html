@@ -40,6 +40,20 @@
             width: 97%;
         }
 
+        textarea {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            width: 97%;
+            height: 200px;
+        }
+
+        hr {
+            border: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
         .flex-table {
             display: flex;
             flex-direction: column;
@@ -235,6 +249,10 @@
             /* color: #03396c; */
         }
 
+        .user_payload_header {
+            margin-top: 5px;
+        }
+
         .payload_legend {
             padding: 10px;
             border: 1px solid #ddd;
@@ -251,6 +269,25 @@
             overflow: auto;
         }
 
+        .payload_example {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .exported_payloads {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: auto;
+            cursor: pointer;
+        }
+
+        .exported_payloads:hover {
+            background-color: #00183c;
+        }
     </style>
 </head>
 <body>
@@ -260,6 +297,7 @@
         <button class="navbar" onclick="navbar('settings')">Settings</button>
         <button class="navbar" onclick="navbar('payloads')">Payloads</button>
         <button class="navbar" onclick="navbar('payload_maker')">Payload Maker</button>
+        <button class="navbar" onclick="navbar('payload_import_export')">Payload Importer/Exporter</button>
     </div>
     <div id="payload_fires" class="flex-table">
         <h1>Admin Page</h1>
@@ -297,6 +335,9 @@
     </div>
     <div id="payload_maker" class="flex-table invisible">
         <h1>Payload Maker</h1>
+    </div>
+    <div id="payload_import_export" class="flex-table invisible">
+        <h1>Payload Importer/Exporter</h1>
     </div>
     <script>
         function loadPayloadFires() {
@@ -485,12 +526,7 @@
             .then(data => {
                 payloads = payloads.concat(data);
                 payloads.forEach(payload => {
-                    var processedPayload = payload.payload.replace('/script_domain/', domain);
-                    processedPayload = processedPayload.replace('/script_hostname/', domainWithoutProtocol);
-                    processedPayload = processedPayload.replace('/script_base64/', domainBase64);
-                    processedPayload = processedPayload.replace('/script_htmlencode/', domainHTMLEncode);
-
-                    var URIPayload = decodeURIComponent(processedPayload);
+                    var URIPayload = decode_payload(payload.payload);
                     var payloadDiv = make_div('payload_div', payloadsTable);
                     make_element('h2', payload.title, payloadDiv, 'payload_title');
                     var description = make_element('p', payload.description, payloadDiv, 'payload_description');
@@ -511,6 +547,23 @@
 
                 });
             });
+        }
+
+        function encode_payload(payload) {
+            payload = encodeURIComponent(payload);
+            payload = payload.replace('%2Fscript_domain%2F', '/script_domain/');
+            payload = payload.replace('%2Fscript_hostname%2F', '/script_hostname/');
+            payload = payload.replace('%2Fscript_base64%2F', '/script_base64/');
+            payload = payload.replace('%2Fscript_htmlencode%2F', '/script_htmlencode/');
+            return payload;
+        }
+
+        function decode_payload(payload) {
+            processedPayload = payload.replace('/script_domain/', domain);
+            processedPayload = processedPayload.replace('/script_hostname/', domainWithoutProtocol);
+            processedPayload = processedPayload.replace('/script_base64/', domainBase64);
+            processedPayload = processedPayload.replace('/script_htmlencode/', domainHTMLEncode);
+            return decodeURIComponent(processedPayload);
         }
 
         function deletePayload(id) {
@@ -535,7 +588,7 @@
             var payloadMaker = document.getElementById('payload_maker');
 
             payloadLegend = make_div('payload_legend', payloadMaker);
-            make_element('h4', 'Payload Legend', payloadLegend);
+            make_element('h4', 'Payload Legend', payloadLegend, 'user_payload_header');
 
             payloadDomain = make_div('user_payloads_legend', payloadLegend);
             make_element('label', '/script_domain/ becomes ', payloadDomain)
@@ -557,6 +610,16 @@
 
             var status_div = make_div('status', payloadMaker);
             var status = make_element('p', '', status_div);
+
+            var payload_example_div = make_div('payload_example', payloadMaker);
+            make_element('button', 'Copy to Clipboard', payload_example_div, 'payload_maker_button', function() {
+                // Custom function to copy to clipboard based on the id so it has to find the element by id
+                var text = document.getElementById('payload_code').textContent;
+                copyToClipboard(text);
+            });
+            var payload_example = make_element('code', '', payload_example_div);
+            payload_example.id = 'payload_code';
+            
 
             var payloadMakerForm = make_element('form', null, payloadMaker);
             payloadMakerForm.id = 'payload_maker_form';
@@ -585,8 +648,16 @@
             make_element('br', null, payloadMakerForm)
 
             make_element('label', 'Payload: ', payloadMakerForm);
-            payload_input = make_element('input', null, payloadMakerForm).type = 'text';
+            payload_input = make_element('input', null, payloadMakerForm)
+            payload_input.type = 'text';
+            payload_input.id = 'payload_input';
             payload_input.required = true;
+            payload_input.onchange = function() {
+                console.log('change')
+                var example_payload = encode_payload(payload_input.value);
+                payload_example.textContent = decode_payload(example_payload);
+            }
+
             make_element('label', 'Title: ', payloadMakerForm);
             make_element('input', null, payloadMakerForm).type = 'text';
             make_element('label', 'Description: ', payloadMakerForm);
@@ -607,11 +678,7 @@
                     status.className = 'status_bad';
                     return;
                 }
-                var payload = encodeURIComponent(input.value);
-                payload = payload.replace('%2Fscript_domain%2F', '/script_domain/');
-                payload = payload.replace('%2Fscript_hostname%2F', '/script_hostname/');
-                payload = payload.replace('%2Fscript_base64%2F', '/script_base64/');
-                payload = payload.replace('%2Fscript_htmlencode%2F', '/script_htmlencode/');
+                var payload = encode_payload(input.value);
 
                 var form_data = new FormData();
                 form_data.append('payload', payload);
@@ -627,7 +694,67 @@
                 .then(() => {
                     status.textContent = 'Payload Added';
                     status.className = 'status_good';
+                    payload_example.textContent = '';
                 });
+            });
+        }
+
+        function makePayloadImporterExporter() {
+            if (state.payload_import_export) {
+                return;
+            }
+            state.payload_import_export = 1;
+            var payload_import_export = document.getElementById('payload_import_export');
+
+            var payload_import_export_form = make_element('form', null, payload_import_export);
+            payload_import_export_form.id = 'payload_import_export_form';
+
+            make_element('label', 'Import Payloads: ', payload_import_export_form);
+            var import_input = make_element('textarea', null, payload_import_export_form);
+            import_input.required = true;
+
+            make_element('input', null, payload_import_export_form, 'action_button').type = 'submit';
+
+            payload_import_export_form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                var status_div = make_div('status', payload_import_export);
+                var status = make_element('p', '', status_div);
+                var input = payload_import_export_form.getElementsByTagName('textarea')[0];
+                fetch('/api/v1/user_payload_importer', {
+                    method: 'POST',
+                    body: input.value
+                })
+                .then(() => {
+                    status.textContent = 'Payloads Imported';
+                    status.className = 'status_good';
+                });
+            });
+
+            make_element('hr', null, payload_import_export);
+
+            var payload_export_button = make_element('button', 'Export Payloads', payload_import_export, 'action_button', function() {
+                fetch('/api/v1/user_payloads', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    var exported_payloads = data.map(payload => {
+                        return {
+                            title: payload.title,
+                            description: payload.description,
+                            payload: payload.payload,
+                            author: payload.author,
+                            author_link: payload.author_link
+                        };
+                    });
+                    make_element('br', null, payload_import_export);
+                    make_element('code', JSON.stringify(exported_payloads), payload_import_export, 'exported_payloads', function() {
+                        copyToClipboard(JSON.stringify(exported_payloads));
+                    });
+                })
             });
         }
         
@@ -698,6 +825,7 @@
             settings: 0,
             payloads: 0,
             payload_maker: 0,
+            payload_import_export: 0,
             settings_form: {},
         };
 
@@ -709,6 +837,7 @@
             document.getElementById('settings').style.display = 'none';
             document.getElementById('payloads').style.display = 'none';
             document.getElementById('payload_maker').style.display = 'none';
+            document.getElementById('payload_import_export').style.display = 'none';
 
             switch (page) {
                 case 'payload_fires':
@@ -728,6 +857,10 @@
                 case 'payload_maker':
                     makePayloadMaker();
                     document.getElementById('payload_maker').style.display = 'flex';
+                    break;
+                case 'payload_import_export':
+                    makePayloadImporterExporter();
+                    document.getElementById('payload_import_export').style.display = 'flex';
                     break;
                 default:
                     break;

@@ -263,16 +263,16 @@ func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not authenticated", http.StatusUnauthorized)
 	}
 	if r.Method == "GET" {
-		page_string := r.URL.Query().Get("page")
-		limit_string := r.URL.Query().Get("limit")
-		page := parameter_to_int(page_string, 1) - 1
-		limit := parameter_to_int(limit_string, 10)
-		offset := page * limit
+		// page_string := r.URL.Query().Get("page")
+		// limit_string := r.URL.Query().Get("limit")
+		// page := parameter_to_int(page_string, 1) - 1
+		// limit := parameter_to_int(limit_string, 10)
+		// offset := page * limit
 
 		db := establish_database_connection()
 		defer db.Close()
 
-		rows, err := db.Query("SELECT id, payload, title, description, author, author_link FROM user_xss_payloads ORDER BY created_at ASC LIMIT ? OFFSET ?", limit, offset)
+		rows, err := db.Query("SELECT id, payload, title, description, author, author_link FROM user_xss_payloads ORDER BY created_at ASC")
 		if err != nil {
 			http.Error(w, "Error querying database", http.StatusInternalServerError)
 			return
@@ -314,5 +314,34 @@ func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
 		db.Exec("DELETE FROM user_xss_payloads WHERE id IN (?)", ids_to_delete)
 	} else {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+	}
+}
+
+func userPayloadImporterHandler(w http.ResponseWriter, r *http.Request) {
+	set_secure_headers(w, r)
+	is_authenticated := get_and_validate_jwt(r)
+	if !is_authenticated {
+		http.Error(w, "Not authenticated", http.StatusUnauthorized)
+	}
+	if r.Method != "POST" {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+	db := establish_database_connection()
+	defer db.Close()
+
+	var user_payloads []UserXSSPayloads
+	err := json.NewDecoder(r.Body).Decode(&user_payloads)
+	if err != nil {
+		http.Error(w, "Error decoding JSON", http.StatusInternalServerError)
+		return
+	}
+	for _, user_payload := range user_payloads {
+		stmt, _ := db.Prepare(`INSERT INTO user_xss_payloads (payload, title, description, author, author_link) VALUES (?, ?, ?, ?, ?)`)
+		_, err := stmt.Exec(user_payload.Payload, user_payload.Title, user_payload.Description, user_payload.Author, user_payload.Author_link)
+		if err != nil {
+			http.Error(w, "Error inserting user payload", http.StatusInternalServerError)
+			return
+		}
 	}
 }
