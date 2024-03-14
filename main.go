@@ -3,11 +3,18 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"fmt"
 	"io"
+	"math/big"
 	"os"
 	"regexp"
 	"strconv"
+	"time"
 
 	"net/http"
 
@@ -22,30 +29,80 @@ func main() {
 	fmt.Println("Initialized")
 	make_folder_if_not_exists(get_screenshot_directory())
 
-	http.HandleFunc("/", probeHandler)
-	http.HandleFunc("/js_callback", jscallbackHandler)
-	http.HandleFunc("/health", healthHandler)
-	http.HandleFunc("/screenshots/", screenshotHandler)
+	cert, err := generateSelfSignedCertificate()
+	if err != nil {
+		fmt.Println("Error generating self-signed certificate:", err)
+		return
+	}
+
+	server := &http.Server{
+		Addr: ":1449",
+		TLSConfig: &tls.Config{
+			Certificates: []tls.Certificate{cert},
+		},
+	}
+
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/", probeHandler)
+	mux.HandleFunc("/js_callback", jscallbackHandler)
+	mux.HandleFunc("/health", healthHandler)
+	mux.HandleFunc("/screenshots/", screenshotHandler)
 
 	CONTROL_PANEL_ENABLED := get_env("CONTROL_PANEL_ENABLED")
 	if CONTROL_PANEL_ENABLED == "show" || CONTROL_PANEL_ENABLED == "true" {
 		fmt.Println("Control Panel Enabled")
-		http.HandleFunc("/admin", adminHandler)
-		http.HandleFunc(API_BASE_PATH+"/auth-check", authCheckHandler)
-		http.HandleFunc(API_BASE_PATH+"/settings", settingsHandler)
-		http.HandleFunc(API_BASE_PATH+"/login", loginHandler)
-		http.HandleFunc(API_BASE_PATH+"/payloadfires", payloadFiresHandler)
-		http.HandleFunc(API_BASE_PATH+"/collected_pages", collectedPagesHandler)
-		http.HandleFunc(API_BASE_PATH+"/record_injection", recordInjectionHandler)
-		http.HandleFunc(API_BASE_PATH+"/version", versionHandler)
-		http.HandleFunc(API_BASE_PATH+"/user_payloads", userPayloadsHandler)
-		http.HandleFunc(API_BASE_PATH+"/user_payload_importer", userPayloadImporterHandler)
+		mux.HandleFunc("/admin", adminHandler)
+		mux.HandleFunc(API_BASE_PATH+"/auth-check", authCheckHandler)
+		mux.HandleFunc(API_BASE_PATH+"/settings", settingsHandler)
+		mux.HandleFunc(API_BASE_PATH+"/login", loginHandler)
+		mux.HandleFunc(API_BASE_PATH+"/payloadfires", payloadFiresHandler)
+		mux.HandleFunc(API_BASE_PATH+"/collected_pages", collectedPagesHandler)
+		mux.HandleFunc(API_BASE_PATH+"/record_injection", recordInjectionHandler)
+		mux.HandleFunc(API_BASE_PATH+"/version", versionHandler)
+		mux.HandleFunc(API_BASE_PATH+"/user_payloads", userPayloadsHandler)
+		mux.HandleFunc(API_BASE_PATH+"/user_payload_importer", userPayloadImporterHandler)
 	}
 
 	fmt.Println("Server is starting on port 1449...")
-	if err := http.ListenAndServe(":1449", nil); err != nil {
+	// if err := http.ListenAndServe(":1449", nil); err != nil {
+	// 	fmt.Println("Error starting server:", err)
+	// }
+	server.Handler = mux
+	if err := server.ListenAndServeTLS("", ""); err != nil {
 		fmt.Println("Error starting server:", err)
 	}
+}
+
+func generateSelfSignedCertificate() (tls.Certificate, error) {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	template := x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject: pkix.Name{
+			Organization: []string{"Your Organization"},
+		},
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().Add(time.Hour * 24 * 365),
+		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		BasicConstraintsValid: true,
+	}
+
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	cert := tls.Certificate{
+		Certificate: [][]byte{derBytes},
+		PrivateKey:  privateKey,
+	}
+
+	return cert, nil
 }
 
 func set_secure_headers(w http.ResponseWriter, r *http.Request) {
