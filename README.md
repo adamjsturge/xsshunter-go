@@ -5,17 +5,14 @@
 XSSHunter-go is a self-hosted XSS hunter that allows you to create a custom XSS payload and track when it is triggered. It is a based off the original [XSSHunter-express](https://github.com/mandatoryprogrammer/xsshunter-express) but written in Go.
 
 <!-- Table of content -->
-<details>
-    <summary>Table of content</summary>
-    <ol>
-        <li><a href="#setup">Setup</a></li>
-        <li><a href="#environment-variables">Environment Variables</a></li>
-        <li><a href="#volumes">Volumes</a></li>
-        <li><a href="#notifications">Notifications</a></li>
-        <li><a href="#using-traefik-for-ssl">Using Traefik for SSL</a></li>
-    </ol>
-</details>
-
+<summary>Table of content</summary>
+<ol>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#environment-variables">Environment Variables</a></li>
+    <li><a href="#volumes">Volumes</a></li>
+    <li><a href="#notifications">Notifications</a></li>
+    <li><a href="#using-traefik-for-ssl">Using Traefik for SSL</a></li>
+</ol>
 
 The idea of why I decided to code this in Go is because I wanted this to be a maintained project that is stable. The original is based of Node 12 which is end of life. I also wanted to add some features that I thought would be useful (mostly expanding the notification system).
 
