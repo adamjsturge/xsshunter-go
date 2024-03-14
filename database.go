@@ -132,6 +132,15 @@ func create_sqlite_tables() {
 		injection_key TEXT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
+	CREATE TABLE IF NOT EXISTS user_xss_payloads (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		payload TEXT,
+		title TEXT,
+		description TEXT,
+		author TEXT,
+		author_link TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
 	`
 	_, err := db.Exec(sqlStmt)
 	if err != nil {
@@ -176,6 +185,15 @@ func create_postgres_tables() {
 		id SERIAL PRIMARY KEY,
 		request TEXT,
 		injection_key TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
+	CREATE TABLE IF NOT EXISTS user_xss_payloads (
+		id SERIAL PRIMARY KEY,
+		payload TEXT,
+		title TEXT,
+		description TEXT,
+		author TEXT,
+		author_link TEXT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	`
