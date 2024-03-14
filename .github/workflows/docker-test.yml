@@ -3,8 +3,24 @@ name: Build and Test Docker
 on:
   push:
     branches: [ "main", "dev" ]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "go.mod"
+      - "go.sum"
+      - "probe.js"
+      - "src/*"
+      - "*.go"
   pull_request:
     branches: [ "main", "dev" ]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "go.mod"
+      - "go.sum"
+      - "probe.js"
+      - "src/*"
+      - "*.go"
 
 env:
   # Use docker.io for Docker Hub if empty
