@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime"
+	"time"
 )
 
 type Tag struct {
@@ -46,8 +47,8 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PrintVersion() {
-	fmt.Printf("Version: %s\nGit Commit: %s\nGit Branch: %s\nGo Version: %s\nGo OS/Arch: %s/%s\nBuild Date: %s\n",
-		version, gitCommit, gitBranch, runtime.Version(), runtime.GOOS, runtime.GOARCH, buildDate)
+	fmt.Printf("Version: %s\nGit Commit: %s\nGit Branch: %s\nGo Version: %s\nGo OS/Arch: %s/%s\nBuild Date: %s\nTime: %s\n",
+		version, gitCommit, gitBranch, runtime.Version(), runtime.GOOS, runtime.GOARCH, buildDate, time.Now().Format("2006-01-02 15:04:05 MST-07:00"))
 }
 
 // func getLatestGit() *Tag {
