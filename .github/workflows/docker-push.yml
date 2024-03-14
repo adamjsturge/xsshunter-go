@@ -3,7 +3,14 @@ name: Push Docker Image to Docker Hub
 on:
   push:
     branches: [ "main", "dev" ]
-    # tags: [ "*.*.*" ]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "go.mod"
+      - "go.sum"
+      - "probe.js"
+      - "src/*"
+      - "*.go"
 
 env:
   # Use docker.io for Docker Hub if empty
