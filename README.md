@@ -42,6 +42,7 @@ services:
 | SCREENSHOTS_REQUIRE_AUTH | Require authentication to view screenshots | false |
 | DOMAIN | Domain put into script | Based off URL (Defaults to HTTPS) |
 | DATABASE_URL | Postgres Database URL | (Uses sqlite if no postgres db is present) |
+| GO_ENV | Go environment `development` will load in http |  |
 
 ## Volumes
 

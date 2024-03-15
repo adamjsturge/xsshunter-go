@@ -64,14 +64,22 @@ func main() {
 		mux.HandleFunc(API_BASE_PATH+"/user_payload_importer", userPayloadImporterHandler)
 	}
 
-	fmt.Println("Server is starting on port 1449...")
 	// if err := http.ListenAndServe(":1449", nil); err != nil {
 	// 	fmt.Println("Error starting server:", err)
 	// }
 	server.Handler = mux
-	if err := server.ListenAndServeTLS("", ""); err != nil {
-		fmt.Println("Error starting server:", err)
+	if os.Getenv("GO_ENV") == "development" {
+		fmt.Println("Server is starting on port 1449 with http...")
+		if err := server.ListenAndServe(); err != nil {
+			fmt.Println("Error starting server:", err)
+		}
+	} else {
+		fmt.Println("Server is starting on port 1449 with https...")
+		if err := server.ListenAndServeTLS("", ""); err != nil {
+			fmt.Println("Error starting server:", err)
+		}
 	}
+
 }
 
 func generateSelfSignedCertificate() (tls.Certificate, error) {
