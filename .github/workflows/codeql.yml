@@ -14,8 +14,24 @@ name: "CodeQL"
 on:
   push:
     branches: [ "main", "dev" ]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "go.mod"
+      - "go.sum"
+      - "probe.js"
+      - "src/*"
+      - "*.go"
   pull_request:
     branches: [ "main", "dev" ]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "go.mod"
+      - "go.sum"
+      - "probe.js"
+      - "src/*"
+      - "*.go"
   schedule:
     - cron: '44 17 * * 1'
 

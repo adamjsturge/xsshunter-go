@@ -2,8 +2,16 @@ name: Run Gosec
 on:
   push:
     branches: [ "main", "dev" ]
+    paths:
+      - "go.mod"
+      - "go.sum"
+      - "*.go"
   pull_request:
     branches: [ "main", "dev" ]
+    paths:
+      - "go.mod"
+      - "go.sum"
+      - "*.go"
   schedule:
     - cron: '44 17 * * 1'
 jobs:
