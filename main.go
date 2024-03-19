@@ -37,9 +37,11 @@ func main() {
 	}
 
 	server := &http.Server{
-		Addr: ":1449",
+		Addr:              ":1449",
+		ReadHeaderTimeout: 5 * time.Second,
 		TLSConfig: &tls.Config{
 			Certificates: []tls.Certificate{cert},
+			MinVersion:   tls.VersionTLS12,
 		},
 	}
 
