@@ -3,6 +3,8 @@ package main
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -62,12 +64,18 @@ func parameter_to_int(input string, default_int int) int {
 func update_setting(setting_key string, setting_value string) {
 	db := establish_database_connection()
 	defer db.Close()
-	db.Exec("UPDATE settings SET value = :value WHERE key = :key", setting_value, setting_key)
+	_, err := db.Exec("UPDATE settings SET value = :value WHERE key = :key", setting_value, setting_key)
+	if err != nil {
+		fmt.Println("Settings is not updated: ", err)
+	}
 }
 
 func make_folder_if_not_exists(folder string) {
 	if !checkFileExists(folder) {
-		os.MkdirAll(folder, 0755)
+		err := os.MkdirAll(folder, 0750)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

@@ -54,7 +54,11 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(settings)
+		err = json.NewEncoder(w).Encode(settings)
+		if err != nil {
+			http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
+			return
+		}
 	} else if r.Method == "PUT" {
 		var setting_key = r.FormValue("key")
 		var setting_value = r.FormValue("value")
@@ -100,7 +104,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	var password string
-	db.QueryRow("SELECT value FROM settings WHERE key = ?", ADMIN_PASSWORD_SETTINGS_KEY).Scan(&password)
+	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", ADMIN_PASSWORD_SETTINGS_KEY).Scan(&password)
+	if err != nil {
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
+		return
+	}
 
 	if password == "" {
 		http.Error(w, "No password set", http.StatusInternalServerError)
@@ -149,7 +157,11 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 			payload_fires = append(payload_fires, payload_fire)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(payload_fires)
+		err = json.NewEncoder(w).Encode(payload_fires)
+		if err != nil {
+			http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
+			return
+		}
 	} else if r.Method == "DELETE" {
 		ids_to_delete := r.FormValue("ids")
 		if len(ids_to_delete) == 0 {
@@ -173,8 +185,16 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			payload_fire_image_filename := get_screenshot_directory() + "/" + screenshot_id + ".png.gz"
-			os.Remove(payload_fire_image_filename)
-			db.Exec("DELETE FROM payload_fire_results WHERE screenshot_id = ?", screenshot_id)
+			err = os.Remove(payload_fire_image_filename)
+			if err != nil {
+				http.Error(w, "Error deleting payload fire image", http.StatusInternalServerError)
+				return
+			}
+			_, err = db.Exec("DELETE FROM payload_fire_results WHERE screenshot_id = ?", screenshot_id)
+			if err != nil {
+				http.Error(w, "Error deleting payload fires", http.StatusInternalServerError)
+				return
+			}
 		}
 	} else {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
@@ -215,7 +235,11 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 			collected_pages = append(collected_pages, collected_page)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(collected_pages)
+		err = json.NewEncoder(w).Encode(collected_pages)
+		if err != nil {
+			http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
+			return
+		}
 	} else if r.Method == "DELETE" {
 		ids_to_delete := r.FormValue("ids")
 		if len(ids_to_delete) == 0 {
@@ -225,7 +249,11 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		db.Exec("DELETE FROM collected_pages WHERE id IN (?)", ids_to_delete)
+		_, err := db.Exec("DELETE FROM collected_pages WHERE id IN (?)", ids_to_delete)
+		if err != nil {
+			http.Error(w, "Error deleting collected pages", http.StatusInternalServerError)
+			return
+		}
 	} else {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 	}
@@ -242,7 +270,11 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	var is_authenticated bool
-	db.QueryRow("SELECT 1 FROM settings WHERE key = ? AND value = ?", CORRELATION_API_SECRET_SETTINGS_KEY, owner_correlation_key).Scan(&is_authenticated)
+	err := db.QueryRow("SELECT 1 FROM settings WHERE key = ? AND value = ?", CORRELATION_API_SECRET_SETTINGS_KEY, owner_correlation_key).Scan(&is_authenticated)
+	if err != nil {
+		http.Error(w, "Error", http.StatusUnauthorized)
+		return
+	}
 
 	if !is_authenticated {
 		http.Error(w, "Not authenticated", http.StatusUnauthorized)
@@ -251,9 +283,17 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
-	db.Exec("INSERT INTO injection_requests (injection_key, request) VALUES (?, ?)", r.FormValue("injection_key"), r.FormValue("request"))
 
-	w.Write([]byte("Injection recorded"))
+	_, err = db.Exec("INSERT INTO injection_requests (injection_key, request) VALUES (?, ?)", r.FormValue("injection_key"), r.FormValue("request"))
+	if err != nil {
+		http.Error(w, "Error inserting injection request", http.StatusInternalServerError)
+		return
+	}
+
+	_, err = w.Write([]byte("Injection recorded"))
+	if err != nil {
+		http.Error(w, "Error writing response", http.StatusInternalServerError)
+	}
 }
 
 func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
@@ -290,7 +330,11 @@ func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
 			user_payloads = append(user_payloads, user_payload)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(user_payloads)
+		err = json.NewEncoder(w).Encode(user_payloads)
+		if err != nil {
+			http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
+			return
+		}
 
 	} else if r.Method == "POST" {
 		db := establish_database_connection()
@@ -311,7 +355,11 @@ func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		db.Exec("DELETE FROM user_xss_payloads WHERE id IN (?)", ids_to_delete)
+		_, err := db.Exec("DELETE FROM user_xss_payloads WHERE id IN (?)", ids_to_delete)
+		if err != nil {
+			http.Error(w, "Error deleting user payloads", http.StatusInternalServerError)
+			return
+		}
 	} else {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 	}

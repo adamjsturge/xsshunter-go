@@ -65,7 +65,7 @@ func establish_database_connection() *sql.DB {
 
 func initialize_sqlite_database() {
 	if _, err := os.Stat("db"); os.IsNotExist(err) {
-		err = os.MkdirAll("db", 0755)
+		err = os.MkdirAll("db", 0750)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -265,7 +265,10 @@ func initialize_setting_helper(key string, value string) bool {
 	defer db.Close()
 
 	var has_setting int
-	db.QueryRow("SELECT COUNT(1) FROM settings WHERE key = ?", key).Scan(&has_setting)
+	setting_err := db.QueryRow("SELECT COUNT(1) FROM settings WHERE key = ?", key).Scan(&has_setting)
+	if setting_err != nil {
+		log.Fatal(setting_err)
+	}
 	if has_setting != 1 {
 		_, err := db.Exec("INSERT INTO settings (key, value) VALUES (?, ?)", key, value)
 		if err != nil {

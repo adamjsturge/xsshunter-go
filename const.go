@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"os"
 )
@@ -45,7 +46,10 @@ func set_pages_to_collect() {
 	defer db.Close()
 
 	var pages_to_collect_value string
-	db.QueryRow("SELECT value FROM settings WHERE key = ?", PAGES_TO_COLLECT_SETTINGS_KEY).Scan(&pages_to_collect_value)
+	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", PAGES_TO_COLLECT_SETTINGS_KEY).Scan(&pages_to_collect_value)
+	if err != nil {
+		log.Fatal(err)
+	}
 	pages_to_collect = "[" + pages_to_collect_value + "]"
 }
 
@@ -57,7 +61,10 @@ func set_chainload_uri() {
 	db := establish_database_connection()
 	defer db.Close()
 
-	db.QueryRow("SELECT value FROM settings WHERE key = ?", CHAINLOAD_URI_SETTINGS_KEY).Scan(&chainload_uris)
+	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", CHAINLOAD_URI_SETTINGS_KEY).Scan(&chainload_uris)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func get_send_alerts() bool {
@@ -68,7 +75,10 @@ func set_send_alerts() {
 	db := establish_database_connection()
 	defer db.Close()
 
-	db.QueryRow("SELECT value FROM settings WHERE key = ?", SEND_ALERTS_SETTINGS_KEY).Scan(&send_alerts)
+	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", SEND_ALERTS_SETTINGS_KEY).Scan(&send_alerts)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func get_screenshot_directory() string {

@@ -39,11 +39,14 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 		latestCommit = latestCommitObj.SHA
 	}
 
-	json.NewEncoder(w).Encode(map[string]string{
+	err := json.NewEncoder(w).Encode(map[string]string{
 		"current_git_commit": gitCommit,
 		"git_branch":         gitBranch,
 		"latest_git_commit":  latestCommit,
 	})
+	if err != nil {
+		fmt.Println("JSON encode error: ", err)
+	}
 }
 
 func PrintVersion() {
@@ -84,7 +87,7 @@ func PrintVersion() {
 
 func getLatestCommitFromBranch(branch string) *Commit {
 	url := fmt.Sprintf("https://api.github.com/repos/adamjsturge/xsshunter-go/commits/%s", branch)
-	resp, err := http.Get(url)
+	resp, err := http.Get(url) // #nosec G107
 	if err != nil {
 		return nil
 	}

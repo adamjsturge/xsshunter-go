@@ -10,6 +10,7 @@ import (
 	"crypto/x509/pkix"
 	"fmt"
 	"io"
+	"log"
 	"math/big"
 	"os"
 	"regexp"
@@ -170,7 +171,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send the response immediately, they don't need to wait for us to store everything.
-	w.Write([]byte("OK"))
+	w.Write([]byte("OK")) // #nosec G104
 
 	// Go routine to close the connection and process the data
 	go func(body []byte, ip_address string, host string) {
@@ -199,7 +200,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				defer fileContent.Close()
 
-				newFile, err := os.Create(payload_fire_image_filename)
+				newFile, err := os.Create(payload_fire_image_filename) // #nosec G304
 				if err != nil {
 					fmt.Println(err)
 					return
@@ -218,7 +219,11 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// payload_fire_id := uuid.New().String()
-		r.ParseForm()
+		err = r.ParseForm()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		browser_time, _ := strconv.ParseUint(r.FormValue("browser-time"), 10, 64)
 		payload_fire_data := PayloadFireResults{
 			// ID:                 payload_fire_id,
@@ -240,7 +245,10 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 
 		var correlated_request_rec string
-		db.QueryRow("SELECT request FROM injection_requests WHERE injection_key = ?", r.FormValue("injection_key")).Scan(&correlated_request_rec)
+		err = db.QueryRow("SELECT request FROM injection_requests WHERE injection_key = ?", r.FormValue("injection_key")).Scan(&correlated_request_rec)
+		if err != nil {
+			fmt.Println("Error Inserting Injection: ", err)
+		}
 		if correlated_request_rec != "" {
 			payload_fire_data.Correlated_request = correlated_request_rec
 		}
@@ -267,7 +275,7 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 
 	probe, err := os.ReadFile("./probe.js")
 	if err != nil {
-		fmt.Println("Error reading file:", err)
+		log.Fatal("Error reading file:", err)
 	}
 
 	host := get_host(r)
@@ -284,7 +292,10 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	re = regexp.MustCompile(`\[PROBE_ID\]`)
 	xss_payload_4 := re.ReplaceAllString(xss_payload_3, probe_id)
 
-	w.Write([]byte(xss_payload_4))
+	_, errWrite := w.Write([]byte(xss_payload_4))
+	if errWrite != nil {
+		log.Fatal(err)
+	}
 }
 
 func adminHandler(w http.ResponseWriter, r *http.Request) {
@@ -301,7 +312,10 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
 	if establish_database_connection() != nil {
-		w.Write([]byte("OK"))
+		_, err := w.Write([]byte("OK"))
+		if err != nil {
+			log.Fatal("Heathcheck Failed: ", err)
+		}
 	} else {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
