@@ -71,14 +71,14 @@ func main() {
 	// 	fmt.Println("Error starting server:", err)
 	// }
 	server.Handler = mux
-	if os.Getenv("GO_ENV") == "development" {
-		fmt.Println("Server is starting on port 1449 with http...")
-		if err := server.ListenAndServe(); err != nil {
+	if os.Getenv("ENFORCE_CERT_FROM_GOLANG") == true  {
+		fmt.Println("Server is starting on port 1449 with https...")
+		if err := server.ListenAndServeTLS("", ""); err != nil {
 			fmt.Println("Error starting server:", err)
 		}
 	} else {
-		fmt.Println("Server is starting on port 1449 with https...")
-		if err := server.ListenAndServeTLS("", ""); err != nil {
+		fmt.Println("Server is starting on port 1449 with http...")
+		if err := server.ListenAndServe(); err != nil {
 			fmt.Println("Error starting server:", err)
 		}
 	}
