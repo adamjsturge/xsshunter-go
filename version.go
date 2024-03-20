@@ -86,7 +86,7 @@ func PrintVersion() {
 // }
 
 func getLatestCommitFromBranch(branch string) *Commit {
-	url := fmt.Sprintf("https://api.github.com/repos/adamjsturge/xsshunter-go/commits/%s", branch)
+	url := "https://api.github.com/repos/adamjsturge/xsshunter-go/commits/" + branch
 	resp, err := http.Get(url) // #nosec G107
 	if err != nil {
 		return nil

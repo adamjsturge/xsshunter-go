@@ -127,7 +127,7 @@ func set_secure_headers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func set_payload_headers(w http.ResponseWriter, r *http.Request) {
+func set_payload_headers(w http.ResponseWriter) {
 	w.Header().Set("Content-Security-Policy", "default-src 'none'; script-src 'none'")
 	w.Header().Set("Content-Type", "application/javascript")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -136,7 +136,7 @@ func set_payload_headers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Max-Age", "86400")
 }
 
-func set_callback_headers(w http.ResponseWriter, r *http.Request) {
+func set_callback_headers(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Requested-With")
@@ -164,7 +164,7 @@ type JSCallbackSchema struct {
 }
 
 func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
-	set_callback_headers(w, r)
+	set_callback_headers(w)
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -173,7 +173,10 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send the response immediately, they don't need to wait for us to store everything.
-	w.Write([]byte("OK")) // #nosec G104
+	_, err = w.Write([]byte("OK"))
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	// Go routine to close the connection and process the data
 	go func(body []byte, ip_address string, host string) {
@@ -269,7 +272,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func probeHandler(w http.ResponseWriter, r *http.Request) {
-	set_payload_headers(w, r)
+	set_payload_headers(w)
 
 	college_pages := get_pages_to_collect()
 	chainload_uri := get_chainload_uri()

@@ -1,0 +1,12 @@
+linters-settings:
+  gosec:
+    min-confidence: 0.9
+    min-severity: low
+    exclude-use-default: true
+
+linters:
+  enable:
+    - gosec
+
+run:
+  deadline: 5m

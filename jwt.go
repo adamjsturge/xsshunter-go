@@ -25,7 +25,7 @@ func generate_jwt_secret() (ed25519.PublicKey, ed25519.PrivateKey) {
 	return publicKey, privateKey
 }
 
-func generate_and_set_jwt(w http.ResponseWriter, r *http.Request) {
+func generate_and_set_jwt(w http.ResponseWriter) {
 	expiration_time := time.Now().Add(24 * time.Hour)
 	jwt, err := generate_jwt(expiration_time)
 	if err != nil {
