@@ -11,11 +11,11 @@ services:
             # - DOMAIN=https://xsshunter.example.com
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.bugcrowd-webhook-manager.entrypoints=web, websecure"
-            - "traefik.http.routers.bugcrowd-webhook-manager.rule=Host(`xsshunter.example.com`)"
-            - "traefik.http.routers.bugcrowd-webhook-manager.tls.certresolver=myresolver"
-            - "traefik.http.routers.bugcrowd-webhook-manager.tls.domains[0].main=xsshunter.example.com"
-            - "traefik.http.services.bugcrowd-webhook-manager.loadbalancer.server.port=1449"
+            - "traefik.http.routers.xsshunter-go.entrypoints=web, websecure"
+            - "traefik.http.routers.xsshunter-go.rule=Host(`xsshunter.example.com`)"
+            - "traefik.http.routers.xsshunter-go.tls.certresolver=myresolver"
+            - "traefik.http.routers.xsshunter-go.tls.domains[0].main=xsshunter.example.com"
+            - "traefik.http.services.xsshunter-go.loadbalancer.server.port=1449"
     traefik:
         image: "traefik:v2.8"
         container_name: "traefik"

@@ -42,7 +42,8 @@ services:
 | SCREENSHOTS_REQUIRE_AUTH | Require authentication to view screenshots | false |
 | DOMAIN | Domain put into script | Based off URL (Defaults to HTTPS) |
 | DATABASE_URL | Postgres Database URL | (Uses sqlite if no postgres db is present) |
-| GO_ENV | Go environment `development` will load in http |  |
+| GO_ENV | Go environment `development` |  |
+| ENFORCE_CERT_FROM_GOLANG | Force Golang to serve a cert (Only do if you know what you're doing) | false |
 
 ## Volumes
 
@@ -65,7 +66,7 @@ To make your own notification URL, go to https://containrrr.dev/shoutrrr/v0.8/se
 ## Using Traefik for SSL
 
 ```yml
-version: '3'
+version: '3.9'
 services:
     xsshunter-go:
         image: adamjsturge/xsshunter-go:latest
@@ -78,11 +79,11 @@ services:
             - DOMAIN=https://xsshunter.example.com
         labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.bugcrowd-webhook-manager.entrypoints=web, websecure"
-            - "traefik.http.routers.bugcrowd-webhook-manager.rule=Host(`xsshunter.example.com`)"
-            - "traefik.http.routers.bugcrowd-webhook-manager.tls.certresolver=myresolver"
-            - "traefik.http.routers.bugcrowd-webhook-manager.tls.domains[0].main=xsshunter.example.com"
-            - "traefik.http.services.bugcrowd-webhook-manager.loadbalancer.server.port=1449"
+            - "traefik.http.routers.xsshunter-go.entrypoints=web, websecure"
+            - "traefik.http.routers.xsshunter-go.rule=Host(`xsshunter.example.com`)"
+            - "traefik.http.routers.xsshunter-go.tls.certresolver=myresolver"
+            - "traefik.http.routers.xsshunter-go.tls.domains[0].main=xsshunter.example.com"
+            - "traefik.http.services.xsshunter-go.loadbalancer.server.port=1449"
     traefik:
         image: "traefik:v2.8"
         container_name: "traefik"
