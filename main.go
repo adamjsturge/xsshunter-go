@@ -230,6 +230,10 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		browser_time, _ := strconv.ParseUint(r.FormValue("browser-time"), 10, 64)
+		if browser_time > uint64(^uint(0)) {
+			fmt.Println("Browser time is too large. Ignoring.")
+			browser_time = 0
+		}
 		payload_fire_data := PayloadFireResults{
 			// ID:                 payload_fire_id,
 			Url:                r.FormValue("uri"),
@@ -249,13 +253,16 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 		db := establish_database_connection()
 
-		var correlated_request_rec string
-		err = db.QueryRow("SELECT request FROM injection_requests WHERE injection_key = ?", r.FormValue("injection_key")).Scan(&correlated_request_rec)
-		if err != nil {
-			fmt.Println("Error Inserting Injection: ", err)
-		}
-		if correlated_request_rec != "" {
-			payload_fire_data.Correlated_request = correlated_request_rec
+		injection_key := r.FormValue("injection_key")
+		if injection_key != "" {
+			var correlated_request_rec string
+			err = db.QueryRow("SELECT request FROM injection_requests WHERE injection_key = ?", injection_key).Scan(&correlated_request_rec)
+			if err != nil {
+				fmt.Println("Error Inserting Injection: ", err)
+			}
+			if correlated_request_rec != "" {
+				payload_fire_data.Correlated_request = correlated_request_rec
+			}
 		}
 
 		stmt, _ := db.Prepare(`INSERT INTO payload_fire_results (url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp) 
