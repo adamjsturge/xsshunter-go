@@ -71,7 +71,7 @@ func main() {
 	// 	fmt.Println("Error starting server:", err)
 	// }
 	server.Handler = mux
-	if os.Getenv("ENFORCE_CERT_FROM_GOLANG") == true  {
+	if os.Getenv("ENFORCE_CERT_FROM_GOLANG") == "true"  {
 		fmt.Println("Server is starting on port 1449 with https...")
 		if err := server.ListenAndServeTLS("", ""); err != nil {
 			fmt.Println("Error starting server:", err)
