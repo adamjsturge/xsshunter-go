@@ -46,9 +46,11 @@ jobs:
     - name: Create .env
       run: echo "CONTROL_PANEL_ENABLED=true\nDOMAIN=http://localhost:1449" > .env
     - name: Test the Docker image
-      run: docker compose up -d 
+      run: docker compose up -d
+    - name: LS the directory
+      run: ls
     - name: Copy Node Modules
-      run: cp -r e2e/node_modules ./node_modules
+      run: cp -r ./e2e/node_modules ./node_modules
     - name: Get Docker logs
       id: logs
       run: |
