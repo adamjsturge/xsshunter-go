@@ -41,6 +41,10 @@ jobs:
       run: |
         cd e2e
         npx playwright install --with-deps
+    - name: Install Playwright Test
+      run: |
+        cd e2e
+        npm install @playwright/test
     - uses: actions/checkout@v2
     - name: Create .env
       run: echo "CONTROL_PANEL_ENABLED=true\nDOMAIN=http://localhost:1449" > .env
