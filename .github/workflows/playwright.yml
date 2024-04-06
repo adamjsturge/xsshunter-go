@@ -62,4 +62,4 @@ jobs:
       if: always()
       with:
         name: trace
-        path: e2e/traces/trace.zip
+        path: e2e/trace.zip

@@ -4,8 +4,6 @@ require('dotenv').config();
 
 const password = process.env.INITIAL_PASSWORD ?? '';
 
-console.log('Password: ', password);
-
 test('Logging in Successfully', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
   await context.clearCookies({ domain: 'localhost' });
