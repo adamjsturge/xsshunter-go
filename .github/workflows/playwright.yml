@@ -71,4 +71,4 @@ jobs:
       if: always()
       with:
         name: trace
-        path: trace.zip
+        path: ./e2e/test-results/xsshunter-Logging-in-Successfully-firefox-retry1/trace.zip
