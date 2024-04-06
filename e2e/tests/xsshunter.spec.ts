@@ -14,9 +14,11 @@ test('Logging in Successfully', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Settings' }).click();
   await expect(page.getByRole('heading')).toContainText('Settings');
+  await expect(page.getByRole('rowgroup')).toContainText('PAGES_TO_COLLECT');
   await page.getByRole('button', { name: 'Payloads' }).click();
   await expect(page.locator('#payloads')).toContainText('Payloads');
   await page.getByRole('button', { name: 'Payload Maker' }).click();
+  await expect(page.locator('#payloadsTable')).toContainText('Basic Payload');
   await expect(page.locator('#payload_maker')).toContainText('Payload Maker');
   await page.getByRole('button', { name: 'Payload Importer/Exporter' }).click();
   await expect(page.getByRole('heading')).toContainText('Payload Importer/Exporter');
