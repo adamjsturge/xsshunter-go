@@ -52,6 +52,7 @@ jobs:
         LOGS=$(docker logs xsshunter-go-xsshunter-go-1)
         PASSWORD=$(echo "$LOGS" | grep -oP 'PASSWORD: \K.*')
         echo "::set-output name=password::$PASSWORD"
+        echo "INITIAL_PASSWORD=$PASSWORD" > e2e/.env
     - name: Run Playwright tests
       env:
         INITIAL_PASSWORD: ${{ steps.logs.outputs.password }}

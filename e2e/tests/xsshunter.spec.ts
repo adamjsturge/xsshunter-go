@@ -1,18 +1,20 @@
 import { test, expect } from '@playwright/test';
 
+require('dotenv').config();
+
 const password = process.env.INITIAL_PASSWORD ?? '';
+
+console.log('Password: ', password);
 
 test('Logging in Successfully', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
+  await context.clearCookies({ domain: 'localhost' });
 
-  // const text = await page.innerText('text=http://localhost:1449/js_callback');
   await page.goto('http://localhost:1449/admin');
 
-  await context.clearCookies();
 
   await page.getByLabel('Password:').fill(password);
   await page.getByRole('button', { name: 'Submit' }).click();
-  await page.getByRole('heading', { name: 'Admin Page' }).click();
 
   await page.getByRole('button', { name: 'Settings' }).click();
   await expect(page.getByRole('heading')).toContainText('Settings');
