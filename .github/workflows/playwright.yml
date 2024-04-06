@@ -40,7 +40,7 @@ jobs:
       run:  npx playwright install --with-deps
       working-directory: e2e
     - name: Install Playwright Test
-      run: npm install @playwright/test
+      run: npm install -g @playwright/test
       working-directory: e2e
     - uses: actions/checkout@v2
     - name: Create .env
