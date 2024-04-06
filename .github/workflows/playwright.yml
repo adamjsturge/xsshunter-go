@@ -49,6 +49,8 @@ jobs:
       run: docker compose up -d
     - name: LS the directory
       run: ls
+    - name: LS the e2e
+      run: ls e2e
     - name: Copy Node Modules
       run: cp -r ./e2e/node_modules ./node_modules
     - name: Get Docker logs
