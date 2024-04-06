@@ -50,7 +50,7 @@ jobs:
       id: logs
       run: |
         sleep 50
-        LOGS=$(docker logs xsshunter-go_xsshunter-go_1)
+        LOGS=$(docker logs xsshunter-go-xsshunter-go-1)
         PASSWORD=$(echo "$LOGS" | grep -oP 'PASSWORD: \K.*')
         echo "::set-output name=password::$PASSWORD"
     - name: Run Playwright tests
