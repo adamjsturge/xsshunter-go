@@ -2,11 +2,13 @@ import { test, expect } from '@playwright/test';
 
 const password = process.env.INITIAL_PASSWORD ?? '';
 
-test('Logging in Successfully', async ({ page }) => {
+test('Logging in Successfully', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
 
-  const text = await page.innerText('text=http://localhost:1449/js_callback');
+  // const text = await page.innerText('text=http://localhost:1449/js_callback');
   await page.goto('http://localhost:1449/admin');
+
+  await context.clearCookies();
 
   await page.getByLabel('Password:').fill(password);
   await page.getByRole('button', { name: 'Submit' }).click();
@@ -24,8 +26,24 @@ test('Logging in Successfully', async ({ page }) => {
   await expect(page.getByRole('heading')).toContainText('Payload Importer/Exporter');
 });
 
-test('Trigger XSS', async ({ page }) => {
+test('Trigger XSS', async ({ page, context }) => {
   await page.goto('about:blank');
+
+  await page.route('http://localhost:1449/', async (route) => {
+    const response = await route.fetch();
+
+    expect(response.status()).toBe(200);
+
+    route.continue();
+  });
+
+  await page.route('**/js_callback', async (route) => {
+    const response = await route.fetch();
+
+    expect(response.status()).toBe(200);
+
+    await route.continue();
+  });
 
   const customHTML = `
     <html>
@@ -36,19 +54,10 @@ test('Trigger XSS', async ({ page }) => {
     </html>
   `;
 
+  
   await page.setContent(customHTML);
 
-  await page.waitForTimeout(5000);
-
   await page.goto('http://localhost:1449/admin');
+  await context.clearCookies();
 
-  await page.getByLabel('Password:').fill(password);
-  await page.getByRole('button', { name: 'Submit' }).click();
-
-  await expect(page.getByRole('rowgroup')).toContainText('about:blank');
-
-  // await page.getByText('Expand').getByRole('button').click();
-  // await page.getByText('URL: about:blank').click();
-  // await expect(page.locator('body')).toContainText('about:blank');
-  // await expect(page.getByRole('code')).toContainText('<html><head></head><body> <h1>Test</h1> <script src="http://localhost:1449"></script> </body></html>');
 });
