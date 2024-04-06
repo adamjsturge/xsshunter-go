@@ -1,0 +1,14 @@
+{
+  "name": "xsshunter-go",
+  "version": "1.0.0",
+  "description": "![](https://github.com/adamjsturge/xsshunter-go/blob/main/.github/setup-xsshunter-go.webp?raw=true)",
+  "main": "probe.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.43.0",
+    "@types/node": "^20.12.5"
+  }
+}

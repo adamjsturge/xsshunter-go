@@ -1,0 +1,61 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "go.mod"
+      - "go.sum"
+      - "probe.js"
+      - "src/*"
+      - "*.go"
+      - "e2e/*"
+      - ".github/workflows/playwright.yml"
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "go.mod"
+      - "go.sum"
+      - "probe.js"
+      - "src/*"
+      - "*.go"
+      - "e2e/*"
+      - ".github/workflows/playwright.yml"
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - uses: actions/checkout@v2
+    - name: Create .env
+      run: echo "CONTROL_PANEL_ENABLED=true\nDOMAIN=http://localhost:1449" > .env
+    - name: Test the Docker image
+      run: docker-compose up -d 
+    - name: Get Docker logs
+      id: logs
+      run: |
+        sleep 50
+        LOGS=$(docker logs xsshunter-go-1)
+        PASSWORD=$(echo "$LOGS" | grep -oP 'PASSWORD: \K.*')
+        echo "::set-output name=password::$PASSWORD"
+    - name: Run Playwright tests
+      env:
+        INITIAL_PASSWORD: ${{ steps.logs.outputs.password }}
+      run: npx playwright test e2e/
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
