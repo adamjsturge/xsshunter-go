@@ -34,17 +34,14 @@ jobs:
       with:
         node-version: lts/*
     - name: Change directory and install dependencies
-      run: |
-        cd e2e
-        npm ci
+      run: npm ci
+      working-directory: e2e
     - name: Install Playwright Browsers
-      run: |
-        cd e2e
-        npx playwright install --with-deps
+      run:  npx playwright install --with-deps
+      working-directory: e2e
     - name: Install Playwright Test
-      run: |
-        cd e2e
-        npm install @playwright/test
+      run: npm install @playwright/test
+      working-directory: e2e
     - uses: actions/checkout@v2
     - name: Create .env
       run: echo "CONTROL_PANEL_ENABLED=true\nDOMAIN=http://localhost:1449" > .env
@@ -60,8 +57,7 @@ jobs:
     - name: Run Playwright tests
       env:
         INITIAL_PASSWORD: ${{ steps.logs.outputs.password }}
-      run: |
-        cd e2e
-        npx playwright test
+      run: npx playwright test
+      working-directory: e2e
     - uses: actions/upload-artifact@v4
       if: always()
