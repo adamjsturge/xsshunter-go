@@ -33,11 +33,11 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
-    - name: Create .env
-      run: echo "CONTROL_PANEL_ENABLED=true\nDOMAIN=http://localhost:1449" > .env
-      working-directory: ./
+    # - name: Create .env
+    #   run: echo "CONTROL_PANEL_ENABLED=true\nDOMAIN=http://localhost:1449" > .env
+      # working-directory: ./
     - name: Test the Docker image
-      run: docker compose up -d
+      run: docker compose --env-file .env.copy up -d
       working-directory: ./
     - name: Change directory and install dependencies
       run: npm ci
