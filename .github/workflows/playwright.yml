@@ -1,0 +1,67 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "go.mod"
+      - "go.sum"
+      - "probe.js"
+      - "src/*"
+      - "*.go"
+      - "e2e/*"
+      - ".github/workflows/playwright.yml"
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - "go.mod"
+      - "go.sum"
+      - "probe.js"
+      - "src/*"
+      - "*.go"
+      - "e2e/*"
+      - ".github/workflows/playwright.yml"
+jobs:
+  e2e-tests:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: lts/*
+    - name: Create .env
+      run: cp .env.copy .env
+      working-directory: ./
+    - name: Test the Docker image
+      run: docker compose --env-file .env up -d
+      working-directory: ./
+    - name: Change directory and install dependencies
+      run: npm ci
+      working-directory: e2e
+    - name: Install Playwright Browsers
+      run:  npx playwright install --with-deps
+      working-directory: e2e
+    # - name: NPM Install
+    #   run: npm install
+    #   working-directory: e2e
+    - name: Get Docker logs
+      id: logs
+      run: |
+        LOGS=$(docker logs xsshunter-go-xsshunter-go-1)
+        PASSWORD=$(echo "$LOGS" | grep -oP 'PASSWORD: \K.*')
+        echo "::set-output name=password::$PASSWORD"
+        echo "INITIAL_PASSWORD=$PASSWORD" > e2e/.env
+    - name: Run Playwright tests
+      env:
+        INITIAL_PASSWORD: ${{ steps.logs.outputs.password }}
+      run: npx playwright test
+      working-directory: e2e
+    # - uses: actions/upload-artifact@v4
+    #   if: always()
+    #   with:
+    #     name: trace
+    #     path: ./e2e/test-results/xsshunter-Logging-in-Successfully-firefox-retry1/trace.zip
