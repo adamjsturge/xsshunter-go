@@ -20,3 +20,8 @@ updates:
     schedule:
       interval: "daily"
     target-branch: "dev"
+  - package-ecosystem: "npm"
+    directory: "/e2e"
+    schedule:
+      interval: "daily"
+    target-branch: "dev"
