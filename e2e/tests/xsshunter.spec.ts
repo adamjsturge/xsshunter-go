@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 require('dotenv').config();
 
-const password = process.env.INITIAL_PASSWORD ?? '';
+const password = process.env.TEMP_E2E_PLAYWRIGHT_PASSWORD ?? '';
 
 test('Logging in Successfully', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
