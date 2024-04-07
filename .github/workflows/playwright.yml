@@ -25,7 +25,7 @@ on:
       - "e2e/*"
       - ".github/workflows/playwright.yml"
 jobs:
-  test:
+  e2e-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -60,17 +60,8 @@ jobs:
         INITIAL_PASSWORD: ${{ steps.logs.outputs.password }}
       run: npx playwright test
       working-directory: e2e
-
-    # - name: ZIP trace files
-    #   run: |
-    #     if [ -d "./test-results/*/trace.zip" ]; then
-    #       zip -r trace.zip ./test-results
-    #     else
-    #       echo "No trace files found."
-    #     fi      
-    #   working-directory: e2e
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: trace
-        path: ./e2e/test-results/xsshunter-Logging-in-Successfully-firefox-retry1/trace.zip
+    # - uses: actions/upload-artifact@v4
+    #   if: always()
+    #   with:
+    #     name: trace
+    #     path: ./e2e/test-results/xsshunter-Logging-in-Successfully-firefox-retry1/trace.zip
