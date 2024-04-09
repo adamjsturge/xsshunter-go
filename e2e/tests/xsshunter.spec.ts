@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 require('dotenv').config();
 
-const password = process.env.INITIAL_PASSWORD ?? '';
+const password = process.env.TEMP_E2E_PLAYWRIGHT_PASSWORD ?? '';
 
 test('Logging in Successfully', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
@@ -37,7 +37,7 @@ test('Trigger XSS', async ({ page, context }) => {
     route.continue();
   });
 
-  await page.route('**/js_callback', async (route) => {
+  await context.route('**/js_callback', async (route) => {
     const response = await route.fetch();
 
     expect(response.status()).toBe(200);
@@ -53,9 +53,10 @@ test('Trigger XSS', async ({ page, context }) => {
       </body>
     </html>
   `;
-
   
   await page.setContent(customHTML);
+
+  await expect(page.getByText('Test')).toBeVisible();  
 
   await page.goto('http://localhost:1449/admin');
   await context.clearCookies();
