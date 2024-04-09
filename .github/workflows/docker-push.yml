@@ -65,9 +65,9 @@ jobs:
             GIT_COMMIT=${{ github.sha }}
             GIT_BRANCH=${{ github.ref_name }}
 
-      - name: Create and push manifest
-        run: |
-          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-amd64 \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-arm64
-          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      # - name: Create and push manifest
+      #   run: |
+      #     docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+      #       --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-amd64 \
+      #       --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-arm64
+      #     docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
