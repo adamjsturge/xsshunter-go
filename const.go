@@ -46,7 +46,7 @@ func set_pages_to_collect() {
 	defer db.Close()
 
 	var pages_to_collect_value string
-	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", PAGES_TO_COLLECT_SETTINGS_KEY).Scan(&pages_to_collect_value)
+	err := db.QueryRow("SELECT value FROM settings WHERE key = $1", PAGES_TO_COLLECT_SETTINGS_KEY).Scan(&pages_to_collect_value)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func set_chainload_uri() {
 	db := establish_database_connection()
 	defer db.Close()
 
-	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", CHAINLOAD_URI_SETTINGS_KEY).Scan(&chainload_uris)
+	err := db.QueryRow("SELECT value FROM settings WHERE key = $1", CHAINLOAD_URI_SETTINGS_KEY).Scan(&chainload_uris)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -75,7 +75,7 @@ func set_send_alerts() {
 	db := establish_database_connection()
 	defer db.Close()
 
-	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", SEND_ALERTS_SETTINGS_KEY).Scan(&send_alerts)
+	err := db.QueryRow("SELECT value FROM settings WHERE key = $1", SEND_ALERTS_SETTINGS_KEY).Scan(&send_alerts)
 	if err != nil {
 		log.Fatal(err)
 	}

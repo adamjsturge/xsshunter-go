@@ -1,0 +1,35 @@
+version: '3'
+services:
+  xsshunter-go:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./db/:/app/db/
+      - ./screenshots/:/app/screenshots/
+      - ./src:/app/src # For development
+    ports:
+      - "1449:1449"
+    environment:
+      - DATABASE_URL=postgres://xsshunter:xsshunter@postgres:5432/xsshunter?sslmode=disable
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+  postgres:
+      image: postgres:16.2-alpine3.19
+      environment:
+          POSTGRES_USER: xsshunter
+          POSTGRES_PASSWORD: xsshunter
+          POSTGRES_DB: xsshunter
+      volumes:
+          - ./postgres_db/:/var/lib/postgresql/data/
+      ports:
+          - "5432:5432"
+  redis:
+      image: redis:7.2.4-alpine3.19
+      volumes:
+          - ./redis:/data
+      ports:
+          - "6379:6379"

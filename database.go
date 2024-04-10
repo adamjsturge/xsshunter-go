@@ -6,10 +6,8 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
-	// "gorm.io/driver/postgres"
-	// "gorm.io/driver/sqlite"
-	// "gorm.io/gorm"
 )
 
 type Settings struct {
@@ -172,7 +170,7 @@ func create_postgres_tables() {
 		origin TEXT,
 		screenshot_id TEXT,
 		was_iframe BOOLEAN,
-		browser_timestamp UNSIGNED INT,
+		browser_timestamp BIGINT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS collected_pages (
@@ -265,12 +263,12 @@ func initialize_setting_helper(key string, value string) bool {
 	defer db.Close()
 
 	var has_setting int
-	setting_err := db.QueryRow("SELECT COUNT(1) FROM settings WHERE key = ?", key).Scan(&has_setting)
+	setting_err := db.QueryRow("SELECT COUNT(1) FROM settings WHERE key = $1", key).Scan(&has_setting)
 	if setting_err != nil {
 		log.Fatal(setting_err)
 	}
 	if has_setting != 1 {
-		_, err := db.Exec("INSERT INTO settings (key, value) VALUES (?, ?)", key, value)
+		_, err := db.Exec("INSERT INTO settings (key, value) VALUES ($1, $2)", key, value)
 		if err != nil {
 			log.Fatal(err)
 		}

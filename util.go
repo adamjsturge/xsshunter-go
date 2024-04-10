@@ -64,7 +64,7 @@ func parameter_to_int(input string, default_int int) int {
 func update_setting(setting_key string, setting_value string) {
 	db := establish_database_connection()
 	defer db.Close()
-	_, err := db.Exec("UPDATE settings SET value = :value WHERE key = :key", setting_value, setting_key)
+	_, err := db.Exec("UPDATE settings SET value = $1 WHERE key = $2", setting_value, setting_key)
 	if err != nil {
 		fmt.Println("Settings is not updated: ", err)
 	}

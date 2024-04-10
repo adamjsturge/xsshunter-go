@@ -35,7 +35,7 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		rows, err := db.Query("SELECT key, value FROM settings WHERE key IN (?, ?, ?, ?)", CORRELATION_API_SECRET_SETTINGS_KEY, CHAINLOAD_URI_SETTINGS_KEY, PAGES_TO_COLLECT_SETTINGS_KEY, SEND_ALERTS_SETTINGS_KEY)
+		rows, err := db.Query("SELECT key, value FROM settings WHERE key IN ($1, $2, $3, $4)", CORRELATION_API_SECRET_SETTINGS_KEY, CHAINLOAD_URI_SETTINGS_KEY, PAGES_TO_COLLECT_SETTINGS_KEY, SEND_ALERTS_SETTINGS_KEY)
 		if err != nil {
 			http.Error(w, "Error querying database", http.StatusInternalServerError)
 			return
@@ -52,6 +52,7 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			settings[key] = value
 		}
+		settings[ADMIN_PASSWORD_SETTINGS_KEY] = ""
 
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(settings)
@@ -104,7 +105,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	var password string
-	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", ADMIN_PASSWORD_SETTINGS_KEY).Scan(&password)
+	err := db.QueryRow("SELECT value FROM settings WHERE key = $1", ADMIN_PASSWORD_SETTINGS_KEY).Scan(&password)
 	if err != nil {
 		http.Error(w, "Error querying database", http.StatusInternalServerError)
 		return
@@ -139,7 +140,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		rows, err := db.Query("SELECT id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp FROM payload_fire_results ORDER BY created_at DESC LIMIT ? OFFSET ?", limit, offset)
+		rows, err := db.Query("SELECT id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp FROM payload_fire_results ORDER BY created_at DESC LIMIT $1 OFFSET $2", limit, offset)
 		if err != nil {
 			http.Error(w, "Error querying database", http.StatusInternalServerError)
 			return
@@ -171,7 +172,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		rows, err := db.Query("SELECT screenshot_id FROM payload_fire_results WHERE id IN (?)", ids_to_delete)
+		rows, err := db.Query("SELECT screenshot_id FROM payload_fire_results WHERE id IN ($1)", ids_to_delete)
 		if err != nil {
 			http.Error(w, "Error querying database", http.StatusInternalServerError)
 			return
@@ -190,7 +191,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Error deleting payload fire image", http.StatusInternalServerError)
 				return
 			}
-			_, err = db.Exec("DELETE FROM payload_fire_results WHERE screenshot_id = ?", screenshot_id)
+			_, err = db.Exec("DELETE FROM payload_fire_results WHERE screenshot_id = $1", screenshot_id)
 			if err != nil {
 				http.Error(w, "Error deleting payload fires", http.StatusInternalServerError)
 				return
@@ -217,7 +218,7 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		rows, err := db.Query("SELECT id, uri FROM collected_pages ORDER BY created_at DESC LIMIT ? OFFSET ?", limit, offset)
+		rows, err := db.Query("SELECT id, uri FROM collected_pages ORDER BY created_at DESC LIMIT $1 OFFSET $2", limit, offset)
 		if err != nil {
 			http.Error(w, "Error querying database", http.StatusInternalServerError)
 			return
@@ -249,7 +250,7 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		_, err := db.Exec("DELETE FROM collected_pages WHERE id IN (?)", ids_to_delete)
+		_, err := db.Exec("DELETE FROM collected_pages WHERE id IN ($1)", ids_to_delete)
 		if err != nil {
 			http.Error(w, "Error deleting collected pages", http.StatusInternalServerError)
 			return
@@ -270,7 +271,7 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	var is_authenticated bool
-	err := db.QueryRow("SELECT 1 FROM settings WHERE key = ? AND value = ?", CORRELATION_API_SECRET_SETTINGS_KEY, owner_correlation_key).Scan(&is_authenticated)
+	err := db.QueryRow("SELECT 1 FROM settings WHERE key = $1 AND value = $2", CORRELATION_API_SECRET_SETTINGS_KEY, owner_correlation_key).Scan(&is_authenticated)
 	if err != nil {
 		http.Error(w, "Error", http.StatusUnauthorized)
 		return
@@ -284,7 +285,7 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec("INSERT INTO injection_requests (injection_key, request) VALUES (?, ?)", r.FormValue("injection_key"), r.FormValue("request"))
+	_, err = db.Exec("INSERT INTO injection_requests (injection_key, request) VALUES ($1, $2)", r.FormValue("injection_key"), r.FormValue("request"))
 	if err != nil {
 		http.Error(w, "Error inserting injection request", http.StatusInternalServerError)
 		return
@@ -340,7 +341,7 @@ func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		stmt, _ := db.Prepare(`INSERT INTO user_xss_payloads (payload, title, description, author, author_link) VALUES (?, ?, ?, ?, ?)`)
+		stmt, _ := db.Prepare(`INSERT INTO user_xss_payloads (payload, title, description, author, author_link) VALUES ($1, $2, $3, $4, $5)`)
 		_, err := stmt.Exec(r.FormValue("payload"), r.FormValue("title"), r.FormValue("description"), r.FormValue("author"), r.FormValue("author_link"))
 		if err != nil {
 			http.Error(w, "Error inserting user payload", http.StatusInternalServerError)
@@ -355,7 +356,7 @@ func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		_, err := db.Exec("DELETE FROM user_xss_payloads WHERE id IN (?)", ids_to_delete)
+		_, err := db.Exec("DELETE FROM user_xss_payloads WHERE id IN ($1)", ids_to_delete)
 		if err != nil {
 			http.Error(w, "Error deleting user payloads", http.StatusInternalServerError)
 			return
@@ -385,7 +386,7 @@ func userPayloadImporterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for _, user_payload := range user_payloads {
-		stmt, _ := db.Prepare(`INSERT INTO user_xss_payloads (payload, title, description, author, author_link) VALUES (?, ?, ?, ?, ?)`)
+		stmt, _ := db.Prepare(`INSERT INTO user_xss_payloads (payload, title, description, author, author_link) VALUES ($1, $2, $3, $4, $5)`)
 		_, err := stmt.Exec(user_payload.Payload, user_payload.Title, user_payload.Description, user_payload.Author, user_payload.Author_link)
 		if err != nil {
 			http.Error(w, "Error inserting user payload", http.StatusInternalServerError)

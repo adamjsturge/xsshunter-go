@@ -6,3 +6,5 @@ test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+/postgres_db/
+/redis/
