@@ -1,0 +1,53 @@
+version: '3.9'
+services:
+    xsshunter-go:
+        image: adamjsturge/xsshunter-go:latest
+        volumes:
+            - ./db/:/app/db/
+            - ./screenshots/:/app/screenshots/
+        environment:
+            - CONTROL_PANEL_ENABLED=true
+            - NOTIFY=discord://...,slack://...
+            - REDIS_URL=redis://redis:6379
+            - DATABASE_URL=postgres://xsshunter:xsshunter@postgres:5432/xsshunter
+        labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.xsshunter-go.entrypoints=web, websecure"
+            - "traefik.http.routers.xsshunter-go.rule=Host(`xsshunter.example.com`)"
+            - "traefik.http.routers.xsshunter-go.tls.certresolver=myresolver"
+            - "traefik.http.routers.xsshunter-go.tls.domains[0].main=xsshunter.example.com"
+            - "traefik.http.services.xsshunter-go.loadbalancer.server.port=1449"
+    traefik:
+        image: "traefik:v2.8"
+        container_name: "traefik"
+        command:
+            - "--providers.docker=true"
+            - "--providers.docker.exposedbydefault=false"
+            - "--entrypoints.web.address=:80"
+            - "--entrypoints.websecure.address=:443"
+            - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+            - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+            - "--certificatesresolvers.myresolver.acme.email=xsshunter@example.com"
+            - "--certificatesresolvers.myresolver.acme.storage=/shared/acme.json"
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock:ro"
+            - "./shared:/shared"
+    postgres:
+        image: postgres:16.2-alpine3.19
+        environment:
+            POSTGRES_USER: xsshunter
+            POSTGRES_PASSWORD: xsshunter
+            POSTGRES_DB: xsshunter
+        volumes:
+            - ./db/:/var/lib/postgresql/data/
+        ports:
+            - "5432:5432"
+    redis:
+        image: redis:7.2.4-alpine3.19
+        volumes:
+            - ./redis:/data
+        ports:
+            - "6379:6379"

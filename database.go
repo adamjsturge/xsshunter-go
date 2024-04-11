@@ -6,10 +6,8 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
-	// "gorm.io/driver/postgres"
-	// "gorm.io/driver/sqlite"
-	// "gorm.io/gorm"
 )
 
 type Settings struct {
@@ -19,20 +17,21 @@ type Settings struct {
 }
 
 type PayloadFireResults struct {
-	ID                 string `json:"id"`
-	Url                string `json:"url"`
-	Ip_address         string `json:"ip_address"`
-	Referer            string `json:"referer"`
-	User_agent         string `json:"user_agent"`
-	Cookies            string `json:"cookies"`
-	Title              string `json:"title"`
-	Dom                string `json:"dom"`
-	Text               string `json:"text"`
-	Origin             string `json:"origin"`
-	Screenshot_id      string `json:"screenshot_id"`
-	Was_iframe         bool   `json:"was_iframe"`
-	Browser_timestamp  uint   `json:"browser_timestamp"`
-	Correlated_request string `json:"correlated_request"`
+	ID                    string `json:"id"`
+	Url                   string `json:"url"`
+	Ip_address            string `json:"ip_address"`
+	Referer               string `json:"referer"`
+	User_agent            string `json:"user_agent"`
+	Cookies               string `json:"cookies"`
+	Title                 string `json:"title"`
+	Dom                   string `json:"dom"`
+	Text                  string `json:"text"`
+	Origin                string `json:"origin"`
+	Screenshot_id         string `json:"screenshot_id"`
+	Was_iframe            bool   `json:"was_iframe"`
+	Browser_timestamp     uint   `json:"browser_timestamp"`
+	Correlated_request    string `json:"correlated_request"`
+	Injection_requests_id string `json:"injection_requests_id"`
 }
 
 type CollectedPages struct {
@@ -53,6 +52,8 @@ func initialize_database() {
 	} else {
 		initialize_sqlite_database()
 	}
+
+	do_migrations()
 	initialize_settings()
 }
 
@@ -141,6 +142,11 @@ func create_sqlite_tables() {
 		author_link TEXT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
+	CREATE TABLE IF NOT EXISTS migrations (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
 	`
 	_, err := db.Exec(sqlStmt)
 	if err != nil {
@@ -172,7 +178,7 @@ func create_postgres_tables() {
 		origin TEXT,
 		screenshot_id TEXT,
 		was_iframe BOOLEAN,
-		browser_timestamp UNSIGNED INT,
+		browser_timestamp BIGINT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS collected_pages (
@@ -194,6 +200,11 @@ func create_postgres_tables() {
 		description TEXT,
 		author TEXT,
 		author_link TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
+	CREATE TABLE IF NOT EXISTS migrations (
+		id SERIAL PRIMARY KEY,
+		name TEXT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	`
@@ -264,13 +275,12 @@ func initialize_setting_helper(key string, value string) bool {
 	db := establish_database_connection()
 	defer db.Close()
 
-	var has_setting int
-	setting_err := db.QueryRow("SELECT COUNT(1) FROM settings WHERE key = ?", key).Scan(&has_setting)
+	has_setting, setting_err := db_query_row("SELECT COUNT(1) FROM settings WHERE key = $1", key).toInt()
 	if setting_err != nil {
 		log.Fatal(setting_err)
 	}
 	if has_setting != 1 {
-		_, err := db.Exec("INSERT INTO settings (key, value) VALUES (?, ?)", key, value)
+		_, err := db.Exec("INSERT INTO settings (key, value) VALUES ($1, $2)", key, value)
 		if err != nil {
 			log.Fatal(err)
 		}

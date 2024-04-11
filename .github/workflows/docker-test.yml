@@ -37,7 +37,7 @@ jobs:
     - name: Create .env
       run: touch .env
     - name: Build the Docker image
-      run: docker-compose build --no-cache --force-rm 
+      run: docker compose -f docker-compose.prod.yml build --no-cache --force-rm 
   test:
     runs-on: ubuntu-latest
     steps:
@@ -45,4 +45,4 @@ jobs:
       - name: Create .env
         run: touch .env
       - name: Test the Docker image
-        run: docker-compose up -d 
+        run: docker compose -f docker-compose.prod.yml up -d 
