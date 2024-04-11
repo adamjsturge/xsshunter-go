@@ -4,6 +4,7 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+      target: dev
     volumes:
       - ./db/:/app/db/
       - ./screenshots/:/app/screenshots/

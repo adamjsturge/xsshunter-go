@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"os"
 )
@@ -101,11 +103,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
-	db := establish_database_connection()
-	defer db.Close()
 
-	var password string
-	err := db.QueryRow("SELECT value FROM settings WHERE key = $1", ADMIN_PASSWORD_SETTINGS_KEY).Scan(&password)
+	password, err := db_query_row("SELECT value FROM settings WHERE key = $1", ADMIN_PASSWORD_SETTINGS_KEY).toString()
 	if err != nil {
 		http.Error(w, "Error querying database", http.StatusInternalServerError)
 		return
@@ -191,7 +190,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Error deleting payload fire image", http.StatusInternalServerError)
 				return
 			}
-			_, err = db.Exec("DELETE FROM payload_fire_results WHERE screenshot_id = $1", screenshot_id)
+			_, err = db_execute("DELETE FROM payload_fire_results WHERE screenshot_id = $1", screenshot_id)
 			if err != nil {
 				http.Error(w, "Error deleting payload fires", http.StatusInternalServerError)
 				return
@@ -247,10 +246,7 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "No ids to delete", http.StatusBadRequest)
 			return
 		}
-		db := establish_database_connection()
-		defer db.Close()
-
-		_, err := db.Exec("DELETE FROM collected_pages WHERE id IN ($1)", ids_to_delete)
+		_, err := db_execute("DELETE FROM collected_pages WHERE id IN ($1)", ids_to_delete)
 		if err != nil {
 			http.Error(w, "Error deleting collected pages", http.StatusInternalServerError)
 			return
@@ -262,17 +258,20 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 
 func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
+
+	err := r.ParseMultipartForm(32 << 20)
+	if err != nil {
+		log.Fatal(err)
+	}
 	owner_correlation_key := r.FormValue("owner_correlation_key")
 	if owner_correlation_key == "" {
 		http.Error(w, "No owner_correlation_key", http.StatusBadRequest)
 		return
 	}
-	db := establish_database_connection()
-	defer db.Close()
 
-	var is_authenticated bool
-	err := db.QueryRow("SELECT 1 FROM settings WHERE key = $1 AND value = $2", CORRELATION_API_SECRET_SETTINGS_KEY, owner_correlation_key).Scan(&is_authenticated)
-	if err != nil {
+	is_authenticated, errQuery := db_query_row("SELECT 1 FROM settings WHERE key = $1 AND value = $2", CORRELATION_API_SECRET_SETTINGS_KEY, owner_correlation_key).toBool()
+	if errQuery != nil {
+		fmt.Println("Error querying database: ", errQuery)
 		http.Error(w, "Error", http.StatusUnauthorized)
 		return
 	}
@@ -285,7 +284,7 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec("INSERT INTO injection_requests (injection_key, request) VALUES ($1, $2)", r.FormValue("injection_key"), r.FormValue("request"))
+	_, err = db_execute("INSERT INTO injection_requests (injection_key, request) VALUES ($1, $2)", r.FormValue("injection_key"), r.FormValue("request"))
 	if err != nil {
 		http.Error(w, "Error inserting injection request", http.StatusInternalServerError)
 		return
@@ -353,10 +352,7 @@ func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "No ids to delete", http.StatusBadRequest)
 			return
 		}
-		db := establish_database_connection()
-		defer db.Close()
-
-		_, err := db.Exec("DELETE FROM user_xss_payloads WHERE id IN ($1)", ids_to_delete)
+		_, err := db_execute("DELETE FROM user_xss_payloads WHERE id IN ($1)", ids_to_delete)
 		if err != nil {
 			http.Error(w, "Error deleting user payloads", http.StatusInternalServerError)
 			return

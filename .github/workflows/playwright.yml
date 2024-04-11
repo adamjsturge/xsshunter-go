@@ -37,7 +37,7 @@ jobs:
       run: cp .env.copy .env
       working-directory: ./
     - name: Test the Docker image
-      run: docker compose --env-file .env up -d
+      run: docker compose -f docker-compose.prod.yml --env-file .env up -d
       working-directory: ./
     - name: Change directory and install dependencies
       run: npm ci

@@ -8,7 +8,7 @@ import (
 	"github.com/containrrr/shoutrrr/pkg/types"
 )
 
-func send_notification(message string, screenshot_url string) {
+func send_notification(message string, screenshot_url string, correlated_request string) {
 	notify_urls := get_env("NOTIFY")
 	if notify_urls == "" {
 		return
@@ -19,6 +19,10 @@ func send_notification(message string, screenshot_url string) {
 	}
 
 	message_with_screenshot := message + " " + screenshot_url
+
+	if correlated_request != "No correlated request found for this injection." {
+		message_with_screenshot += " At " + correlated_request
+	}
 
 	urls := strings.Split(notify_urls, ",")
 
