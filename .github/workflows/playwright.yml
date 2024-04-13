@@ -10,7 +10,7 @@ on:
       - "probe.js"
       - "src/*"
       - "*.go"
-      - "e2e/*"
+      - "e2e/**"
       - ".github/workflows/playwright.yml"
   pull_request:
     branches: [ main, dev ]
@@ -22,7 +22,7 @@ on:
       - "probe.js"
       - "src/*"
       - "*.go"
-      - "e2e/*"
+      - "e2e/**"
       - ".github/workflows/playwright.yml"
 jobs:
   e2e-tests:
