@@ -16,11 +16,6 @@ type Result struct {
 	err   error
 }
 
-type ResultRow struct {
-	values []interface{}
-	err    error
-}
-
 func (r Result) toString() (string, error) {
 	if r.err != nil {
 		return "", r.err
@@ -63,16 +58,6 @@ func (r Result) toBool() (bool, error) {
 	return false, fmt.Errorf("failed to convert result to bool")
 }
 
-func (r Result) toMap() (map[string]Result, error) {
-	if r.err != nil {
-		return nil, r.err
-	}
-	if m, ok := r.value.(map[string]Result); ok {
-		return m, nil
-	}
-	return nil, fmt.Errorf("failed to convert result to map")
-}
-
 func db_single_item_query(query string, args ...any) Result {
 	db := establish_database_connection()
 	defer db.Close()
@@ -88,46 +73,46 @@ func db_single_item_query(query string, args ...any) Result {
 	return Result{value: result}
 }
 
-func db_multi_item_query(query string, args ...interface{}) ([]map[string]Result, error) {
-	db := establish_database_connection()
-	defer db.Close()
+// func db_multi_item_query(query string, args ...interface{}) ([]map[string]Result, error) {
+// 	db := establish_database_connection()
+// 	defer db.Close()
 
-	rows, err := db.Query(query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+// 	rows, err := db.Query(query, args...)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
 
-	columns, err := rows.Columns()
-	if err != nil {
-		return nil, err
-	}
+// 	columns, err := rows.Columns()
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	var results []map[string]Result
-	for rows.Next() {
-		values := make([]interface{}, len(columns))
-		valuePtrs := make([]interface{}, len(columns))
+// 	var results []map[string]Result
+// 	for rows.Next() {
+// 		values := make([]interface{}, len(columns))
+// 		valuePtrs := make([]interface{}, len(columns))
 
-		for i := 0; i < len(columns); i++ {
-			valuePtrs[i] = &values[i]
-		}
+// 		for i := 0; i < len(columns); i++ {
+// 			valuePtrs[i] = &values[i]
+// 		}
 
-		err = rows.Scan(valuePtrs...)
-		if err != nil {
-			return nil, err
-		}
+// 		err = rows.Scan(valuePtrs...)
+// 		if err != nil {
+// 			return nil, err
+// 		}
 
-		result := make(map[string]Result)
-		for i, col := range columns {
-			val := valuePtrs[i].(*interface{})
-			result[col] = Result{value: *val}
-		}
+// 		result := make(map[string]Result)
+// 		for i, col := range columns {
+// 			val := valuePtrs[i].(*interface{})
+// 			result[col] = Result{value: *val}
+// 		}
 
-		results = append(results, result)
-	}
+// 		results = append(results, result)
+// 	}
 
-	return results, nil
-}
+// 	return results, nil
+// }
 
 // func db_query(query string, args ...any) (any, error) {
 // 	db := establish_database_connection()
