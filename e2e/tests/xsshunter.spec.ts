@@ -27,7 +27,6 @@ test('Trigger XSS', async ({ page, context }) => {
   await expect(page.locator('#CORRELATION_API_KEY')).toBeVisible();
 
   const CORRELATION_API_KEY = await page.locator('#CORRELATION_API_KEY').inputValue();
-  console.log(`ada ${CORRELATION_API_KEY}`);
 
   const form_data = new FormData();
   form_data.append('owner_correlation_key', CORRELATION_API_KEY);
@@ -56,7 +55,6 @@ test('Update Settings', async ({ page, context }) => {
   await navigateToSettings(page);
 
   const randomString = crypto.randomBytes(20).toString('hex');
-  console.log(randomString);
 
   // await page.locator('#CORRELATION_API_KEY').fill(randomString);
   await page.fill('#CORRELATION_API_KEY', randomString);
