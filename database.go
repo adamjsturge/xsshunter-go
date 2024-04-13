@@ -1,13 +1,8 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
-	"os"
-
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 type Settings struct {
@@ -44,55 +39,6 @@ type InjectionRequests struct {
 	ID            uint
 	Request       string
 	Injection_key string
-}
-
-func initialize_database() {
-	if is_postgres {
-		initialize_postgres_database()
-	} else {
-		initialize_sqlite_database()
-	}
-
-	do_migrations()
-	initialize_settings()
-}
-
-func establish_database_connection() *sql.DB {
-	if is_postgres {
-		return establish_postgres_database_connection()
-	}
-	return establish_sqlite_database_connection()
-}
-
-func initialize_sqlite_database() {
-	if _, err := os.Stat("db"); os.IsNotExist(err) {
-		err = os.MkdirAll("db", 0750)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	create_sqlite_tables()
-}
-
-func initialize_postgres_database() {
-	create_postgres_tables()
-}
-
-func establish_sqlite_database_connection() *sql.DB {
-	dbPath := get_sqlite_database_path()
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return db
-}
-
-func establish_postgres_database_connection() *sql.DB {
-	db, err := sql.Open("postgres", get_env("DATABASE_URL"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	return db
 }
 
 func create_sqlite_tables() {
