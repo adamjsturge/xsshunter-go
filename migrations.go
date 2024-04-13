@@ -54,7 +54,6 @@ func migration_one() {
 
 	sqliteStmt := `
 		ALTER TABLE payload_fire_results ADD COLUMN injection_requests_id INTEGER DEFAULT NULL;
-		ALTER TABLE payload_fire_results ADD CONSTRAINT fk_injection_requests_id FOREIGN KEY (injection_requests_id) REFERENCES injection_requests(id);
 	`
 
 	migration_handler(name, pgStmt, sqliteStmt)
