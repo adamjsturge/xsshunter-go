@@ -104,7 +104,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	password, err := db_query_row("SELECT value FROM settings WHERE key = $1", ADMIN_PASSWORD_SETTINGS_KEY).toString()
+	password, err := db_single_item_query("SELECT value FROM settings WHERE key = $1", ADMIN_PASSWORD_SETTINGS_KEY).toString()
 	if err != nil {
 		http.Error(w, "Error querying database", http.StatusInternalServerError)
 		return
@@ -139,7 +139,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 		db := establish_database_connection()
 		defer db.Close()
 
-		rows, err := db.Query("SELECT id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp FROM payload_fire_results ORDER BY created_at DESC LIMIT $1 OFFSET $2", limit, offset)
+		rows, err := db.Query("SELECT id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp, injection_requests_id FROM payload_fire_results ORDER BY created_at DESC LIMIT $1 OFFSET $2", limit, offset)
 		if err != nil {
 			http.Error(w, "Error querying database", http.StatusInternalServerError)
 			return
@@ -149,7 +149,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 		payload_fires := []PayloadFireResults{}
 		for rows.Next() {
 			var payload_fire PayloadFireResults
-			err = rows.Scan(&payload_fire.ID, &payload_fire.Url, &payload_fire.Ip_address, &payload_fire.Referer, &payload_fire.User_agent, &payload_fire.Cookies, &payload_fire.Title, &payload_fire.Dom, &payload_fire.Text, &payload_fire.Origin, &payload_fire.Screenshot_id, &payload_fire.Was_iframe, &payload_fire.Browser_timestamp)
+			err = rows.Scan(&payload_fire.ID, &payload_fire.Url, &payload_fire.Ip_address, &payload_fire.Referer, &payload_fire.User_agent, &payload_fire.Cookies, &payload_fire.Title, &payload_fire.Dom, &payload_fire.Text, &payload_fire.Origin, &payload_fire.Screenshot_id, &payload_fire.Was_iframe, &payload_fire.Browser_timestamp, &payload_fire.Injection_requests_id)
 			if err != nil {
 				http.Error(w, "Error scanning database", http.StatusInternalServerError)
 				return
@@ -269,7 +269,7 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	is_authenticated, errQuery := db_query_row("SELECT 1 FROM settings WHERE key = $1 AND value = $2", CORRELATION_API_SECRET_SETTINGS_KEY, owner_correlation_key).toBool()
+	is_authenticated, errQuery := db_single_item_query("SELECT 1 FROM settings WHERE key = $1 AND value = $2", CORRELATION_API_SECRET_SETTINGS_KEY, owner_correlation_key).toBool()
 	if errQuery != nil {
 		fmt.Println("Error querying database: ", errQuery)
 		http.Error(w, "Error", http.StatusUnauthorized)
@@ -284,15 +284,17 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db_execute("INSERT INTO injection_requests (injection_key, request) VALUES ($1, $2)", r.FormValue("injection_key"), r.FormValue("request"))
+	injection_requests_id, err := db_single_item_query("INSERT INTO injection_requests (injection_key, request) VALUES ($1, $2) RETURNING id", r.FormValue("injection_key"), r.FormValue("request")).toInt()
 	if err != nil {
 		http.Error(w, "Error inserting injection request", http.StatusInternalServerError)
 		return
 	}
 
-	_, err = w.Write([]byte("Injection recorded"))
+	// w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(int(injection_requests_id))
 	if err != nil {
-		http.Error(w, "Error writing response", http.StatusInternalServerError)
+		http.Error(w, "Error encoding JSON", http.StatusInternalServerError)
+		return
 	}
 }
 

@@ -26,7 +26,7 @@ type PayloadFireResults struct {
 	Was_iframe            bool   `json:"was_iframe"`
 	Browser_timestamp     uint   `json:"browser_timestamp"`
 	Correlated_request    string `json:"correlated_request"`
-	Injection_requests_id string `json:"injection_requests_id"`
+	Injection_requests_id *int   `json:"injection_requests_id"`
 }
 
 type CollectedPages struct {
@@ -221,7 +221,7 @@ func initialize_setting_helper(key string, value string) bool {
 	db := establish_database_connection()
 	defer db.Close()
 
-	has_setting, setting_err := db_query_row("SELECT COUNT(1) FROM settings WHERE key = $1", key).toInt()
+	has_setting, setting_err := db_single_item_query("SELECT COUNT(1) FROM settings WHERE key = $1", key).toInt()
 	if setting_err != nil {
 		log.Fatal(setting_err)
 	}

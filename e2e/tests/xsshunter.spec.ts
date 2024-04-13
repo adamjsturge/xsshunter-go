@@ -14,7 +14,7 @@ test('Logging in Successfully', async ({ page, context }) => {
   await navigateToPayloadImporterExporter(page);
 });
 
-test('Trigger XSS', async ({ page, context }) => {
+test('Correlation Trigger XSS', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
   await clearCookies(context);
 
@@ -41,8 +41,22 @@ test('Trigger XSS', async ({ page, context }) => {
   );
 
   await expect(resp.status).toBe(200);
+  
+  const injection_requests_id = await resp.text().then((text) => text.replace(/\r?\n|\r/g, ''));
 
   await triggerXSS(page, context, randomInjectionKey);
+  await page.goto('http://localhost:1449/admin');
+
+  await page.locator(`button[id="injection-request-id-${injection_requests_id}"]`).click();
+
+
+});
+
+test('Basic Trigger XSS', async ({ page, context }) => {
+  await page.goto('http://localhost:1449/');
+  await clearCookies(context);
+
+  await triggerXSS(page, context);
   await page.goto('http://localhost:1449/admin');
   await clearCookies(context);
 });

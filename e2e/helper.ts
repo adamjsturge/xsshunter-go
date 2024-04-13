@@ -36,7 +36,7 @@ export async function clearCookies(context) {
   await context.clearCookies({ domain: 'localhost' });
 }
 
-export async function triggerXSS(page, context, randomInjectionKey) {
+export async function triggerXSS(page, context, randomInjectionKey = "") {
   await page.goto('about:blank');
 
   await page.route('http://localhost:1449/', async (route) => {

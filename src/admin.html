@@ -360,9 +360,18 @@
                     make_table_cell(item.url, row, 'payload_fires_cell');
                     make_table_cell(null, row, 'payload_fires_cell').appendChild(make_image(item.screenshot_id, 'Screenshot', null, 'thumbnail'));
                     const actionCell = make_table_cell(null, row, 'payload_fires_cell');
-                    make_element('button', 'Expand', actionCell, 'action_button', function() {
+ 
+                    const expandButton = document.createElement('button');
+                    if (item.injection_requests_id !== null) {
+                        expandButton.id = `injection-request-id-${item.injection_requests_id}`
+                    }
+                    expandButton.textContent = 'Expand';
+                    expandButton.className = 'action_button';
+                    expandButton.onclick = function() {
                         expandPayloadFire(item);
-                    });
+                    };
+                    actionCell.appendChild(expandButton);
+                    
                 });
             });
         }
