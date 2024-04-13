@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 )
 
 const (
@@ -17,17 +16,13 @@ const (
 	csrf_header_name                    = "X-CSRF-Buster"
 )
 
-var constant map[string]string
+var constant = make(map[string]string)
 
-var is_postgres bool = os.Getenv("DATABASE_URL") != ""
+var is_postgres bool = get_env("DATABASE_URL") != ""
 
 var pages_to_collect string
 var chainload_uris string
 var send_alerts bool
-
-func initalize_constant() {
-	constant = make(map[string]string)
-}
 
 func get_host(request *http.Request) string {
 	host := get_env("DOMAIN")

@@ -32,7 +32,7 @@ func versionHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
 	set_no_cache(w)
 
-	latestCommit := ""
+	latestCommit := "unknown"
 
 	latestCommitObj := getLatestCommitFromBranch(gitBranch)
 	if latestCommitObj != nil {
@@ -86,6 +86,9 @@ func PrintVersion() {
 // }
 
 func getLatestCommitFromBranch(branch string) *Commit {
+	if branch == "unknown" {
+		return nil
+	}
 	url := "https://api.github.com/repos/adamjsturge/xsshunter-go/commits/" + branch
 	resp, err := http.Get(url) // #nosec G107
 	if err != nil {

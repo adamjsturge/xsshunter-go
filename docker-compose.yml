@@ -1,4 +1,3 @@
-version: '3'
 services:
   xsshunter-go:
     build: 
@@ -6,9 +5,10 @@ services:
       dockerfile: Dockerfile
       target: dev
     volumes:
-      - ./db/:/app/db/
-      - ./screenshots/:/app/screenshots/
-      - ./src:/app/src # For development
+      # - ./db/:/app/db/
+      # - ./screenshots/:/app/screenshots/
+      # - ./src:/app/src # For development
+        - ./:/app
     ports:
       - "1449:1449"
     env_file:

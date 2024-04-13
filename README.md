@@ -19,7 +19,7 @@ The idea of why I decided to code this in Go is because I wanted this to be a ma
 ## Setup
 
 ```yml
-version: '3'
+version: '3.8'
 services:
   xsshunter-go:
     image: adamjsturge/xsshunter-go:latest
