@@ -45,10 +45,13 @@ jobs:
     - name: Install Playwright Browsers
       run:  npx playwright install --with-deps
       working-directory: e2e
+    - name: Show docker logs
+      run: docker logs xsshunter-go-xsshunter-go-1
+      working-directory: ./
     # - name: NPM Install
     #   run: npm install
     #   working-directory: e2e
-    - name: Get Docker logs
+    - name: Get Password from Docker logs
       id: logs
       run: |
         LOGS=$(docker logs xsshunter-go-xsshunter-go-1)
