@@ -8,13 +8,13 @@ func do_migrations() {
 }
 
 func check_if_migrations_has_ran(migration_name string) bool {
-	has_migration, err := db_single_item_query("SELECT COUNT(1) FROM migrations WHERE name = $1", migration_name).toInt()
+	has_migration, err := db_single_item_query("SELECT 1 FROM migrations WHERE name = $1", migration_name).toBool()
 	if err != nil {
 		log.Fatal(err)
 		return false
 	}
 
-	return has_migration == 1
+	return has_migration
 }
 
 func record_migration(migration_name string) {

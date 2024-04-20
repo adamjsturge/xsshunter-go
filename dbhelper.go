@@ -40,16 +40,21 @@ func db_select(query string, args ...any) (ResultsObjectArray, error) {
 		return nil, err
 	}
 
+	columnLength := len(columns)
+
+	values := make([]interface{}, columnLength)
+	valuePtrs := make([]interface{}, columnLength)
+	for i := range columns {
+		valuePtrs[i] = &values[i]
+	}
+
 	resultsArray := make(ResultsObjectArray, 0)
 
 	for rows.Next() {
-		values := make([]interface{}, len(columns))
-		valuePtrs := make([]interface{}, len(columns))
-		for i := range columns {
-			valuePtrs[i] = &values[i]
-		}
+		scanValues := make([]interface{}, columnLength)
+		copy(scanValues, valuePtrs)
 
-		err := rows.Scan(valuePtrs...)
+		err := rows.Scan(scanValues...)
 		if err != nil {
 			return nil, err
 		}
@@ -107,6 +112,9 @@ func (r Result) toBool() (bool, error) {
 }
 
 func toString(value interface{}) (string, error) {
+	if value == nil {
+		return "", nil
+	}
 	if str, ok := value.(string); ok {
 		return str, nil
 	}
@@ -114,6 +122,9 @@ func toString(value interface{}) (string, error) {
 }
 
 func toInt(value interface{}) (int, error) {
+	if value == nil {
+		return 0, nil
+	}
 	if num, ok := value.(int64); ok {
 		return int(num), nil
 	}
@@ -135,6 +146,8 @@ func toBool(value interface{}) (bool, error) {
 		return v == 1, nil
 	case int64:
 		return v == 1, nil
+	case nil:
+		return false, nil
 	}
 	return false, fmt.Errorf("failed to convert result to bool")
 }
@@ -143,7 +156,7 @@ func db_single_item_query(query string, args ...any) SingleResult {
 	db := establish_database_connection()
 	defer db.Close()
 
-	var result SingleResult
+	var result interface{}
 	err := db.QueryRow(query, args...).Scan(&result)
 	if err != nil {
 		if err == sql.ErrNoRows {

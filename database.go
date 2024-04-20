@@ -221,11 +221,11 @@ func initialize_setting_helper(key string, value string) bool {
 	db := establish_database_connection()
 	defer db.Close()
 
-	has_setting, setting_err := db_single_item_query("SELECT COUNT(1) FROM settings WHERE key = $1", key).toInt()
+	has_setting, setting_err := db_single_item_query("SELECT 1 FROM settings WHERE key = $1", key).toBool()
 	if setting_err != nil {
 		log.Fatal(setting_err)
 	}
-	if has_setting != 1 {
+	if !has_setting {
 		_, err := db.Exec("INSERT INTO settings (key, value) VALUES ($1, $2)", key, value)
 		if err != nil {
 			log.Fatal(err)
