@@ -302,7 +302,12 @@
         <button class="navbar" onclick="navbar('payload_import_export')">Payload Importer/Exporter</button>
     </div>
     <div id="payload_fires" class="flex-table">
-        <h1>Admin Page</h1>
+        <div>
+            <h1>Admin Page</h1>
+            <button class="action_button" onclick="refreshPayloadFires()">Refresh</button>
+        </div>
+        
+
         <div id="special_update_div"></div>
         <table class="payload_fires_table" id="payloadFiresTable">
             <tr class="payload_fires_header">
@@ -312,9 +317,25 @@
                 <th class="payload_fires_title_cell">Expand</th>
             </tr>
         </table>
+        <div id="payload_fires_page_buttons">
+            <button id="payload_fires_next_button" class="action_button" onclick="changePagePayloadFires(1)">Next Page</button>
+        </div>
     </div>
     <div id="collected_pages" class="flex-table invisible">
-        <h1>Collected Pages</h1>
+        <div>
+            <h1>Collected Pages</h1>
+            <button class="action_button" onclick="refreshCollectedPages()">Refresh</button>
+        </div>
+        <table id="pagesTable">
+            <tr>
+                <th>ID</th>
+                <th>URI</th>
+                <th>Action</th>
+            </tr>
+        </table>
+        <div id="collected_pages_page_buttons">
+            <button id="collected_pages_next_button" class="action_button" onclick="changePageCollectedPages(1)">Next Page</button>
+        </div>
     </div>
     <div id="settings" class="flex-table invisible">
         <h1>Settings</h1>
@@ -345,7 +366,7 @@
         function loadPayloadFires() {
             var page = 1;
             var limit = 10;
-            fetch(`/api/v1/payloadfires?page=${page}&limit=${limit}`, {
+            fetch(`/api/v1/payloadfires?page=${state.payload_fires_page}&limit=${limit}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -374,6 +395,38 @@
                     
                 });
             });
+        }
+
+        function refreshPayloadFires() {
+            const table = document.getElementById('payloadFiresTable');
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+            loadPayloadFires();
+        }
+
+        function changePagePayloadFires(pageIncrement) {
+            state.payload_fires_page += pageIncrement;
+            
+            if (state.payload_fires_page == 1) {
+                state.payload_fires_page = 1;
+                const previousButton = document.getElementById('payload_fires_previous_button');
+                if (previousButton) {
+                    previousButton.remove();
+                }
+            } else {
+                const previousButtonOrigin = document.getElementById('payload_fires_previous_button');
+                if (!previousButtonOrigin) {
+                    const nextButton = document.getElementById('payload_fires_next_button');
+                    const previousButton = make_element('button', 'Previous Page', null, 'action_button', function() {
+                        changePagePayloadFires(-1);
+                    });
+                    previousButton.id = 'payload_fires_previous_button';
+
+                    nextButton.parentNode.insertBefore(previousButton, nextButton);
+                }
+            }
+            refreshPayloadFires();
         }
 
         function expandPayloadFire(payloadFire) {
@@ -779,7 +832,12 @@
         }
 
         function loadCollectedPages() {
-            fetch('/api/v1/collected_pages', {
+            if (state.collected_pages) {
+                return;
+            }
+            state.collected_pages = 1;
+
+            fetch(`/api/v1/collected_pages?page=${state.collected_pages_page}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
@@ -805,6 +863,38 @@
                     actionCell.appendChild(deleteButton);
                 });
             });
+        }
+
+        function refreshCollectedPages() {
+            const table = document.getElementById('pagesTable');
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+            state.collected_pages = 0;
+            loadCollectedPages();
+        }
+
+        function changePageCollectedPages(pageIncrement) {
+            state.collected_pages += pageIncrement;
+            if (state.collected_pages == 1) {
+                state.collected_pages = 1;
+                const previousButton = document.getElementById('collected_pages_previous_button');
+                if (previousButton) {
+                    previousButton.remove();
+                }
+            } else {
+                const previousButtonOrigin = document.getElementById('collected_pages_previous_button');
+                if (!previousButtonOrigin) {
+                    const nextButton = document.getElementById('collected_pages_next_button');
+                    const previousButton = make_element('button', 'Previous Page', null, 'action_button', function() {
+                        changePageCollectedPages(-1);
+                    });
+                    previousButton.id = 'collected_pages_previous_button';
+
+                    nextButton.parentNode.insertBefore(previousButton, nextButton);
+                }
+            }
+            refreshCollectedPages();
         }
 
         function deleteCollectedPage(id) {
@@ -838,6 +928,8 @@
             payload_maker: 0,
             payload_import_export: 0,
             settings_form: {},
+            payload_fires_page: 1,
+            collected_pages_page: 1
         };
 
 
@@ -855,6 +947,7 @@
                     document.getElementById('payload_fires').style.display = 'flex';
                     break;
                 case 'collected_pages':
+                    loadCollectedPages();
                     document.getElementById('collected_pages').style.display = 'flex';
                     break;
                 case 'settings':
