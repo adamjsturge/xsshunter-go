@@ -1,14 +1,13 @@
+version: '3.8'
 services:
   xsshunter-go:
     build: 
       context: .
       dockerfile: Dockerfile
-      target: dev
+      target: prod
     volumes:
-      # - ./db/:/app/db/
-      # - ./screenshots/:/app/screenshots/
-      # - ./src:/app/src # For development
-        - ./:/app
+      - ./db/:/app/db/
+      - ./screenshots/:/app/screenshots/
     ports:
       - "1449:1449"
     env_file:

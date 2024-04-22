@@ -14,7 +14,7 @@ ARG GIT_BRANCH
 RUN BUILD_DATE=$(date +'%Y-%m-%dT%H:%M:%S%z') && \
     go build -ldflags "-X 'main.version=${GIT_TAG}' -X 'main.gitCommit=${GIT_COMMIT}' -X 'main.gitBranch=${GIT_BRANCH}' -X 'main.buildDate=${BUILD_DATE}'" -o main
 
-FROM alpine:3.19.1
+FROM alpine:3.19.1 as prod
 WORKDIR /app
 
 COPY --from=builder /app/main .
@@ -25,3 +25,16 @@ COPY src ./src
 EXPOSE 1449
 
 CMD ["./main"]
+
+FROM golang:1.22-alpine3.19 as dev
+
+RUN apk update && apk add --no-cache gcc musl-dev ca-certificates
+
+RUN go install github.com/cosmtrek/air@latest
+
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+
+CMD ["air", "-c", ".air.toml"]

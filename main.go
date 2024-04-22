@@ -24,7 +24,6 @@ import (
 
 func main() {
 	fmt.Println("Initializing...")
-	initalize_constant()
 	initialize_database()
 	PrintVersion()
 	fmt.Println("Initialized")
@@ -236,45 +235,66 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		payload_fire_data := PayloadFireResults{
 			// ID:                 payload_fire_id,
-			Url:                r.FormValue("uri"),
-			Ip_address:         ip_address,
-			Referer:            r.FormValue("referrer"),
-			User_agent:         r.FormValue("user-agent"),
-			Cookies:            r.FormValue("cookies"),
-			Title:              r.FormValue("title"),
-			Dom:                r.FormValue("dom"),
-			Text:               r.FormValue("text"),
-			Origin:             r.FormValue("origin"),
-			Screenshot_id:      payload_fire_image_id,
-			Was_iframe:         r.FormValue("was_iframe") == "true",
-			Browser_timestamp:  uint(browser_time),
-			Correlated_request: "No correlated request found for this injection.",
+			Url:                   r.FormValue("uri"),
+			Ip_address:            ip_address,
+			Referer:               r.FormValue("referrer"),
+			User_agent:            r.FormValue("user-agent"),
+			Cookies:               r.FormValue("cookies"),
+			Title:                 r.FormValue("title"),
+			Dom:                   r.FormValue("dom"),
+			Text:                  r.FormValue("text"),
+			Origin:                r.FormValue("origin"),
+			Screenshot_id:         payload_fire_image_id,
+			Was_iframe:            r.FormValue("was_iframe") == "true",
+			Browser_timestamp:     uint(browser_time),
+			Correlated_request:    "No correlated request found for this injection.",
+			Injection_requests_id: nil,
 		}
-
-		db := establish_database_connection()
 
 		injection_key := r.FormValue("injection_key")
 		if injection_key != "" {
-			var correlated_request_rec string
-			err = db.QueryRow("SELECT request FROM injection_requests WHERE injection_key = ?", injection_key).Scan(&correlated_request_rec)
+			query := "SELECT id, request FROM injection_requests WHERE injection_key = $1"
+
+			db := establish_database_connection()
+			defer db.Close()
+
+			rows, err := db.Query(query, injection_key)
 			if err != nil {
-				fmt.Println("Error Inserting Injection: ", err)
+				fmt.Println("Error getting injection request:", err)
 			}
-			if correlated_request_rec != "" {
-				payload_fire_data.Correlated_request = correlated_request_rec
+
+			defer rows.Close()
+
+			var injection_requests_id int
+			var request string
+			for rows.Next() {
+				err := rows.Scan(&injection_requests_id, &request)
+				if err != nil {
+					fmt.Println("Error scanning injection request:", err)
+				}
+			}
+
+			if request != "" {
+				payload_fire_data.Correlated_request = request
+			}
+
+			if injection_requests_id != 0 {
+				payload_fire_data.Injection_requests_id = &injection_requests_id
 			}
 		}
 
-		stmt, _ := db.Prepare(`INSERT INTO payload_fire_results (url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp) 
-		VALUES (:url, :ip_address, :referer, :user_agent, :cookies, :title, :dom, :text, :origin, :screenshot_id, :was_iframe, :browser_timestamp)`)
-		_, err = stmt.Exec(payload_fire_data.Url, payload_fire_data.Ip_address, payload_fire_data.Referer, payload_fire_data.User_agent, payload_fire_data.Cookies, payload_fire_data.Title, payload_fire_data.Dom, payload_fire_data.Text, payload_fire_data.Origin, payload_fire_data.Screenshot_id, payload_fire_data.Was_iframe, payload_fire_data.Browser_timestamp)
+		payload_query := `INSERT INTO payload_fire_results 
+				(url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp, injection_requests_id) 
+				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
+
+		_, err = db_prepare_execute(payload_query, payload_fire_data.Url, payload_fire_data.Ip_address, payload_fire_data.Referer, payload_fire_data.User_agent, payload_fire_data.Cookies, payload_fire_data.Title, payload_fire_data.Dom, payload_fire_data.Text, payload_fire_data.Origin, payload_fire_data.Screenshot_id, payload_fire_data.Was_iframe, payload_fire_data.Browser_timestamp, payload_fire_data.Injection_requests_id)
 		if err != nil {
 			fmt.Println("Error Inserting Payload Fire Data:", err)
 			return
 		}
 
 		screenshot_url := generate_screenshot_url(r, payload_fire_image_id)
-		send_notification("Payload Fire: A payload fire has been detected on "+payload_fire_data.Url, screenshot_url)
+		send_notification("Payload Fire: A payload fire has been detected on "+payload_fire_data.Url, screenshot_url, payload_fire_data.Correlated_request)
 	}(body, get_client_ip(r), r.Host)
 }
 

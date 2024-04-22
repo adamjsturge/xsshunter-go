@@ -10,7 +10,7 @@ on:
       - "probe.js"
       - "src/*"
       - "*.go"
-      - "e2e/*"
+      - "e2e/**"
       - ".github/workflows/playwright.yml"
   pull_request:
     branches: [ main, dev ]
@@ -22,7 +22,7 @@ on:
       - "probe.js"
       - "src/*"
       - "*.go"
-      - "e2e/*"
+      - "e2e/**"
       - ".github/workflows/playwright.yml"
 jobs:
   e2e-tests:
@@ -37,7 +37,7 @@ jobs:
       run: cp .env.copy .env
       working-directory: ./
     - name: Test the Docker image
-      run: docker compose --env-file .env up -d
+      run: docker compose -f docker-compose.prod.yml --env-file .env up -d
       working-directory: ./
     - name: Change directory and install dependencies
       run: npm ci
@@ -45,10 +45,13 @@ jobs:
     - name: Install Playwright Browsers
       run:  npx playwright install --with-deps
       working-directory: e2e
+    - name: Show docker logs
+      run: docker logs xsshunter-go-xsshunter-go-1
+      working-directory: ./
     # - name: NPM Install
     #   run: npm install
     #   working-directory: e2e
-    - name: Get Docker logs
+    - name: Get Password from Docker logs
       id: logs
       run: |
         LOGS=$(docker logs xsshunter-go-xsshunter-go-1)

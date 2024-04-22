@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 )
 
 const (
@@ -17,17 +16,13 @@ const (
 	csrf_header_name                    = "X-CSRF-Buster"
 )
 
-var constant map[string]string
+var constant = make(map[string]string)
 
-var is_postgres bool = os.Getenv("DATABASE_URL") != ""
+var is_postgres bool = get_env("DATABASE_URL") != ""
 
 var pages_to_collect string
 var chainload_uris string
 var send_alerts bool
-
-func initalize_constant() {
-	constant = make(map[string]string)
-}
 
 func get_host(request *http.Request) string {
 	host := get_env("DOMAIN")
@@ -42,14 +37,11 @@ func get_pages_to_collect() string {
 }
 
 func set_pages_to_collect() {
-	db := establish_database_connection()
-	defer db.Close()
-
-	var pages_to_collect_value string
-	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", PAGES_TO_COLLECT_SETTINGS_KEY).Scan(&pages_to_collect_value)
+	pages_to_collect_value, err := db_single_item_query("SELECT value FROM settings WHERE key = $1", PAGES_TO_COLLECT_SETTINGS_KEY).toString()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	pages_to_collect = "[" + pages_to_collect_value + "]"
 }
 
@@ -58,13 +50,11 @@ func get_chainload_uri() string {
 }
 
 func set_chainload_uri() {
-	db := establish_database_connection()
-	defer db.Close()
-
-	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", CHAINLOAD_URI_SETTINGS_KEY).Scan(&chainload_uris)
+	chainload_uris_value, err := db_single_item_query("SELECT value FROM settings WHERE key = $1", CHAINLOAD_URI_SETTINGS_KEY).toString()
 	if err != nil {
 		log.Fatal(err)
 	}
+	chainload_uris = chainload_uris_value
 }
 
 func get_send_alerts() bool {
@@ -72,13 +62,11 @@ func get_send_alerts() bool {
 }
 
 func set_send_alerts() {
-	db := establish_database_connection()
-	defer db.Close()
-
-	err := db.QueryRow("SELECT value FROM settings WHERE key = ?", SEND_ALERTS_SETTINGS_KEY).Scan(&send_alerts)
+	send_alerts_value, err := db_single_item_query("SELECT value FROM settings WHERE key = $1", SEND_ALERTS_SETTINGS_KEY).toBool()
 	if err != nil {
 		log.Fatal(err)
 	}
+	send_alerts = send_alerts_value
 }
 
 func get_screenshot_directory() string {
