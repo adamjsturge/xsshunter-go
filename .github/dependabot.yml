@@ -10,18 +10,38 @@ updates:
     schedule:
       interval: "daily"
     target-branch: "dev"
+    groups:
+      golang-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "daily"
     target-branch: "dev"
+    groups:
+      docker-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     target-branch: "dev"
+    groups:
+      github-actions-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/e2e"
     schedule:
       interval: "daily"
     target-branch: "dev"
+    groups:
+      playwright-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
