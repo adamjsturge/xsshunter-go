@@ -12,7 +12,7 @@ export async function login(page) {
 
 export async function navigateToSettings(page) {
   await page.getByRole('button', { name: 'Settings' }).click();
-  await expect(page.getByRole('heading')).toContainText('Settings');
+  await expect(page.getByRole('heading', { level: 1})).toContainText('Settings');
   await expect(page.getByRole('rowgroup')).toContainText('PAGES_TO_COLLECT');
 }
 

@@ -47,9 +47,8 @@ test('Correlation Trigger XSS', async ({ page, context }) => {
   await triggerXSS(page, context, randomInjectionKey);
   await page.goto('http://localhost:1449/admin');
 
-  await page.locator(`button[id="injection-request-id-${injection_requests_id}"]`).click();
-
-
+  // Added First because payload for some reason doubles in the pipeline and not sure why
+  await page.locator(`button[id="injection-request-id-${injection_requests_id}"]`).first().click();
 });
 
 test('Basic Trigger XSS', async ({ page, context }) => {

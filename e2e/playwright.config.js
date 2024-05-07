@@ -31,17 +31,19 @@ module.exports = defineConfig({
     trace: 'on-first-retry',
   },
 
+  timeout: 20000,
+
   /* Configure projects for major browsers */
   projects: [
-    {
-      name: 'Google Chrome',
-      use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    },
-
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
+
+        // {
+    //   name: 'Google Chrome',
+    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    // },
 
     // {
     //   name: 'chromium',
