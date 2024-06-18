@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
 	"os"
 	"strings"
 
+	"github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -234,10 +236,61 @@ func establish_sqlite_database_connection() *sql.DB {
 	return db
 }
 
-func establish_postgres_database_connection() *sql.DB {
-	db, err := sql.Open("postgres", get_env("DATABASE_URL"))
+func establish_postgres_database_connection() *pgx.Conn {
+	conn, err := pgx.Connect(context.Background(), get_env("DATABASE_URL"))
 	if err != nil {
-		log.Fatal(err)
+		return nil
 	}
-	return db
+	return conn
 }
+
+// type Database interface {
+// 	Query(query string, args ...interface{}) (*sql.Rows, error)
+// 	Exec(query string, args ...interface{}) (sql.Result, error)
+// 	// Add other methods you need
+// }
+
+// type SqliteDatabase struct {
+// 	*sql.DB
+// }
+
+// func (db *SqliteDatabase) Query(query string, args ...interface{}) (*sql.Rows, error) {
+// 	return db.DB.Query(query, args...)
+// }
+
+// func (db *SqliteDatabase) Exec(query string, args ...interface{}) (sql.Result, error) {
+// 	return db.DB.Exec(query, args...)
+// }
+
+// type PostgresDatabase struct {
+// 	*pgx.Conn
+// }
+
+// func (db *PostgresDatabase) Query(query string, args ...interface{}) (*sql.Rows, error) {
+// 	// Convert args to []interface{} if necessary
+// 	rows, err := db.Conn.Query(context.Background(), query, args...)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	// Convert pgx.Rows to sql.Rows if necessary
+// 	// ...
+// 	return convertedRows, nil
+// }
+
+// func (db *PostgresDatabase) Exec(query string, args ...interface{}) (sql.Result, error) {
+// 	// Convert args to []interface{} if necessary
+// 	_, err := db.Conn.Exec(context.Background(), query, args...)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	// Convert pgconn.CommandTag to sql.Result if necessary
+// 	// ...
+// 	return convertedResult, nil
+// }
+
+// func establish_database_connection() Database {
+// 	if is_postgres {
+// 		return &PostgresDatabase{establish_postgres_database_connection()}
+// 	}
+// 	return &SqliteDatabase{establish_sqlite_database_connection()}
+// }
