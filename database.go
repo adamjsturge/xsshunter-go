@@ -41,9 +41,11 @@ type InjectionRequests struct {
 	Injection_key string
 }
 
+var db *sql.DB
+
 func create_sqlite_tables() {
-	db := establish_sqlite_database_connection()
-	defer db.Close()
+	// db := establish_sqlite_database_connection()
+	// defer db.Close()
 
 	sqlStmt := `
 	CREATE TABLE IF NOT EXISTS settings (
@@ -102,8 +104,8 @@ func create_sqlite_tables() {
 }
 
 func create_postgres_tables() {
-	db := establish_postgres_database_connection()
-	defer db.Close()
+	// db := establish_postgres_database_connection()
+	// defer db.Close()
 
 	sqlStmt := `
 	CREATE TABLE IF NOT EXISTS settings (
@@ -190,9 +192,6 @@ func initialize_users() {
 }
 
 func setup_admin_user(password string) bool {
-	db := establish_database_connection()
-	defer db.Close()
-
 	hashed_password, err := hash_string(password)
 	if err != nil {
 		log.Fatal(err)
@@ -218,9 +217,6 @@ func initialize_correlation_api() {
 }
 
 func initialize_setting_helper(key string, value string) bool {
-	db := establish_database_connection()
-	defer db.Close()
-
 	has_setting, setting_err := db_single_item_query("SELECT 1 FROM settings WHERE key = $1", key).toBool()
 	if setting_err != nil {
 		log.Fatal(setting_err)
