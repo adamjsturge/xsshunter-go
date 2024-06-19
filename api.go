@@ -34,8 +34,8 @@ func settingsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not authenticated", http.StatusUnauthorized)
 	}
 	if r.Method == "GET" {
-		db := establish_database_connection()
-		defer db.Close()
+		// db := establish_database_connection()
+		// defer db.Close()
 
 		rows, err := db.Query("SELECT key, value FROM settings WHERE key IN ($1, $2, $3, $4)", CORRELATION_API_SECRET_SETTINGS_KEY, CHAINLOAD_URI_SETTINGS_KEY, PAGES_TO_COLLECT_SETTINGS_KEY, SEND_ALERTS_SETTINGS_KEY)
 		if err != nil {
@@ -136,8 +136,8 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 		limit := parameter_to_int(limit_string, 10)
 		offset := page * limit
 
-		db := establish_database_connection()
-		defer db.Close()
+		// db := establish_database_connection()
+		// defer db.Close()
 
 		rows, err := db.Query("SELECT id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp, injection_requests_id FROM payload_fire_results ORDER BY created_at DESC LIMIT $1 OFFSET $2", limit, offset)
 		if err != nil {
@@ -168,8 +168,8 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "No ids to delete", http.StatusBadRequest)
 			return
 		}
-		db := establish_database_connection()
-		defer db.Close()
+		// db := establish_database_connection()
+		// defer db.Close()
 
 		rows, err := db.Query("SELECT screenshot_id FROM payload_fire_results WHERE id IN ($1)", ids_to_delete)
 		if err != nil {
@@ -214,8 +214,8 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 		limit := parameter_to_int(limit_string, 10)
 		offset := page * limit
 
-		db := establish_database_connection()
-		defer db.Close()
+		// db := establish_database_connection()
+		// defer db.Close()
 
 		rows, err := db.Query("SELECT id, uri FROM collected_pages ORDER BY created_at DESC LIMIT $1 OFFSET $2", limit, offset)
 		if err != nil {
@@ -311,8 +311,8 @@ func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
 		// limit := parameter_to_int(limit_string, 10)
 		// offset := page * limit
 
-		db := establish_database_connection()
-		defer db.Close()
+		// db := establish_database_connection()
+		// defer db.Close()
 
 		rows, err := db.Query("SELECT id, payload, title, description, author, author_link FROM user_xss_payloads ORDER BY created_at ASC")
 		if err != nil {
@@ -339,8 +339,8 @@ func userPayloadsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else if r.Method == "POST" {
-		db := establish_database_connection()
-		defer db.Close()
+		// db := establish_database_connection()
+		// defer db.Close()
 
 		stmt, _ := db.Prepare(`INSERT INTO user_xss_payloads (payload, title, description, author, author_link) VALUES ($1, $2, $3, $4, $5)`)
 		_, err := stmt.Exec(r.FormValue("payload"), r.FormValue("title"), r.FormValue("description"), r.FormValue("author"), r.FormValue("author_link"))
@@ -374,8 +374,8 @@ func userPayloadImporterHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
-	db := establish_database_connection()
-	defer db.Close()
+	// db := establish_database_connection()
+	// defer db.Close()
 
 	var user_payloads []UserXSSPayloads
 	err := json.NewDecoder(r.Body).Decode(&user_payloads)

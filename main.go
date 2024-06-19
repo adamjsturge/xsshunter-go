@@ -255,8 +255,8 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		if injection_key != "" {
 			query := "SELECT id, request FROM injection_requests WHERE injection_key = $1"
 
-			db := establish_database_connection()
-			defer db.Close()
+			// db := establish_database_connection()
+			// defer db.Close()
 
 			rows, err := db.Query(query, injection_key)
 			if err != nil {
