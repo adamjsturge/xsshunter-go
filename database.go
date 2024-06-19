@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"database/sql"
 )
 
 type Settings struct {
