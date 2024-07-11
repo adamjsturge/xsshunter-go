@@ -47,18 +47,12 @@ jobs:
     - name: Install Playwright Browsers
       run:  npx playwright install --with-deps
       working-directory: e2e
-    # - name: NPM Install
-    #   run: npm install
-    #   working-directory: e2e
     - name: Get Password from Docker logs
-      # id: logs
       run: |
         echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
     - name: Debug Read the .env file 2
       run: cat e2e/.env
     - name: Run Playwright tests
-      # env:
-      #   TEMP_E2E_PLAYWRIGHT_PASSWORD: ${{ steps.logs.outputs.password }}
       run: npx playwright test
       working-directory: e2e
     - name: Stop the xsshunter-go Docker container
@@ -76,15 +70,14 @@ jobs:
       run: sleep 10
       working-directory: ./
     - name: Get Password from Docker logs for postgres test
-      # id: logs
       run: |
         echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
     - name: Debug Echo logs
       run: docker logs xsshunter-go-xsshunter-go-1
     - name: Debug Read the .env file 2
       run: cat e2e/.env
+    - name: Debug curl the xsshunter-go Docker container
+      run: curl -v http://localhost:1449
     - name: Run Playwright tests with the database
-      # env:
-      #   TEMP_E2E_PLAYWRIGHT_PASSWORD: ${{ steps.logs.outputs.password }}
       run: npx playwright test
       working-directory: e2e
