@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   xsshunter-go:
     build: 
@@ -12,3 +11,17 @@ services:
       - "1449:1449"
     env_file:
       - .env
+    networks:
+      - xsshunter-go
+  xsshunter-postgres:
+      image: postgres:16.2-alpine3.19
+      environment:
+          POSTGRES_USER: xsshunter
+          POSTGRES_PASSWORD: xsshunter
+          POSTGRES_DB: xsshunter
+      volumes:
+          - ./postgres_db/:/var/lib/postgresql/data/
+      ports:
+          - "5432:5432"
+      networks:
+        - xsshunter-go

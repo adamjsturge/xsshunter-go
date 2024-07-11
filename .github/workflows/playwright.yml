@@ -63,8 +63,20 @@ jobs:
         TEMP_E2E_PLAYWRIGHT_PASSWORD: ${{ steps.logs.outputs.password }}
       run: npx playwright test
       working-directory: e2e
-    # - uses: actions/upload-artifact@v4
-    #   if: always()
-    #   with:
-    #     name: trace
-    #     path: ./e2e/test-results/xsshunter-Logging-in-Successfully-firefox-retry1/trace.zip
+    - name: Stop the xsshunter-go Docker container
+      run: docker compose -f docker-compose.prod.yml down xsshunter-go
+      working-directory: ./
+    - name: Add DATABASE_URL to env
+      run: echo "DATABASE_URL=postgres://xsshunter:xsshunter@xsshunter-postgres:5432/xsshunter?sslmode=disable" >> .env
+      working-directory: ./
+    - name: Start the xsshunter-go Docker container
+      run: docker compose -f docker-compose.prod.yml --env-file .env up -d
+      working-directory: ./
+    - name: Wait for the xsshunter-go Docker container to start
+      run: sleep 10
+      working-directory: ./
+    - name: Run Playwright tests with the database
+      env:
+        TEMP_E2E_PLAYWRIGHT_PASSWORD: ${{ steps.logs.outputs.password }}
+      run: npx playwright test
+      working-directory: e2e
