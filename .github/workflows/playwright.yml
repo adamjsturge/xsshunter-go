@@ -54,6 +54,8 @@ jobs:
       # id: logs
       run: |
         echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
+    - name: Read the .env file 2
+      run: cat e2e/.env
     - name: Run Playwright tests
       # env:
       #   TEMP_E2E_PLAYWRIGHT_PASSWORD: ${{ steps.logs.outputs.password }}
@@ -75,6 +77,10 @@ jobs:
       # id: logs
       run: |
         echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
+    - name: Echo logs
+      run: docker logs xsshunter-go-xsshunter-go-1
+    - name: Read the .env file 2
+      run: cat e2e/.env
     - name: Run Playwright tests with the database
       # env:
       #   TEMP_E2E_PLAYWRIGHT_PASSWORD: ${{ steps.logs.outputs.password }}
