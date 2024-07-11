@@ -65,7 +65,7 @@ jobs:
       run: docker compose -f docker-compose.prod.yml down xsshunter-go
       working-directory: ./
     - name: Add DATABASE_URL to env
-      run: echo "\nDATABASE_URL=postgres://xsshunter:xsshunter@xsshunter-postgres:5432/xsshunter?sslmode=disable" >> .env
+      run: echo -e "\nDATABASE_URL=postgres://xsshunter:xsshunter@xsshunter-postgres:5432/xsshunter?sslmode=disable" >> .env
       working-directory: ./
     - name: Debug .env
       run: cat .env
