@@ -26,8 +26,6 @@ type ResultsObject map[string]Result
 
 //lint:ignore U1000 Ignore unused function temporarily for debugging
 func db_select(query string, args ...any) (ResultsObjectArray, error) {
-	// db := establish_database_connection()
-	// defer db.Close()
 
 	rows, err := db.Query(query, args...)
 	if err != nil {
@@ -153,8 +151,6 @@ func toBool(value interface{}) (bool, error) {
 }
 
 func db_single_item_query(query string, args ...any) SingleResult {
-	// db := establish_database_connection()
-	// defer db.Close()
 
 	var result interface{}
 	err := db.QueryRow(query, args...).Scan(&result)
@@ -169,8 +165,6 @@ func db_single_item_query(query string, args ...any) SingleResult {
 }
 
 func db_prepare_execute(query string, args ...any) (sql.Result, error) {
-	// db := establish_database_connection()
-	// defer db.Close()
 
 	stmt, _ := db.Prepare(query)
 	result, err := stmt.Exec(args...)
@@ -182,8 +176,6 @@ func db_prepare_execute(query string, args ...any) (sql.Result, error) {
 }
 
 func db_execute(query string, args ...any) (sql.Result, error) {
-	// db := establish_database_connection()
-	// defer db.Close()
 
 	result, err := db.Exec(query, args...)
 	if err != nil {
