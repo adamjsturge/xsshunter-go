@@ -54,7 +54,7 @@ jobs:
       # id: logs
       run: |
         echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
-    - name: Read the .env file 2
+    - name: Debug Read the .env file 2
       run: cat e2e/.env
     - name: Run Playwright tests
       # env:
@@ -67,6 +67,8 @@ jobs:
     - name: Add DATABASE_URL to env
       run: echo "DATABASE_URL=postgres://xsshunter:xsshunter@xsshunter-postgres:5432/xsshunter?sslmode=disable" >> .env
       working-directory: ./
+    - name: Debug .env
+      run: cat .env
     - name: Start the xsshunter-go Docker container
       run: docker compose -f docker-compose.prod.yml --env-file .env up -d
       working-directory: ./
@@ -77,9 +79,9 @@ jobs:
       # id: logs
       run: |
         echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
-    - name: Echo logs
+    - name: Debug Echo logs
       run: docker logs xsshunter-go-xsshunter-go-1
-    - name: Read the .env file 2
+    - name: Debug Read the .env file 2
       run: cat e2e/.env
     - name: Run Playwright tests with the database
       # env:
