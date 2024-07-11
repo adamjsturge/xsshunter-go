@@ -12,6 +12,7 @@ on:
       - "*.go"
       - "e2e/**"
       - ".github/workflows/playwright.yml"
+      - "docker-compose.prod.yml"
   pull_request:
     branches: [ main, dev ]
     paths:
@@ -24,6 +25,7 @@ on:
       - "*.go"
       - "e2e/**"
       - ".github/workflows/playwright.yml"
+      - "docker-compose.prod.yml"
 jobs:
   e2e-tests:
     timeout-minutes: 60
