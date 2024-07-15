@@ -222,7 +222,6 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		// payload_fire_id := uuid.New().String()
 		err = r.ParseForm()
 		if err != nil {
 			log.Fatal(err)
@@ -234,7 +233,6 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 			browser_time = 0
 		}
 		payload_fire_data := PayloadFireResults{
-			// ID:                 payload_fire_id,
 			Url:                   r.FormValue("uri"),
 			Ip_address:            ip_address,
 			Referer:               r.FormValue("referrer"),
@@ -254,9 +252,6 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		injection_key := r.FormValue("injection_key")
 		if injection_key != "" {
 			query := "SELECT id, request FROM injection_requests WHERE injection_key = $1"
-
-			// db := establish_database_connection()
-			// defer db.Close()
 
 			rows, err := db.Query(query, injection_key)
 			if err != nil {

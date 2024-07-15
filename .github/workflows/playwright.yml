@@ -12,6 +12,7 @@ on:
       - "*.go"
       - "e2e/**"
       - ".github/workflows/playwright.yml"
+      - "docker-compose.prod.yml"
   pull_request:
     branches: [ main, dev ]
     paths:
@@ -24,6 +25,7 @@ on:
       - "*.go"
       - "e2e/**"
       - ".github/workflows/playwright.yml"
+      - "docker-compose.prod.yml"
 jobs:
   e2e-tests:
     timeout-minutes: 60
@@ -45,26 +47,27 @@ jobs:
     - name: Install Playwright Browsers
       run:  npx playwright install --with-deps
       working-directory: e2e
-    - name: Show docker logs
-      run: docker logs xsshunter-go-xsshunter-go-1
-      working-directory: ./
-    # - name: NPM Install
-    #   run: npm install
-    #   working-directory: e2e
     - name: Get Password from Docker logs
-      id: logs
       run: |
-        LOGS=$(docker logs xsshunter-go-xsshunter-go-1)
-        PASSWORD=$(echo "$LOGS" | grep -oP 'PASSWORD: \K.*')
-        echo "::set-output name=password::$PASSWORD"
-        echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$PASSWORD" > e2e/.env
+        echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
     - name: Run Playwright tests
-      env:
-        TEMP_E2E_PLAYWRIGHT_PASSWORD: ${{ steps.logs.outputs.password }}
       run: npx playwright test
       working-directory: e2e
-    # - uses: actions/upload-artifact@v4
-    #   if: always()
-    #   with:
-    #     name: trace
-    #     path: ./e2e/test-results/xsshunter-Logging-in-Successfully-firefox-retry1/trace.zip
+    - name: Stop the xsshunter-go Docker container
+      run: docker compose -f docker-compose.prod.yml down xsshunter-go
+      working-directory: ./
+    - name: Add DATABASE_URL to env
+      run: echo -e "\nDATABASE_URL=postgres://xsshunter:xsshunter@xsshunter-postgres:5432/xsshunter?sslmode=disable" >> .env
+      working-directory: ./
+    - name: Start the xsshunter-go Docker container
+      run: docker compose -f docker-compose.prod.yml --env-file .env up -d
+      working-directory: ./
+    - name: Wait for the xsshunter-go Docker container to start
+      run: sleep 10
+      working-directory: ./
+    - name: Get Password from Docker logs for postgres test
+      run: |
+        echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
+    - name: Run Playwright tests with the database
+      run: npx playwright test
+      working-directory: e2e

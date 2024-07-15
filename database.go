@@ -1,9 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
-	"database/sql"
 )
 
 type Settings struct {
@@ -45,9 +45,6 @@ type InjectionRequests struct {
 var db *sql.DB
 
 func create_sqlite_tables() {
-	// db := establish_sqlite_database_connection()
-	// defer db.Close()
-
 	sqlStmt := `
 	CREATE TABLE IF NOT EXISTS settings (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -105,9 +102,6 @@ func create_sqlite_tables() {
 }
 
 func create_postgres_tables() {
-	// db := establish_postgres_database_connection()
-	// defer db.Close()
-
 	sqlStmt := `
 	CREATE TABLE IF NOT EXISTS settings (
 		id SERIAL PRIMARY KEY,
