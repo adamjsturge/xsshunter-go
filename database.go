@@ -173,7 +173,7 @@ func initialize_settings() {
 func initialize_users() {
 	new_password, err := get_secure_random_string(32)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error Initialize Users:", err)
 	}
 
 	new_user := setup_admin_user(new_password)
@@ -189,7 +189,7 @@ func initialize_users() {
 func setup_admin_user(password string) bool {
 	hashed_password, err := hash_string(password)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error on Password Hash:", err)
 	}
 
 	return initialize_setting_helper(ADMIN_PASSWORD_SETTINGS_KEY, hashed_password)
@@ -198,7 +198,7 @@ func setup_admin_user(password string) bool {
 func initialize_configs() {
 	session_secret, err := get_secure_random_string(64)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error on Initialize Config:", err)
 	}
 	initialize_setting_helper(session_secret_key, session_secret)
 }
@@ -206,7 +206,7 @@ func initialize_configs() {
 func initialize_correlation_api() {
 	api_key, err := get_secure_random_string(64)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error on Initialize Correlation Api:", err)
 	}
 	initialize_setting_helper(CORRELATION_API_SECRET_SETTINGS_KEY, api_key)
 }
@@ -214,12 +214,12 @@ func initialize_correlation_api() {
 func initialize_setting_helper(key string, value string) bool {
 	has_setting, setting_err := db_single_item_query("SELECT 1 FROM settings WHERE key = $1", key).toBool()
 	if setting_err != nil {
-		log.Fatal(setting_err)
+		log.Fatal("Fatal Error on select setting helper:", setting_err)
 	}
 	if !has_setting {
 		_, err := db.Exec("INSERT INTO settings (key, value) VALUES ($1, $2)", key, value)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Fatal Error on insert setting helper:", err)
 		}
 		return false
 	}

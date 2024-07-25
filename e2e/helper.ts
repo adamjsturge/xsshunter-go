@@ -36,31 +36,41 @@ export async function clearCookies(context) {
   await context.clearCookies({ domain: 'localhost' });
 }
 
-export async function triggerXSS(page, context, randomInjectionKey = "") {
+export async function triggerXSS(page, context, randomInjectionKey = "", longPregeneratedHTML = "") {
   await page.goto('about:blank');
 
-  await page.route('http://localhost:1449/', async (route) => {
-    const response = await route.fetch();
-    expect(response.status()).toBe(200);
-    route.continue();
-  });
-
-  await context.route('**/js_callback', async (route) => {
-    const response = await route.fetch();
-    expect(response.status()).toBe(200);
-    await route.continue();
-  });
+  // page.on('request', request => console.log('>>', request.method(), request.url()));
+  // page.on('response', response => console.log('<<', response.status(), response.url())); 
 
   const customHTML = `
-    <html>
-      <body>
-        <h1>Test</h1>
-        <script src='http://localhost:1449/${randomInjectionKey}'></script>
-      </body>
-    </html>
-  `;
+  <html>
+    <body>
+      <h1>Test XSS Payload</h1>
+      <script src='http://localhost:1449/${randomInjectionKey}'></script>
+      ${longPregeneratedHTML}
+    </body>
+  </html>
+`;
+
+  const responsePromise = page.waitForResponse('**/js_callback');
 
   await page.setContent(customHTML);
-  await expect(page.getByText('Test')).toBeVisible();
+
+  await responsePromise;
+
+  await expect(page.getByText('Test XSS Payload')).toBeVisible();
 }
 
+export function generateHTML(length, lineBreakLength) {
+  let charOptions = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let longPregeneratedHTML = "";
+
+  for (let i = 0; i < length; i++) {
+    longPregeneratedHTML += charOptions.charAt(Math.floor(Math.random() * charOptions.length));
+    if (i % lineBreakLength == 0) {
+      longPregeneratedHTML += "\n<br>\n";
+    }
+  }
+
+  return longPregeneratedHTML;
+}

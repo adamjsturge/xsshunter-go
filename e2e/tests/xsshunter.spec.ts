@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clearCookies, login, navigateToPayloadImporterExporter, navigateToPayloadMaker, navigateToPayloads, navigateToSettings, triggerXSS } from '../helper';
+import { clearCookies, login, navigateToPayloadImporterExporter, navigateToPayloadMaker, navigateToPayloads, navigateToSettings, triggerXSS, generateHTML } from '../helper';
 
 const crypto = require('crypto');
 
@@ -99,4 +99,36 @@ test('Create Payload', async ({ page, context }) => {
   await page.getByRole('button', { name: 'Payloads' }).click();
   await expect(page.getByText(randomPayload + ` localhost:1449`)).toBeVisible();
   await expect(page.getByText(randomTitle)).toBeVisible();
+});
+
+test('Basic Trigger XSS with a lot of HTML', async ({ page, context }) => {
+  await page.goto('http://localhost:1449/');
+  await clearCookies(context);
+
+  let skeletonHTML = "<div id='addtional-text'>";
+
+  let longPregeneratedHTML = generateHTML(200000, 250);
+
+  skeletonHTML += longPregeneratedHTML + "</div>";
+
+  await triggerXSS(page, context, "", skeletonHTML);
+
+  await page.waitForSelector('#addtional-text');
+  let substringToCheck = longPregeneratedHTML.slice(-100);
+  await expect(page.locator('#addtional-text')).toContainText(substringToCheck);
+
+  await page.goto('http://localhost:1449/admin');
+  await clearCookies(context);
+});
+
+test('Basic Trigger XSS with hidden HTML', async ({ page, context }) => {
+  await page.goto('http://localhost:1449/');
+  await clearCookies(context);
+
+  let longPregeneratedHTML = `<div id='addtional-text' style='display: none;'>${generateHTML(500000, 1000)}</div>`;
+
+  await triggerXSS(page, context, "", longPregeneratedHTML);
+
+  await page.goto('http://localhost:1449/admin');
+  await clearCookies(context);
 });

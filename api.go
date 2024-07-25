@@ -250,7 +250,7 @@ func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error Parse Multiform:", err)
 	}
 	owner_correlation_key := r.FormValue("owner_correlation_key")
 	if owner_correlation_key == "" {
