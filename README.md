@@ -7,8 +7,8 @@ XSSHunter-go is a self-hosted XSS hunter that allows you to create a custom XSS 
 <!-- Table of content -->
 <summary>Table of content</summary>
 <ol>
+    <li><a href="#setup-dev-environment">Setup Dev Environment</a></li>
     <li><a href="#setup">Setup</a></li>
-    <li><a href="#environment-variables">Environment Variables</a></li>
     <li><a href="#volumes">Volumes</a></li>
     <li><a href="#notifications">Notifications</a></li>
     <li><a href="#using-traefik-for-ssl">Using Traefik for SSL</a></li>
@@ -32,6 +32,15 @@ services:
       - CONTROL_PANEL_ENABLED=true
       - NOTIFY=discord://...,slack://...
 ```
+
+Add the `S` to `HTTPS` with the <a href="#using-traefik-for-ssl">traefik guide</a> below
+
+Please Reference https://github.com/adamjsturge/xsshunter-go/tree/main/docker-examples
+The one wihtout a folder https://github.com/adamjsturge/xsshunter-go/blob/main/docker-examples/docker-compose.yml is for sqlite
+
+For Postgres and cache (cache currently not implemented) https://github.com/adamjsturge/xsshunter-go/blob/main/docker-examples/example-postgres-cache/docker-compose.yml
+
+https://github.com/adamjsturge/xsshunter-go/wiki/FAQ#why-use-postgres-over-sqlite
 
 ## Environment Variables
 
