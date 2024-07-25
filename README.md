@@ -8,8 +8,7 @@ XSSHunter-go is a self-hosted XSS hunter that allows you to create a custom XSS 
 <summary>Table of content</summary>
 <ol>
     <li><a href="#setup-dev-environment">Setup Dev Environment</a></li>
-    <li><a href="#setup-production-environment">Setup Production Environment</a></li>
-    <li><a href="#environment-variables">Environment Variables</a></li>
+    <li><a href="#setup">Setup</a></li>
     <li><a href="#volumes">Volumes</a></li>
     <li><a href="#notifications">Notifications</a></li>
     <li><a href="#using-traefik-for-ssl">Using Traefik for SSL</a></li>
@@ -17,7 +16,7 @@ XSSHunter-go is a self-hosted XSS hunter that allows you to create a custom XSS 
 
 The idea of why I decided to code this in Go is because I wanted this to be a maintained project that is stable. The original is based of Node 12 which is end of life. I also wanted to add some features that I thought would be useful (mostly expanding the notification system).
 
-## Setup Dev Environment
+## Setup
 
 ```yml
 version: '3.8'
@@ -34,7 +33,7 @@ services:
       - NOTIFY=discord://...,slack://...
 ```
 
-## Setup Production Environment
+Add the `S` to `HTTPS` with the <a href="#using-traefik-for-ssl">traefik guide</a> below
 
 Please Reference https://github.com/adamjsturge/xsshunter-go/tree/main/docker-examples
 The one wihtout a folder https://github.com/adamjsturge/xsshunter-go/blob/main/docker-examples/docker-compose.yml is for sqlite
