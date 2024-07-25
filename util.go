@@ -72,7 +72,7 @@ func make_folder_if_not_exists(folder string) {
 	if !checkFileExists(folder) {
 		err := os.MkdirAll(folder, 0750)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Fatal Error on make folder:", err)
 		}
 	}
 }

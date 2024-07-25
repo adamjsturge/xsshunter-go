@@ -208,7 +208,7 @@ func initialize_sqlite_database() {
 	if _, err := os.Stat("db"); os.IsNotExist(err) {
 		err = os.MkdirAll("db", 0750)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Fatal Error on Initialize sqlite db:", err)
 		}
 	}
 	create_sqlite_tables()
@@ -222,7 +222,7 @@ func establish_sqlite_database_connection() *sql.DB {
 	dbPath := get_sqlite_database_path()
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error on connect to sqlite:", err)
 	}
 	return db
 }
@@ -230,7 +230,7 @@ func establish_sqlite_database_connection() *sql.DB {
 func establish_postgres_database_connection() *sql.DB {
 	db, err := sql.Open("postgres", get_env("DATABASE_URL"))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error on connect to postgres:", err)
 	}
 	return db
 }

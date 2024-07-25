@@ -7,7 +7,6 @@ XSSHunter-go is a self-hosted XSS hunter that allows you to create a custom XSS 
 <!-- Table of content -->
 <summary>Table of content</summary>
 <ol>
-    <li><a href="#setup-dev-environment">Setup Dev Environment</a></li>
     <li><a href="#setup">Setup</a></li>
     <li><a href="#volumes">Volumes</a></li>
     <li><a href="#notifications">Notifications</a></li>

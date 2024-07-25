@@ -39,7 +39,7 @@ func get_pages_to_collect() string {
 func set_pages_to_collect() {
 	pages_to_collect_value, err := db_single_item_query("SELECT value FROM settings WHERE key = $1", PAGES_TO_COLLECT_SETTINGS_KEY).toString()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error on set page collect:", err)
 	}
 
 	pages_to_collect = "[" + pages_to_collect_value + "]"
@@ -52,7 +52,7 @@ func get_chainload_uri() string {
 func set_chainload_uri() {
 	chainload_uris_value, err := db_single_item_query("SELECT value FROM settings WHERE key = $1", CHAINLOAD_URI_SETTINGS_KEY).toString()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error on set chainload uri:", err)
 	}
 	chainload_uris = chainload_uris_value
 }
@@ -64,7 +64,7 @@ func get_send_alerts() bool {
 func set_send_alerts() {
 	send_alerts_value, err := db_single_item_query("SELECT value FROM settings WHERE key = $1", SEND_ALERTS_SETTINGS_KEY).toBool()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error on set alert:", err)
 	}
 	send_alerts = send_alerts_value
 }

@@ -165,17 +165,23 @@ type JSCallbackSchema struct {
 func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 	set_callback_headers(w)
 
-	body, err := io.ReadAll(r.Body)
+	// Send the response immediately, they don't need to wait for us to store everything.
+	_, err := w.Write([]byte("OK"))
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error on write ok", err)
+	}
+
+	const MaxBodySize = 64 << 20 // 64MB
+
+	r.Body = http.MaxBytesReader(nil, r.Body, MaxBodySize)
+	buf := new(bytes.Buffer)
+	_, err = io.Copy(buf, r.Body)
+	if err != nil {
+		fmt.Println("Error on readbody: ", err)
 		return
 	}
 
-	// Send the response immediately, they don't need to wait for us to store everything.
-	_, err = w.Write([]byte("OK"))
-	if err != nil {
-		fmt.Println(err)
-	}
+	body := buf.Bytes()
 
 	// Go routine to close the connection and process the data
 	go func(body []byte, ip_address string, host string) {
@@ -187,7 +193,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 		err := r.ParseMultipartForm(32 << 20)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error on parse multiform", err)
 			return
 		}
 
@@ -199,14 +205,14 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 			for _, file := range files {
 				fileContent, err := file.Open()
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println("Error on open: ", err)
 					return
 				}
 				defer fileContent.Close()
 
 				newFile, err := os.Create(payload_fire_image_filename) // #nosec G304
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println("Error on create", err)
 					return
 				}
 				defer newFile.Close()
@@ -216,7 +222,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 				_, err = io.Copy(gw, fileContent)
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println("Error on copy", err)
 					return
 				}
 			}
@@ -224,7 +230,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 		err = r.ParseForm()
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Error Parse form", err)
 		}
 
 		browser_time, _ := strconv.ParseUint(r.FormValue("browser-time"), 10, 64)
@@ -321,7 +327,7 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, errWrite := w.Write([]byte(xss_payload_4))
 	if errWrite != nil {
-		log.Fatal(err)
+		log.Fatal("Fatal Error on write payload:", err)
 	}
 }
 
