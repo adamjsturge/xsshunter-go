@@ -11,6 +11,7 @@ XSSHunter-go is a self-hosted XSS hunter that allows you to create a custom XSS 
     <li><a href="#volumes">Volumes</a></li>
     <li><a href="#notifications">Notifications</a></li>
     <li><a href="#using-traefik-for-ssl">Using Traefik for SSL</a></li>
+    <li><a href=>
 </ol>
 
 The idea of why I decided to code this in Go is because I wanted this to be a maintained project that is stable. The original is based of Node 12 which is end of life. I also wanted to add some features that I thought would be useful (mostly expanding the notification system).
@@ -111,3 +112,11 @@ services:
             - "/var/run/docker.sock:/var/run/docker.sock:ro"
             - "./shared:/shared"
 ```
+
+## Contributing
+
+Thanks for looking to contribute.
+
+If you have a massive feature change I recommend putting as an issue before starting anything! That way we can discuss it before you start working on it.
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for more information on how to contribute and everything you need to know.
