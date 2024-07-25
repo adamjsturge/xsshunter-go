@@ -39,8 +39,8 @@ export async function clearCookies(context) {
 export async function triggerXSS(page, context, randomInjectionKey = "", longPregeneratedHTML = "") {
   await page.goto('about:blank');
 
-  page.on('request', request => console.log('>>', request.method(), request.url()));
-  page.on('response', response => console.log('<<', response.status(), response.url())); 
+  // page.on('request', request => console.log('>>', request.method(), request.url()));
+  // page.on('response', response => console.log('<<', response.status(), response.url())); 
 
   const customHTML = `
   <html>
