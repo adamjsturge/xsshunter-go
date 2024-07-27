@@ -23,6 +23,22 @@ docker compose up --build
 
 Luckily go is fast and it shouldn't take too long for it to build
 
+## Running e2e Tests
+
+Setup
+```bash
+cd e2e
+cp .env.copy .env
+npm ci
+npx playwright install --with-deps
+```
+
+Run the tests
+```bash
+npx playwright test
+```
+or in VScode
+
 ## Git Workflow
 
 Please make a new branch for every feature or bug fix you are working on. This makes it easier to review and merge your code. We also merge into branch `dev` and then `main` is merged from `dev` when we are ready to release. So please make sure your PR is against `dev`.
