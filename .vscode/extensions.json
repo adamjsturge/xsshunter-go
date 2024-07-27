@@ -1,6 +1,8 @@
 {
     "recommendations": [
         "golang.go",
-        "ms-playwright.playwright"
+        "ms-playwright.playwright",
+        "github.vscode-github-actions",
+        "eamodio.gitlens"
     ]
 }
