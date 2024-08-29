@@ -2,5 +2,32 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
-  ]
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["gomod"],
+      "matchPaths": ["**/go.mod"],
+      "groupName": "golang-dependencies",
+      "schedule": ["before 6am on every day"]
+    },
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPaths": ["**/Dockerfile"],
+      "groupName": "docker-dependencies",
+      "schedule": ["before 6am on every day"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchPaths": [".github/workflows/**.yml"],
+      "groupName": "github-actions-dependencies",
+      "schedule": ["before 6am on every day"]
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchPaths": ["/e2e/**/package.json"],
+      "groupName": "playwright-dependencies",
+      "schedule": ["before 6am on every day"]
+    }
+  ],
+  "baseBranches": ["dev"]
 }
