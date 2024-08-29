@@ -28,6 +28,5 @@
       "groupName": "playwright-dependencies",
       "schedule": ["before 6am on every day"]
     }
-  ],
-  "baseBranches": ["dev"]
+  ]
 }

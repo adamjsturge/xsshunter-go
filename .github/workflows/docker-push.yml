@@ -2,7 +2,7 @@ name: Push Multi-Arch Docker Image to Docker Hub
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ "main" ] #, "dev" ]
     paths:
       # - ".github/workflows/docker-push.yml"
       - "Dockerfile"
@@ -41,12 +41,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} # Remove raw dev tag to add the dev branch back to being seperate
           tags: |
             type=semver,pattern={{version}}
             type=ref,event=branch
             type=ref,event=tag
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }} 
 
       - name: Create .env file
         run: touch .env
