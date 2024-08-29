@@ -7,22 +7,26 @@
     {
       "matchManagers": ["gomod"],
       "matchPaths": ["**/go.mod"],
-      "groupName": "golang-dependencies"
+      "groupName": "golang-dependencies",
+      "schedule": ["at any time"]
     },
     {
       "matchManagers": ["dockerfile"],
       "matchPaths": ["**/Dockerfile"],
-      "groupName": "docker-dependencies"
+      "groupName": "docker-dependencies",
+      "schedule": ["at any time"]
     },
     {
       "matchManagers": ["github-actions"],
       "matchPaths": [".github/workflows/**.yml"],
-      "groupName": "github-actions-dependencies"
+      "groupName": "github-actions-dependencies",
+      "schedule": ["at any time"]
     },
     {
       "matchManagers": ["npm"],
       "matchPaths": ["/e2e/**/package.json"],
-      "groupName": "playwright-dependencies"
+      "groupName": "playwright-dependencies",
+      "schedule": ["at any time"]
     }
   ]
 }
