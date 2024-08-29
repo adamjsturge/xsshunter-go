@@ -36,7 +36,7 @@ services:
             - "/var/run/docker.sock:/var/run/docker.sock:ro"
             - "./shared:/shared"
     postgres:
-        image: postgres:16.2-alpine3.19
+        image: postgres:16.4-alpine3.19
         environment:
             POSTGRES_USER: xsshunter
             POSTGRES_PASSWORD: xsshunter
@@ -46,7 +46,7 @@ services:
         ports:
             - "5432:5432"
     redis:
-        image: redis:7.2.4-alpine3.19
+        image: redis:7.2.5-alpine3.19
         volumes:
             - ./redis:/data
         ports:
