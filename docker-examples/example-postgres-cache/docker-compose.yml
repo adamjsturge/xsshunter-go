@@ -18,7 +18,7 @@ services:
             - "traefik.http.routers.xsshunter-go.tls.domains[0].main=xsshunter.example.com"
             - "traefik.http.services.xsshunter-go.loadbalancer.server.port=1449"
     traefik:
-        image: "traefik:v2.8"
+        image: "traefik:v2.11"
         container_name: "traefik"
         command:
             - "--providers.docker=true"
