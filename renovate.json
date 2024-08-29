@@ -17,6 +17,12 @@
       "schedule": ["at any time"]
     },
     {
+      "matchManagers": ["docker-compose"],
+      "groupName": "docker-compose-dependencies",
+      "groupSlug": "docker-compose",
+      "schedule": ["at any time"]
+    },
+    {
       "matchManagers": ["github-actions"],
       "groupName": "github-actions-dependencies",
       "groupSlug": "github-actions",
