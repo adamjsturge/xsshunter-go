@@ -14,7 +14,7 @@ services:
     networks:
       - xsshunter-go
   xsshunter-postgres:
-      image: postgres:16.2-alpine3.19
+      image: postgres:16.4-alpine3.19
       environment:
           POSTGRES_USER: xsshunter
           POSTGRES_PASSWORD: xsshunter

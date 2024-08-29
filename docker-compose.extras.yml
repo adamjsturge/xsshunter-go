@@ -21,7 +21,7 @@ services:
       - postgres
       - redis
   postgres:
-      image: postgres:16.2-alpine3.19
+      image: postgres:16.4-alpine3.19
       environment:
           POSTGRES_USER: xsshunter
           POSTGRES_PASSWORD: xsshunter
@@ -33,7 +33,7 @@ services:
       networks:
         - xsshunter-go
   redis:
-      image: redis:7.2.4-alpine3.19
+      image: redis:7.2.5-alpine3.19
       volumes:
           - ./redis:/data
       ports:
