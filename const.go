@@ -16,7 +16,7 @@ const (
 	csrf_header_name                    = "X-CSRF-Buster"
 )
 
-var constant = make(map[string]string)
+// var constant = make(map[string]string)
 
 var is_postgres bool = get_env("DATABASE_URL") != ""
 
