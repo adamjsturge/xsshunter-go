@@ -44,10 +44,11 @@ func checkFileExists(filepath string) bool {
 }
 
 func get_env(key string) string {
-	if constant[key] == "" {
-		constant[key] = os.Getenv(key)
-	}
-	return constant[key]
+	// if constant[key] == "" {
+	// 	constant[key] = os.Getenv(key)
+	// }
+	// return constant[key]
+	return os.Getenv(key)
 }
 
 func parameter_to_int(input string, default_int int) int {
