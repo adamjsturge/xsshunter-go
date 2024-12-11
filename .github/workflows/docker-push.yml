@@ -2,7 +2,7 @@ name: Push Multi-Arch Docker Image to Docker Hub
 
 on:
   push:
-    branches: [ "main" ] #, "dev" ]
+    branches: ["main"]
     paths:
       # - ".github/workflows/docker-push.yml"
       - "Dockerfile"
@@ -20,7 +20,12 @@ env:
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        platform: [linux/amd64, linux/arm64]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -41,13 +46,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@70b2cdc6480c1a8b86edf1777157f8f437de2166
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }} # Remove raw dev tag to add the dev branch back to being seperate
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=semver,pattern={{version}}
             type=ref,event=branch
             type=ref,event=tag
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }} 
+            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Create .env file
         run: touch .env
@@ -56,7 +61,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}"
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ matrix.platform }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -66,10 +71,3 @@ jobs:
             GIT_TAG=${{ github.ref_name }}
             GIT_COMMIT=${{ github.sha }}
             GIT_BRANCH=${{ github.ref_name }}
-
-      # - name: Create and push manifest
-      #   run: |
-      #     docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-      #       --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-amd64 \
-      #       --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-arm64
-      #     docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
