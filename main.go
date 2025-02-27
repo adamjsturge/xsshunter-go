@@ -335,11 +335,25 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
 	set_no_cache(w)
 	is_authenticated := get_and_validate_jwt(r)
+
+	// Get custom frontend paths or use defaults
+	loginPath := getEnvWithDefault("CUSTOM_LOGIN_PATH", "./src/login.html")
+	adminPath := getEnvWithDefault("CUSTOM_ADMIN_PATH", "./src/admin.html")
+
 	if !is_authenticated {
-		http.ServeFile(w, r, "./src/login.html")
+		http.ServeFile(w, r, loginPath)
 	} else {
-		http.ServeFile(w, r, "./src/admin.html")
+		http.ServeFile(w, r, adminPath)
 	}
+}
+
+// Helper function to get environment variable with default value
+func getEnvWithDefault(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
