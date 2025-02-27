@@ -649,6 +649,55 @@
             gap: 8px;
             margin-bottom: 16px;
         }
+
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background-color: var(--surface);
+            color: var(--text);
+            border-left: 4px solid var(--success);
+            padding: 12px 24px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px var(--shadow);
+            display: flex;
+            align-items: center;
+            animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+            max-width: 300px;
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .toast-success {
+            border-left-color: var(--success);
+        }
+
+        .toast-error {
+            border-left-color: var(--error);
+        }
+
+        .toast-warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast-icon {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -1230,6 +1279,44 @@
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
+            
+            // Show toast notification
+            showToast('Copied to clipboard successfully', 'success');
+        }
+
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            // Create container if it doesn't exist
+            let container = document.querySelector('.toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            
+            // Create the toast
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            // Add icon based on type
+            let icon = '✓';
+            if (type === 'error') icon = '✗';
+            if (type === 'warning') icon = '⚠';
+            
+            toast.innerHTML = `<span class="toast-icon">${icon}</span> ${message}`;
+            
+            // Add to container
+            container.appendChild(toast);
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                toast.remove();
+                
+                // Clean up container if empty
+                if (!container.hasChildNodes()) {
+                    container.remove();
+                }
+            }, 3000);
         }
 
         function loadCollectedPages() {

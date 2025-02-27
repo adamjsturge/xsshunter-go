@@ -33,6 +33,18 @@ export async function navigateToPayloadImporterExporter(page) {
   await expect(page.getByRole('heading')).toContainText('Payload Importer/Exporter');
 }
 
+export async function navigateToCollectedPages(page) {
+  await page.getByRole('button', { name: 'Collected Pages' }).click();
+  await expect(page.locator('#collected_pages')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Collected Pages');
+}
+
+export async function navigateToPayloadFires(page) {
+  await page.getByRole('button', { name: 'Payload Fires' }).click();
+  await expect(page.locator('#payload_fires')).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Admin Page');
+}
+
 export async function clearCookies(context) {
   await context.clearCookies({ domain: 'localhost' });
 }
