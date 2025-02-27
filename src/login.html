@@ -1,85 +1,301 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="dark">
 <head>
     <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        :root {
+            /* Light theme colors */
+            --light-bg: #f0f4fd;
+            --light-surface: #ffffff;
+            --light-primary: #7c93d9;
+            --light-secondary: #8fa7e6;
+            --light-accent: #a387b8;
+            --light-text: #2a2d3e;
+            --light-error: #e07070;
+            --light-success: #7cc488;
+            --light-warning: #e5c870;
+            --light-border: #d1d9f0;
+            --light-divider: #e0e6f5;
+            --light-hover: #e6ecfa;
+            --light-active: #d9e1f6;
+            --light-shadow: rgba(0, 0, 0, 0.05);
+            
+            /* Dark theme colors */
+            --dark-bg: #2a2d3e;
+            --dark-surface: #373b52;
+            --dark-primary: #a3b8ef;
+            --dark-secondary: #b8c2e0;
+            --dark-accent: #c9abdb;
+            --dark-text: #e4ecff;
+            --dark-error: #f0a3a3;
+            --dark-success: #a5e0b0;
+            --dark-warning: #f0d8a2;
+            --dark-border: #474c64;
+            --dark-divider: #3c415b;
+            --dark-hover: #424561;
+            --dark-active: #484c6b;
+            --dark-shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Default to dark theme */
+        html[data-theme="dark"] {
+            --bg: var(--dark-bg);
+            --surface: var(--dark-surface);
+            --primary: var(--dark-primary);
+            --secondary: var(--dark-secondary);
+            --accent: var(--dark-accent);
+            --text: var(--dark-text);
+            --error: var(--dark-error);
+            --success: var(--dark-success);
+            --warning: var(--dark-warning);
+            --border: var(--dark-border);
+            --divider: var(--dark-divider);
+            --hover: var(--dark-hover);
+            --active: var(--dark-active);
+            --shadow: var(--dark-shadow);
+        }
+
+        html[data-theme="light"] {
+            --bg: var(--light-bg);
+            --surface: var(--light-surface);
+            --primary: var(--light-primary);
+            --secondary: var(--light-secondary);
+            --accent: var(--light-accent);
+            --text: var(--light-text);
+            --error: var(--light-error);
+            --success: var(--light-success);
+            --warning: var(--light-warning);
+            --border: var(--light-border);
+            --divider: var(--light-divider);
+            --hover: var(--light-hover);
+            --active: var(--light-active);
+            --shadow: var(--light-shadow);
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
         body {
-            background-color: #03396c;
-            color: #b3cde0;
-            font-family: Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
         }
 
         .login {
-            background-color: #011f4b;
-            padding: 20px;
-            border-radius: 5px;
-            width: 300px;
+            background-color: var(--surface);
+            padding: 32px;
+            border-radius: 12px;
+            width: 100%;
+            box-shadow: 0 8px 24px var(--shadow);
+            animation: fade-in 0.5s ease-out;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     
         #loginForm {
             display: flex;
             flex-direction: column;
+            gap: 16px;
         }
     
         #loginForm label {
-            margin-bottom: 10px;
+            font-weight: 500;
+            color: var(--primary);
+            margin-bottom: 4px;
+            display: block;
         }
     
         #loginForm input[type="password"] {
-            padding: 10px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--bg);
+            color: var(--text);
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        #loginForm input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(163, 184, 239, 0.2);
         }
     
         #loginForm input[type="submit"] {
-            padding: 10px;
+            padding: 12px;
             border: none;
-            border-radius: 5px;
-            background-color: #6497b1;
-            color: white;
+            border-radius: 8px;
+            background-color: var(--primary);
+            color: var(--surface);
             cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            margin-top: 8px;
         }
     
         #loginForm input[type="submit"]:hover {
-            background-color: #50788d;
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
         }
     
         #error {
-            color: white;
-            background-color: red;
-            padding: 10px;
-            border-radius: 5px;
+            color: var(--surface);
+            background-color: var(--error);
+            padding: 12px;
+            border-radius: 8px;
             text-align: center;
-            font-weight: bold;
+            font-weight: 500;
             visibility: hidden;
-            min-height: 40px;
+            min-height: 48px;
             width: 100%;
             box-sizing: border-box;
-            margin-bottom: 20px;
-            margin-top: -60px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px var(--shadow);
+            position: relative;
+            top: 0;
+            transition: top 0.3s ease;
         }
 
+        /* Theme toggle switch */
+        .theme-toggle {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-label {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--surface);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .login {
+                padding: 24px;
+                width: 90%;
+            }
+            
+            .theme-toggle {
+                top: -48px;
+                right: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="theme-toggle">
+            <span class="theme-label">Dark Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
         <div id="error"></div>
         <div class="login">
+            <h1 style="text-align: center; color: var(--primary); margin-top: 0;">Login</h1>
             <form id="loginForm">
-                <label for="password">Password:</label><br>
-                <input type="password" id="password" name="password"><br>
-                <input type="submit" value="Submit">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password">
+                <input type="submit" value="Login">
             </form>
         </div>
     </div>
 
     <script>
+        // Theme management
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        
+        // Load theme from localStorage
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            htmlElement.setAttribute('data-theme', savedTheme);
+            themeToggle.checked = savedTheme === 'dark';
+        }
+        
+        // Initialize theme
+        loadTheme();
+        
+        // Toggle theme
+        themeToggle.addEventListener('change', function() {
+            const newTheme = this.checked ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
         var failed_login_count = 0;
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -108,7 +324,31 @@
             var errorDiv = document.getElementById('error');
             errorDiv.textContent = message;
             errorDiv.style.visibility = is_hidden ? 'hidden' : 'visible';
+            
+            // Add shake animation if showing an error
+            if (!is_hidden) {
+                errorDiv.style.animation = 'none';
+                setTimeout(() => {
+                    errorDiv.style.animation = 'shake 0.5s';
+                }, 5);
+            }
         }
+        
+        // Add keydown event listener for better UX
+        document.getElementById('password').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
     </script>
+    
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
 </body>
 </html>

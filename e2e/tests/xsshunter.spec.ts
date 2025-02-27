@@ -94,7 +94,7 @@ test('Create Payload', async ({ page, context }) => {
   await page.getByRole('textbox').nth(1).fill(randomTitle);
   await page.getByRole('textbox').nth(2).fill(randomDesc);
   await page.getByRole('textbox').nth(3).fill(randomAuthor);
-  await page.getByRole('button', { name: 'Submit' }).click();
+  await page.getByRole('button', { name: 'Create Payload' }).click();
   await expect(page.locator('#payload_maker')).toContainText('Payload Added');
   await page.getByRole('button', { name: 'Payloads' }).click();
   await expect(page.getByText(randomPayload + ` localhost:1449`)).toBeVisible();
