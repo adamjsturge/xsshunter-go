@@ -616,6 +616,39 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--secondary);
         }
+
+        /* Add form field container styles for better layout */
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+
+        .form-field label {
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-field input[type="text"] {
+            width: 100%;
+            margin-bottom: 0;
+        }
+
+        /* Improve payload maker styling */
+        #payload_maker_form {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .payload-button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
     </style>
 </head>
 <body>
@@ -1025,7 +1058,6 @@
 
             var payload_example_div = make_div('payload_example', payloadMaker);
             make_element('button', 'Copy to Clipboard', payload_example_div, 'payload_maker_button', function() {
-                // Custom function to copy to clipboard based on the id so it has to find the element by id
                 var text = document.getElementById('payload_code').textContent;
                 copyToClipboard(text);
             });
@@ -1036,55 +1068,75 @@
             var payloadMakerForm = make_element('form', null, payloadMaker);
             payloadMakerForm.id = 'payload_maker_form';
 
-            make_element('button', 'Add /script_domain/', payloadMakerForm, 'payload_maker_button', function(event) {
+            // Create button group container for better layout
+            var buttonGroup = make_div('payload-button-group', payloadMakerForm);
+
+            make_element('button', 'Add /script_domain/', buttonGroup, 'payload_maker_button', function(event) {
                 event.preventDefault();
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 input.value += '/script_domain/';
             });
-            make_element('button', 'Add /script_hostname/', payloadMakerForm, 'payload_maker_button', function(event) {
+            make_element('button', 'Add /script_hostname/', buttonGroup, 'payload_maker_button', function(event) {
                 event.preventDefault();
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 input.value += '/script_hostname/';
             });
-            make_element('button', 'Add /script_base64/', payloadMakerForm, 'payload_maker_button', function(event) {
+            make_element('button', 'Add /script_base64/', buttonGroup, 'payload_maker_button', function(event) {
                 event.preventDefault();
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 input.value += '/script_base64/';
             });
-            make_element('button', 'Add /script_htmlencode/', payloadMakerForm, 'payload_maker_button', function(event) {
+            make_element('button', 'Add /script_htmlencode/', buttonGroup, 'payload_maker_button', function(event) {
                 event.preventDefault();
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 input.value += '/script_htmlencode/';
             });
 
-            make_element('br', null, payloadMakerForm)
-
-            make_element('label', 'Payload: ', payloadMakerForm);
-            payload_input = make_element('input', null, payloadMakerForm)
+            // Create form fields with better structure
+            var payloadField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Payload:', payloadField);
+            payload_input = make_element('input', null, payloadField)
             payload_input.type = 'text';
             payload_input.id = 'payload_input';
             payload_input.required = true;
             payload_input.onchange = function() {
-                console.log('change')
                 var example_payload = encode_payload(payload_input.value);
                 payload_example.textContent = decode_payload(example_payload);
             }
 
-            make_element('label', 'Title: ', payloadMakerForm);
-            make_element('input', null, payloadMakerForm).type = 'text';
-            make_element('label', 'Description: ', payloadMakerForm);
-            make_element('input', null, payloadMakerForm).type = 'text';
-            make_element('label', 'Author: ', payloadMakerForm);
-            make_element('input', null, payloadMakerForm).type = 'text';
-            make_element('label', 'Author Link: ', payloadMakerForm);
-            make_element('input', null, payloadMakerForm).type = 'text';
-            make_element('input', null, payloadMakerForm, 'action_button').type = 'submit';
+            var titleField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Title:', titleField);
+            var titleInput = make_element('input', null, titleField);
+            titleInput.type = 'text';
+            titleInput.id = 'title_input';
+
+            var descField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Description:', descField);
+            var descInput = make_element('input', null, descField);
+            descInput.type = 'text';
+            descInput.id = 'desc_input';
+
+            var authorField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Author:', authorField);
+            var authorInput = make_element('input', null, authorField);
+            authorInput.type = 'text';
+            authorInput.id = 'author_input';
+
+            var linkField = make_div('form-field', payloadMakerForm);
+            make_element('label', 'Author Link:', linkField);
+            var linkInput = make_element('input', null, linkField);
+            linkInput.type = 'text';
+            linkInput.id = 'link_input';
+
+            var submitBtn = make_element('input', null, payloadMakerForm, 'action_button');
+            submitBtn.type = 'submit';
+            submitBtn.value = 'Create Payload';
 
             payloadMakerForm.addEventListener('submit', function(event) {
                 event.preventDefault();
                 status.textContent = '';
                 status.className = '';
-                var input = payloadMakerForm.getElementsByTagName('input')[0];
+                var input = document.getElementById('payload_input');
                 if (!input.value) {
                     status.textContent = 'Payload is required';
                     status.className = 'status_bad';
@@ -1094,10 +1146,10 @@
 
                 var form_data = new FormData();
                 form_data.append('payload', payload);
-                form_data.append('title', payloadMakerForm.getElementsByTagName('input')[1].value);
-                form_data.append('description', payloadMakerForm.getElementsByTagName('input')[2].value);
-                form_data.append('author', payloadMakerForm.getElementsByTagName('input')[3].value);
-                form_data.append('author_link', payloadMakerForm.getElementsByTagName('input')[4].value);
+                form_data.append('title', document.getElementById('title_input').value);
+                form_data.append('description', document.getElementById('desc_input').value);
+                form_data.append('author', document.getElementById('author_input').value);
+                form_data.append('author_link', document.getElementById('link_input').value);
 
                 fetch('/api/v1/user_payloads', {
                     method: 'POST',
@@ -1107,6 +1159,7 @@
                     status.textContent = 'Payload Added';
                     status.className = 'status_good';
                     payload_example.textContent = '';
+                    payloadMakerForm.reset();
                 });
             });
         }
