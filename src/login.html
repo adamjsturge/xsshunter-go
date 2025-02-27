@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <style>
         body {
-            background-color: #03396c;
-            color: #b3cde0;
-            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -14,42 +16,56 @@
             margin: 0;
         }
 
-        .login {
-            background-color: #011f4b;
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px;
             padding: 20px;
-            border-radius: 5px;
-            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: var(--container-background-color);
+            border-radius: 10px;
         }
-    
+
+        .login {
+            width: 100%;
+        }
+
         #loginForm {
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
-    
+
         #loginForm label {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
-    
+
         #loginForm input[type="password"] {
             padding: 10px;
             margin-bottom: 20px;
-            border: none;
+            border: 1px solid #ccc;
             border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
         }
-    
+
         #loginForm input[type="submit"] {
             padding: 10px;
             border: none;
             border-radius: 5px;
-            background-color: #6497b1;
+            background-color: #007bff;
             color: white;
             cursor: pointer;
+            font-size: 16px;
         }
-    
+
         #loginForm input[type="submit"]:hover {
-            background-color: #50788d;
+            background-color: #0056b3;
         }
-    
+
         #error {
             color: white;
             background-color: red;
@@ -62,9 +78,25 @@
             width: 100%;
             box-sizing: border-box;
             margin-bottom: 20px;
-            margin-top: -60px;
         }
 
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            #loginForm input[type="password"],
+            #loginForm input[type="submit"] {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+
+        .theme-toggle {
+            margin-top: 20px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
     </style>
 </head>
 <body>
@@ -72,18 +104,51 @@
         <div id="error"></div>
         <div class="login">
             <form id="loginForm">
-                <label for="password">Password:</label><br>
-                <input type="password" id="password" name="password"><br>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
                 <input type="submit" value="Submit">
             </form>
         </div>
+        <div class="theme-toggle" onclick="toggleTheme()">Toggle Theme</div>
     </div>
 
     <script>
+        const themes = {
+            dark: {
+                '--background-color': '#333',
+                '--text-color': '#f0f4f8',
+                '--container-background-color': '#444'
+            },
+            light: {
+                '--background-color': '#f0f4f8',
+                '--text-color': '#333',
+                '--container-background-color': '#fff'
+            }
+        };
+
+        function applyTheme(theme) {
+            const root = document.documentElement;
+            Object.keys(theme).forEach(key => {
+                root.style.setProperty(key, theme[key]);
+            });
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(themes[newTheme]);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(themes[savedTheme]);
+        });
+
         var failed_login_count = 0;
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            set_error_message('', true)
+            set_error_message('', true);
             var password = document.getElementById('password').value;
             var form_data = new FormData();
             form_data.append('password', password);
@@ -99,7 +164,6 @@
             })
             .catch(function(error) {
                 failed_login_count++;
-                // set_error_message('Invalid password. Attempt ' + failed_login_count, false);
                 set_error_message('Invalid password', false);
             });
         });
