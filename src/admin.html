@@ -223,7 +223,7 @@
             margin: auto;
             padding: 24px;
             width: 90%;
-            max-width: 800px;
+            max-width: 90%;
             border-radius: 12px;
             box-shadow: 0 8px 24px var(--shadow);
             overflow: auto;
@@ -1350,6 +1350,38 @@
 
         function make_modal(style_class) {
             var modal = make_element('div', null, null, style_class);
+            
+            // Add event listener to close modal when clicking outside
+            modal.addEventListener('click', function(event) {
+                // Check if the click was directly on the modal backdrop
+                // (not on any of its children)
+                if (event.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Add event listener for Escape key to close modal
+            function escapeKeyHandler(event) {
+                if (event.key === 'Escape' || event.keyCode === 27) {
+                    modal.remove();
+                    document.removeEventListener('keydown', escapeKeyHandler);
+                }
+            }
+            
+            document.addEventListener('keydown', escapeKeyHandler);
+            
+            // Clean up event listener when modal is removed
+            modal.addEventListener('remove', function() {
+                document.removeEventListener('keydown', escapeKeyHandler);
+            });
+            
+            // Override remove method to ensure event cleanup
+            const originalRemove = modal.remove;
+            modal.remove = function() {
+                document.removeEventListener('keydown', escapeKeyHandler);
+                originalRemove.call(modal);
+            };
+            
             return modal;
         }
 

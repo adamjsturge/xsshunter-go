@@ -8,7 +8,7 @@ const password = process.env.TEMP_E2E_PLAYWRIGHT_PASSWORD ?? '';
 export async function login(page) {
   await page.goto('http://localhost:1449/admin');
   await page.getByLabel('Password:').fill(password);
-  await page.getByRole('button', { name: 'Submit' }).click();
+  await page.getByRole('button', { name: 'Login' }).click();
 }
 
 export async function navigateToSettings(page) {
