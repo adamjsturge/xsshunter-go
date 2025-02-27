@@ -13,8 +13,11 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"net/http"
@@ -55,6 +58,7 @@ func main() {
 	if CONTROL_PANEL_ENABLED == "show" || CONTROL_PANEL_ENABLED == "true" {
 		fmt.Println("Control Panel Enabled")
 		mux.HandleFunc("/admin", adminHandler)
+		mux.HandleFunc("/static/", staticFileHandler) // Add static file handler
 		mux.HandleFunc(API_BASE_PATH+"/auth-check", authCheckHandler)
 		mux.HandleFunc(API_BASE_PATH+"/settings", settingsHandler)
 		mux.HandleFunc(API_BASE_PATH+"/login", loginHandler)
@@ -336,24 +340,94 @@ func adminHandler(w http.ResponseWriter, r *http.Request) {
 	set_no_cache(w)
 	is_authenticated := get_and_validate_jwt(r)
 
-	// Get custom frontend paths or use defaults
-	loginPath := getEnvWithDefault("CUSTOM_LOGIN_PATH", "./src/login.html")
-	adminPath := getEnvWithDefault("CUSTOM_ADMIN_PATH", "./src/admin.html")
+	customFrontendDir := get_env("CUSTOM_FRONTEND_DIR")
 
 	if !is_authenticated {
-		http.ServeFile(w, r, loginPath)
+		// Try to serve custom login page first if custom frontend is configured
+		if customFrontendDir != "" && serveCustomFile(w, r, customFrontendDir, "login.html") {
+			return
+		}
+		// Fall back to default login page
+		http.ServeFile(w, r, "./src/login.html")
 	} else {
-		http.ServeFile(w, r, adminPath)
+		// Try to serve custom admin page first if custom frontend is configured
+		if customFrontendDir != "" && serveCustomFile(w, r, customFrontendDir, "admin.html") {
+			return
+		}
+		// Fall back to default admin page
+		http.ServeFile(w, r, "./src/admin.html")
 	}
 }
 
-// Helper function to get environment variable with default value
-func getEnvWithDefault(key, defaultValue string) string {
-	value := os.Getenv(key)
-	if value == "" {
-		return defaultValue
+// staticFileHandler serves static files from the custom frontend directory
+func staticFileHandler(w http.ResponseWriter, r *http.Request) {
+	set_no_cache(w)
+
+	customFrontendDir := get_env("CUSTOM_FRONTEND_DIR")
+	if customFrontendDir == "" {
+		http.NotFound(w, r)
+		return
 	}
-	return value
+
+	// Remove the leading "/static/" from the path
+	requestedFile := r.URL.Path[len("/static/"):]
+
+	// Serve the file from the custom frontend directory
+	if !serveCustomFile(w, r, customFrontendDir, requestedFile) {
+		http.NotFound(w, r)
+	}
+}
+
+// serveCustomFile serves a file from the custom frontend directory safely
+// Returns true if the file was found and served, false otherwise
+func serveCustomFile(w http.ResponseWriter, r *http.Request, baseDir, requestPath string) bool {
+	// Clean the path to prevent directory traversal attacks
+	cleanPath := filepath.Clean(requestPath)
+
+	// Ensure the path doesn't contain ".." to prevent directory traversal
+	if strings.Contains(cleanPath, "..") {
+		return false
+	}
+
+	// Construct the absolute path
+	filePath := path.Join(baseDir, cleanPath)
+
+	// Check if the path is a directory
+	fileInfo, err := os.Stat(filePath)
+	if err == nil && fileInfo.IsDir() {
+		// Try to serve index.html from the directory
+		indexPath := path.Join(filePath, "index.html")
+		if checkFileExists(indexPath) {
+			filePath = indexPath
+		} else {
+			return false
+		}
+	} else if !checkFileExists(filePath) {
+		return false
+	}
+
+	// Set appropriate content type based on file extension
+	ext := filepath.Ext(filePath)
+	switch ext {
+	case ".html":
+		w.Header().Set("Content-Type", "text/html")
+	case ".js":
+		w.Header().Set("Content-Type", "application/javascript")
+	case ".css":
+		w.Header().Set("Content-Type", "text/css")
+	case ".png":
+		w.Header().Set("Content-Type", "image/png")
+	case ".jpg", ".jpeg":
+		w.Header().Set("Content-Type", "image/jpeg")
+	case ".svg":
+		w.Header().Set("Content-Type", "image/svg+xml")
+	case ".json":
+		w.Header().Set("Content-Type", "application/json")
+	}
+
+	// Serve the file
+	http.ServeFile(w, r, filePath)
+	return true
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
