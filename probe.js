@@ -99,6 +99,10 @@ function addEvent(element, eventName, fn) {
 }
 
 function get_dom_text() {
+	if (!document.body) {
+        	return '';
+    	}
+	
 	var text_extractions_to_try = [
 		document.body.outerText,
 		document.body.innerText,
