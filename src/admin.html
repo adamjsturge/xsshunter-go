@@ -1,85 +1,84 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page</title>
     <style>
         body {
-            background-color: #03396c;
-            color: #b3cde0;
-        }
-        
-        table, th, td {
-            border-collapse: collapse;
-            border: 1px solid #ddd;
-            /* background-color: #005b96; */
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
         }
 
-        th, td {
-            padding: 10px;
-            text-align: left;
+        .navbar {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
         }
 
-        th {
-            background-color: #011f4b;
+        .navbar button {
+            background-color: #007bff;
             color: white;
-        }
-
-        tr:nth-child(even) {
-            background-color: #004878;
-        }
-
-        tr:nth-child(odd) {
-            background-color: #005b96;
-        }
-
-        input[type="text"] {
-            padding: 10px;
-            margin-bottom: 20px;
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
-            width: 97%;
+            cursor: pointer;
+            font-size: 16px;
         }
 
-        textarea {
-            padding: 10px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 5px;
-            width: 97%;
-            height: 200px;
-        }
-
-        hr {
-            border: 1px solid #ddd;
-            margin: 20px 0;
+        .navbar button:hover {
+            background-color: #0056b3;
         }
 
         .flex-table {
             display: flex;
             flex-direction: column;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .invisible {
-            display: none;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
 
-        .value_cell {
-            width: 85%;
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
         }
 
-        .navbar {
-            border-radius: 10px;
-            background-color: #011f4b;
+        th {
+            background-color: #007bff;
             color: white;
-            padding: 8px 5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--even-row-background-color);
+        }
+
+        tr:nth-child(odd) {
+            background-color: var(--odd-row-background-color);
+        }
+
+        .action_button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
 
-        .navbar:hover {
-            background-color: #00183c;
+        .action_button:hover {
+            background-color: #218838;
         }
-        
+
         .modal {
             position: fixed;
             top: 0;
@@ -90,54 +89,16 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: scroll;
-        }
-
-        .modal_div {
-            background-color: #03396c;
-            margin: auto;
-            padding: 20px;
-            width: 80%;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             overflow: auto;
         }
 
-        .action_button {
-            background-color: #6497b1;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .action_button:hover {
-            /* background-color: #0056b3; */
-            background-color: #4a7d96;
-        }
-
-        .payload_maker_button {
-            background-color: #6497b1;
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-
-        .payload_maker_button:hover {
-            /* background-color: #0056b3; */
-            background-color: #4a7d96;
-        }
-
-        .status_good {
-            color: #28a745;
-        }
-
-        .status_bad {
-            color: #dc3545;
+        .modal_div {
+            background-color: var(--container-background-color);
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .close_button {
@@ -148,173 +109,62 @@
             border-radius: 5px;
             cursor: pointer;
             position: absolute;
-            right: 10%;
+            right: 10px;
+            top: 10px;
         }
 
         .close_button:hover {
             background-color: #c82333;
         }
 
-        .payload_fires_title_cell {
-            font-weight: bold;
+        @media (max-width: 600px) {
+            .navbar button {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+
+            .action_button {
+                padding: 8px;
+            }
         }
 
-        .payload_fires_cell {
-            padding: 10px;
-            border-bottom: 1px solid #dee2e6;
+        .invisible {
+            display: none;
         }
 
-        #settingsTable {
-            margin-bottom: 10px;
-        }
-
-        .settings_cell {
-            padding: 10px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .payload_div {
-            padding: 10px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #dee2e6;
-            overflow: auto;
-        }
-
-        .payload_title {
-            font-weight: bold;
-        }
-
-        .payload_description {
-            padding-bottom: 10px;
-        }
-
-        .payload_code {
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
+        .theme-toggle {
+            margin-top: 20px;
             cursor: pointer;
-        }
-
-        .payload_code:hover {
-            background-color: #00183c;
-        }
-
-        .payload_author {
-            cursor: pointer;
-            text-decoration: underline;
-            margin-bottom: 0px;
-            margin-top: 0px;
-        }
-
-        .payload_author:hover {
-            color: #007bff;
-        }
-
-        .modal_element_div {
-            padding-top: 4px;
-            padding-bottom: 4px;
-            overflow: scroll;
-
-        }
-
-        .modal_element_label {
-            display: inline;
-            font-weight: bold;
-        }
-
-        .modal_element_item {
-            display: inline;
-        }
-
-        .image {
-            background-color: white;
-        }
-
-        .thumbnail {
-            background-color: white;
-            width: 100px;
-            height: 100px;
-        }
-
-        .update_div {
-            display: flex;
-            padding: 5px;
-            margin-bottom: 20px;
-            background-color: #011f4b;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .update_header {
-            font-weight: 600;
-            /* color: #03396c; */
-        }
-
-        .user_payload_header {
-            margin-top: 5px;
-        }
-
-        .payload_legend {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .user_payloads_legend {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            /* make it scroll if overflow */
-            overflow: auto;
-        }
-
-        .payload_example {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .exported_payloads {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            overflow: auto;
-            cursor: pointer;
-        }
-
-        .exported_payloads:hover {
-            background-color: #00183c;
+            color: var(--text-color);
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div id="navvar">
-        <button class="navbar" onclick="navbar('payload_fires')">Payload Fires</button>
-        <button class="navbar" onclick="navbar('collected_pages')">Collected Pages</button>
-        <button class="navbar" onclick="navbar('settings')">Settings</button>
-        <button class="navbar" onclick="navbar('payloads')">Payloads</button>
-        <button class="navbar" onclick="navbar('payload_maker')">Payload Maker</button>
-        <button class="navbar" onclick="navbar('payload_import_export')">Payload Importer/Exporter</button>
+    <div class="navbar">
+        <button onclick="navbar('payload_fires')">Payload Fires</button>
+        <button onclick="navbar('collected_pages')">Collected Pages</button>
+        <button onclick="navbar('settings')">Settings</button>
+        <button onclick="navbar('payloads')">Payloads</button>
+        <button onclick="navbar('payload_maker')">Payload Maker</button>
+        <button onclick="navbar('payload_import_export')">Payload Importer/Exporter</button>
     </div>
     <div id="payload_fires" class="flex-table">
         <div>
             <h1>Admin Page</h1>
             <button class="action_button" onclick="refreshPayloadFires()">Refresh</button>
         </div>
-        
-
         <div id="special_update_div"></div>
-        <table class="payload_fires_table" id="payloadFiresTable">
-            <tr class="payload_fires_header">
-                <th class="payload_fires_title_cell">ID</th>
-                <th class="payload_fires_title_cell">URI</th>
-                <th class="payload_fires_title_cell">Image</th>
-                <th class="payload_fires_title_cell">Expand</th>
+        <table id="payloadFiresTable">
+            <tr>
+                <th>ID</th>
+                <th>URI</th>
+                <th>Image</th>
+                <th>Expand</th>
             </tr>
         </table>
         <div id="payload_fires_page_buttons">
@@ -362,7 +212,44 @@
     <div id="payload_import_export" class="flex-table invisible">
         <h1>Payload Importer/Exporter</h1>
     </div>
+    <div class="theme-toggle" onclick="toggleTheme()">Toggle Theme</div>
     <script>
+        const themes = {
+            dark: {
+                '--background-color': '#333',
+                '--text-color': '#f0f4f8',
+                '--container-background-color': '#444',
+                '--even-row-background-color': '#444',
+                '--odd-row-background-color': '#555'
+            },
+            light: {
+                '--background-color': '#f0f4f8',
+                '--text-color': '#333',
+                '--container-background-color': '#fff',
+                '--even-row-background-color': '#f9f9f9',
+                '--odd-row-background-color': '#fff'
+            }
+        };
+
+        function applyTheme(theme) {
+            const root = document.documentElement;
+            Object.keys(theme).forEach(key => {
+                root.style.setProperty(key, theme[key]);
+            });
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(themes[newTheme]);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            applyTheme(themes[savedTheme]);
+        });
+
         function loadPayloadFires() {
             var page = 1;
             var limit = 10;
