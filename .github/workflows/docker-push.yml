@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main"] #, "dev" ]
     paths:
-      # - ".github/workflows/docker-push.yml"
+      - ".github/workflows/docker-push.yml"
       - "Dockerfile"
       - "docker-compose.yml"
       - "go.mod"
