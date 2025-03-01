@@ -314,8 +314,10 @@
         .payload_fires_cell {
             padding: 12px;
             border-bottom: 1px solid var(--divider);
-            /* max-width: 300px; */
-            word-break: break-all;
+        }
+
+        .wrap_text {
+            word-break: break-word;
             overflow-wrap: break-word;
             white-space: normal;
         }
@@ -818,7 +820,7 @@
                 data.forEach(item => {
                     const row = make_table_row(table, 'payload_fires_row');
                     make_table_cell(item.id, row, 'payload_fires_cell');
-                    make_table_cell(item.url, row, 'payload_fires_cell');
+                    make_table_cell(item.url, row, 'payload_fires_cell wrap_text');
                     make_table_cell(null, row, 'payload_fires_cell').appendChild(make_image(item.screenshot_id, 'Screenshot', null, 'thumbnail'));
                     const actionCell = make_table_cell(null, row, 'payload_fires_cell');
  
