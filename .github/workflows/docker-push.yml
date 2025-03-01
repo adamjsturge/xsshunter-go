@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main"] #, "dev" ]
     paths:
-      # - ".github/workflows/docker-push.yml"
+      - ".github/workflows/docker-push.yml"
       - "Dockerfile"
       - "docker-compose.yml"
       - "go.mod"
@@ -40,16 +40,16 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}}-amd64
-            type=ref,event=branch,suffix=-amd64
-            type=ref,event=tag,suffix=-amd64
-            type=raw,value=latest-amd64,enable=${{ github.ref == 'refs/heads/main' }}
-            type=raw,value=dev-amd64,enable=${{ github.ref == 'refs/heads/main' }}
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Create .env file
         run: touch .env
 
-      - name: Build and push AMD64 Docker image
+      - name: Build and push Docker image for AMD64
         uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}"
@@ -63,16 +63,14 @@ jobs:
             GIT_TAG=${{ github.ref_name }}
             GIT_COMMIT=${{ github.sha }}
             GIT_BRANCH=${{ github.ref_name }}
+            ARCH=amd64
 
   build_arm64:
     name: Build and push ARM64 image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -89,16 +87,16 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}}-arm64
-            type=ref,event=branch,suffix=-arm64
-            type=ref,event=tag,suffix=-arm64
-            type=raw,value=latest-arm64,enable=${{ github.ref == 'refs/heads/main' }}
-            type=raw,value=dev-arm64,enable=${{ github.ref == 'refs/heads/main' }}
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Create .env file
         run: touch .env
 
-      - name: Build and push ARM64 Docker image
+      - name: Build and push Docker image for ARM64
         uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}"
@@ -112,9 +110,10 @@ jobs:
             GIT_TAG=${{ github.ref_name }}
             GIT_COMMIT=${{ github.sha }}
             GIT_BRANCH=${{ github.ref_name }}
+            ARCH=arm64
 
   create_manifest:
-    name: Create and push multi-arch manifest
+    name: Create and push multi-architecture manifest
     runs-on: ubuntu-latest
     needs: [build_amd64, build_arm64]
     steps:
@@ -124,25 +123,27 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Create and push latest manifest
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-amd64 \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-arm64
-          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@b53be03109c4ef6f6cc7aa545b84b17a7fe51c1e
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}
 
-      - name: Create and push dev manifest
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-amd64 \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-arm64
-          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Create and push branch manifest
-        run: |
-          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-amd64 \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-arm64
-          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+      - name: Create and push manifests
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          file: ./Dockerfile
+          target: prod
