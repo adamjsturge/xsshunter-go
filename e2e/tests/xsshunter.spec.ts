@@ -177,3 +177,53 @@ test('Trigger XSS in HTML without body tag', async ({ page, context }) => {
   
   await expect(page.locator('.modal_div')).toContainText(randomInjectionKey);
 });
+
+test('Failed Login Attempt', async ({ page, context }) => {
+  await page.goto('http://localhost:1449/admin');
+  await clearCookies(context);
+
+  await page.getByLabel('Password:').fill('wrong_password');
+  await page.getByRole('button', { name: 'Login' }).click();
+  
+  await expect(page.locator('#error')).toBeVisible();
+  await expect(page.locator('#error')).toContainText('Invalid password');
+  
+  await expect(page.getByLabel('Password:')).toBeVisible();
+});
+
+
+test('XSS with Special Characters', async ({ page, context }) => {
+  await page.goto('http://localhost:1449/');
+  await clearCookies(context);
+
+  const randomKey = crypto.randomBytes(10).toString('hex');
+  const specialCharsHTML = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Special Characters Test</title>
+      </head>
+      <body>
+        <h1>Special Characters: &lt;&gt;&amp;"'</h1>
+        <div data-test="${randomKey}">
+          <p>HTML entities: &copy; &reg; &euro; &hearts;</p>
+          <p>Emojis: 😀 🚀 💻 🔥</p>
+        </div>
+        <script src='http://localhost:1449/${randomKey}'></script>
+      </body>
+    </html>
+  `;
+
+  await triggerXSSWithCustomHTML(page, context, specialCharsHTML, randomKey);
+
+  await page.goto('http://localhost:1449/admin');
+  await clearCookies(context);
+  await login(page);
+  
+  await page.locator('.action_button').filter({ hasText: 'Expand' }).first().click();
+  
+  // Check that special characters were captured correctly
+  await expect(page.locator('.modal_div')).toContainText('Special Characters:');
+  await expect(page.locator('.modal_div')).toContainText('HTML entities:');
+  await expect(page.locator('.modal_div')).toContainText('Emojis:');
+});
