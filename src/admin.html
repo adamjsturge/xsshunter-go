@@ -704,6 +704,84 @@
         .toast-icon {
             margin-right: 8px;
         }
+
+        /* Collapsible content in modals */
+        .collapsible-content {
+            position: relative;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .collapsible-image-div {
+            position: relative;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            width: 100%;
+            margin-bottom: 8px;
+            max-height: 300px;
+        }
+        
+        .collapsible-image {
+            /* max-height: 300px; */
+            cursor: pointer;
+            width: auto;
+            object-fit: scale-down;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .collapsible-text {
+            max-height: 200px;
+            overflow-y: auto;
+            position: relative;
+            width: 100%;
+        }
+        
+        .collapsible-dom {
+            max-height: 300px;
+            overflow-y: auto;
+            position: relative;
+            width: 100%;
+        }
+        
+        .expand-button {
+            background-color: var(--primary);
+            color: var(--surface);
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+            margin-bottom: 16px;
+            display: block;
+        }
+        
+        .expanded {
+            max-height: none !important;
+        }
+        
+        .expanded .collapsible-image {
+            max-height: none; /* Remove height restriction for expanded images */
+            width: auto; /* Let image maintain natural width */
+            max-width: 100%; /* But don't exceed container width */
+        }
+        
+        .content-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            /* background: linear-gradient(transparent, var(--surface)); */
+            pointer-events: none;
+        }
+        
+        .expanded .content-overlay {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -881,20 +959,96 @@
 
             make_modal_element('b', 'p', `ID: `, payloadFire.id, modalContent);
             make_modal_element('b', 'p', `URL: `, payloadFire.url, modalContent);
-            make_image(payloadFire.screenshot_id, payloadFire.screenshot_id, modalContent, 'image');
+            
+            // Create collapsible screenshot container
+            const screenshotContainer = make_div('collapsible-image-div', modalContent);
+            const img = make_image(payloadFire.screenshot_id, payloadFire.screenshot_id, screenshotContainer, 'collapsible-image');
+            const screenshotOverlay = make_div('content-overlay', screenshotContainer);
+            const expandScreenshotBtn = make_element('button', 'Expand Image', modalContent, 'expand-button', function() {
+                toggleExpand(screenshotContainer, expandScreenshotBtn, img);
+            });
+            
+            // Only show screenshot expand button if needed
+            img.onload = function() {
+                if (img.naturalHeight <= 300) {
+                    expandScreenshotBtn.style.display = 'none';
+                    screenshotOverlay.style.display = 'none';
+                }
+            };
+            
             make_modal_element('b', 'p', `IP Address: `, payloadFire.ip_address, modalContent);
             make_modal_element('b', 'p', `Referer: `, payloadFire.referer, modalContent);
             make_modal_element('b', 'p', `User Agent: `, payloadFire.user_agent, modalContent);
             make_modal_element('b', 'p', `Cookies: `, payloadFire.cookies, modalContent);
             make_modal_element('b', 'p', `Title: `, payloadFire.title, modalContent);
-            make_modal_element('b', 'code', 'DOM: ', payloadFire.dom, modalContent);
-            make_modal_element('b', 'p', `Text: `, payloadFire.text, modalContent);
+            
+            // Create collapsible DOM container
+            const domLabel = make_element('b', 'DOM: ', modalContent, 'modal_element_label');
+            const domContainer = make_div('collapsible-content collapsible-dom', modalContent);
+            const domCode = make_element('code', payloadFire.dom, domContainer, 'modal_element_item');
+            const domOverlay = make_div('content-overlay', domContainer);
+            const expandDomBtn = make_element('button', 'Expand DOM', modalContent, 'expand-button', function() {
+                toggleExpand(domContainer, expandDomBtn);
+            });
+            
+            // Check if DOM content needs expand button
+            setTimeout(() => {
+                if (domContainer.scrollHeight <= 300) {
+                    expandDomBtn.style.display = 'none';
+                    domOverlay.style.display = 'none';
+                }
+            }, 0);
+            
+            // Create collapsible Text container
+            const textLabel = make_element('b', 'Text: ', modalContent, 'modal_element_label');
+            const textContainer = make_div('collapsible-content collapsible-text', modalContent);
+            const textContent = make_element('p', payloadFire.text, textContainer, 'modal_element_item');
+            const textOverlay = make_div('content-overlay', textContainer);
+            const expandTextBtn = make_element('button', 'Expand Text', modalContent, 'expand-button', function() {
+                toggleExpand(textContainer, expandTextBtn);
+            });
+            
+            // Check if text content needs expand button
+            setTimeout(() => {
+                if (textContainer.scrollHeight <= 200) {
+                    expandTextBtn.style.display = 'none';
+                    textOverlay.style.display = 'none';
+                }
+            }, 0);
+            
             make_modal_element('b', 'p', `Origin: `, payloadFire.origin, modalContent);
             make_modal_element('b', 'p', `Was Iframe: `, payloadFire.was_iframe, modalContent);
             make_modal_element('b', 'p', `Browser Timestamp: `, payloadFire.browser_timestamp, modalContent);
             make_modal_element('b', 'p', `Correlated Request: `, payloadFire.correlated_request, modalContent);
 
             document.body.appendChild(modal);
+        }
+        
+        function toggleExpand(container, button, img = null) {
+            if (container.classList.contains('expanded')) {
+                container.classList.remove('expanded');
+                button.textContent = button.textContent.replace('Collapse', 'Expand');
+                // Reset container height to original state
+                if (container.classList.contains('collapsible-text')) {
+                    container.style.maxHeight = '200px';
+                } else if (container.classList.contains('collapsible-dom')) {
+                    container.style.maxHeight = '300px';
+                } else {
+                    // For images
+                    container.style.maxHeight = '300px';
+                }
+            } else {
+                container.classList.add('expanded');
+                button.textContent = button.textContent.replace('Expand', 'Collapse');
+                // Set container height based on content
+                if (img && img.naturalHeight) {
+                    // For images, set height based on image's natural height
+                    container.style.maxHeight = 'none';
+                } else {
+                    // For text/DOM containers
+                    container.style.maxHeight = 'none';
+                }
+            }
         }
 
         function deletePayloadFire(id) {
