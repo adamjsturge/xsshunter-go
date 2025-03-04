@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clearCookies, login, navigateToPayloadImporterExporter, navigateToPayloadMaker, navigateToPayloads, navigateToSettings, triggerXSS, generateHTML } from '../helper';
+import { clearCookies, login, navigateToPayloadImporterExporter, navigateToPayloadMaker, navigateToPayloads, navigateToSettings, triggerXSS, triggerXSSWithCustomHTML, generateHTML } from '../helper';
 
 const crypto = require('crypto');
 
@@ -55,9 +55,16 @@ test('Basic Trigger XSS', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
   await clearCookies(context);
 
-  await triggerXSS(page, context);
+  const randomInjectionKey = crypto.randomBytes(20).toString('hex');
+  await triggerXSS(page, context, randomInjectionKey);
+  
   await page.goto('http://localhost:1449/admin');
   await clearCookies(context);
+  await login(page);
+  
+  await page.locator('.action_button').filter({ hasText: 'Expand' }).first().click();
+  
+  await expect(page.locator('.modal_div')).toContainText(randomInjectionKey);
 });
 
 test('Update Settings', async ({ page, context }) => {
@@ -105,13 +112,14 @@ test('Basic Trigger XSS with a lot of HTML', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
   await clearCookies(context);
 
+  const randomInjectionKey = crypto.randomBytes(20).toString('hex');
   let skeletonHTML = "<div id='addtional-text'>";
 
   let longPregeneratedHTML = generateHTML(200000, 250);
 
   skeletonHTML += longPregeneratedHTML + "</div>";
 
-  await triggerXSS(page, context, "", skeletonHTML);
+  await triggerXSS(page, context, randomInjectionKey, skeletonHTML);
 
   await page.waitForSelector('#addtional-text');
   let substringToCheck = longPregeneratedHTML.slice(-100);
@@ -119,16 +127,53 @@ test('Basic Trigger XSS with a lot of HTML', async ({ page, context }) => {
 
   await page.goto('http://localhost:1449/admin');
   await clearCookies(context);
+  await login(page);
+  
+  await page.locator('.action_button').filter({ hasText: 'Expand' }).first().click();
+  
+  await expect(page.locator('.modal_div')).toContainText(randomInjectionKey);
 });
 
 test('Basic Trigger XSS with hidden HTML', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
   await clearCookies(context);
 
+  const randomInjectionKey = crypto.randomBytes(20).toString('hex');
   let longPregeneratedHTML = `<div id='addtional-text' style='display: none;'>${generateHTML(500000, 1000)}</div>`;
 
-  await triggerXSS(page, context, "", longPregeneratedHTML);
+  await triggerXSS(page, context, randomInjectionKey, longPregeneratedHTML);
 
   await page.goto('http://localhost:1449/admin');
   await clearCookies(context);
+  await login(page);
+  
+  await page.locator('.action_button').filter({ hasText: 'Expand' }).first().click();
+  
+  await expect(page.locator('.modal_div')).toContainText(randomInjectionKey);
+});
+
+test('Trigger XSS in HTML without body tag', async ({ page, context }) => {
+  await page.goto('http://localhost:1449/');
+  await clearCookies(context);
+
+  const randomInjectionKey = crypto.randomBytes(20).toString('hex');
+  const htmlWithoutBody = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>No Body Test</title>
+        <script src='http://localhost:1449/${randomInjectionKey}'></script>
+      </head>
+    </html>
+  `;
+
+  await triggerXSSWithCustomHTML(page, context, htmlWithoutBody, randomInjectionKey);
+  
+  await page.goto('http://localhost:1449/admin');
+  await clearCookies(context);
+  await login(page);
+  
+  await page.locator('.action_button').filter({ hasText: 'Expand' }).first().click();
+  
+  await expect(page.locator('.modal_div')).toContainText(randomInjectionKey);
 });

@@ -513,7 +513,6 @@
             background-color: var(--hover);
         }
 
-        /* Theme toggle switch */
         .theme-toggle {
             display: flex;
             align-items: center;
@@ -570,7 +569,6 @@
             transform: translateX(24px);
         }
 
-        /* Responsive design */
         @media (max-width: 768px) {
             #navvar {
                 flex-direction: column;
@@ -603,7 +601,6 @@
             }
         }
 
-        /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -623,7 +620,6 @@
             background: var(--secondary);
         }
 
-        /* Add form field container styles for better layout */
         .form-field {
             display: flex;
             flex-direction: column;
@@ -641,7 +637,6 @@
             margin-bottom: 0;
         }
 
-        /* Improve payload maker styling */
         #payload_maker_form {
             display: flex;
             flex-direction: column;
@@ -656,7 +651,6 @@
             margin-bottom: 16px;
         }
 
-        /* Toast notification styles */
         .toast-container {
             position: fixed;
             bottom: 20px;
@@ -705,7 +699,6 @@
             margin-right: 8px;
         }
 
-        /* Collapsible content in modals */
         .collapsible-content {
             position: relative;
             overflow: hidden;
@@ -724,7 +717,6 @@
         }
         
         .collapsible-image {
-            /* max-height: 300px; */
             cursor: pointer;
             width: auto;
             object-fit: scale-down;
@@ -764,9 +756,9 @@
         }
         
         .expanded .collapsible-image {
-            max-height: none; /* Remove height restriction for expanded images */
-            width: auto; /* Let image maintain natural width */
-            max-width: 100%; /* But don't exceed container width */
+            max-height: none;
+            width: auto;
+            max-width: 100%;
         }
         
         .content-overlay {
@@ -862,21 +854,17 @@
         <h1>Payload Importer/Exporter</h1>
     </div>
     <script>
-        // Theme management
         const themeToggle = document.getElementById('theme-toggle');
         const htmlElement = document.documentElement;
         
-        // Load theme from localStorage
         function loadTheme() {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             htmlElement.setAttribute('data-theme', savedTheme);
             themeToggle.checked = savedTheme === 'dark';
         }
         
-        // Initialize theme
         loadTheme();
         
-        // Toggle theme
         themeToggle.addEventListener('change', function() {
             const newTheme = this.checked ? 'dark' : 'light';
             htmlElement.setAttribute('data-theme', newTheme);
@@ -960,7 +948,6 @@
             make_modal_element('b', 'p', `ID: `, payloadFire.id, modalContent);
             make_modal_element('b', 'p', `URL: `, payloadFire.url, modalContent);
             
-            // Create collapsible screenshot container
             const screenshotContainer = make_div('collapsible-image-div', modalContent);
             const img = make_image(payloadFire.screenshot_id, payloadFire.screenshot_id, screenshotContainer, 'collapsible-image');
             const screenshotOverlay = make_div('content-overlay', screenshotContainer);
@@ -968,7 +955,6 @@
                 toggleExpand(screenshotContainer, expandScreenshotBtn, img);
             });
             
-            // Only show screenshot expand button if needed
             img.onload = function() {
                 if (img.naturalHeight <= 300) {
                     expandScreenshotBtn.style.display = 'none';
@@ -1028,24 +1014,19 @@
             if (container.classList.contains('expanded')) {
                 container.classList.remove('expanded');
                 button.textContent = button.textContent.replace('Collapse', 'Expand');
-                // Reset container height to original state
                 if (container.classList.contains('collapsible-text')) {
                     container.style.maxHeight = '200px';
                 } else if (container.classList.contains('collapsible-dom')) {
                     container.style.maxHeight = '300px';
                 } else {
-                    // For images
                     container.style.maxHeight = '300px';
                 }
             } else {
                 container.classList.add('expanded');
                 button.textContent = button.textContent.replace('Expand', 'Collapse');
-                // Set container height based on content
                 if (img && img.naturalHeight) {
-                    // For images, set height based on image's natural height
                     container.style.maxHeight = 'none';
                 } else {
-                    // For text/DOM containers
                     container.style.maxHeight = 'none';
                 }
             }
@@ -1277,7 +1258,6 @@
             var payloadMakerForm = make_element('form', null, payloadMaker);
             payloadMakerForm.id = 'payload_maker_form';
 
-            // Create button group container for better layout
             var buttonGroup = make_div('payload-button-group', payloadMakerForm);
 
             make_element('button', 'Add /script_domain/', buttonGroup, 'payload_maker_button', function(event) {
@@ -1301,7 +1281,6 @@
                 input.value += '/script_htmlencode/';
             });
 
-            // Create form fields with better structure
             var payloadField = make_div('form-field', payloadMakerForm);
             make_element('label', 'Payload:', payloadField);
             payload_input = make_element('input', null, payloadField)
@@ -1440,13 +1419,10 @@
             document.execCommand('copy');
             document.body.removeChild(textArea);
             
-            // Show toast notification
             showToast('Copied to clipboard successfully', 'success');
         }
 
-        // Toast notification system
         function showToast(message, type = 'success') {
-            // Create container if it doesn't exist
             let container = document.querySelector('.toast-container');
             if (!container) {
                 container = document.createElement('div');
@@ -1454,25 +1430,20 @@
                 document.body.appendChild(container);
             }
             
-            // Create the toast
             const toast = document.createElement('div');
             toast.className = `toast toast-${type}`;
             
-            // Add icon based on type
             let icon = '✓';
             if (type === 'error') icon = '✗';
             if (type === 'warning') icon = '⚠';
             
             toast.innerHTML = `<span class="toast-icon">${icon}</span> ${message}`;
             
-            // Add to container
             container.appendChild(toast);
             
-            // Remove after animation completes
             setTimeout(() => {
                 toast.remove();
                 
-                // Clean up container if empty
                 if (!container.hasChildNodes()) {
                     container.remove();
                 }
@@ -1555,12 +1526,10 @@
                 body: form_data
             })
             .then(() => {
-                // Reload the page to get the updated list
                 location.reload();
             });
         }
 
-        // Load the collected pages when the page loads
         window.onload = start;
         function start() {
             loadVersion(true);
@@ -1651,16 +1620,12 @@
         function make_modal(style_class) {
             var modal = make_element('div', null, null, style_class);
             
-            // Add event listener to close modal when clicking outside
             modal.addEventListener('click', function(event) {
-                // Check if the click was directly on the modal backdrop
-                // (not on any of its children)
                 if (event.target === modal) {
                     modal.remove();
                 }
             });
             
-            // Add event listener for Escape key to close modal
             function escapeKeyHandler(event) {
                 if (event.key === 'Escape' || event.keyCode === 27) {
                     modal.remove();
@@ -1670,12 +1635,10 @@
             
             document.addEventListener('keydown', escapeKeyHandler);
             
-            // Clean up event listener when modal is removed
             modal.addEventListener('remove', function() {
                 document.removeEventListener('keydown', escapeKeyHandler);
             });
             
-            // Override remove method to ensure event cleanup
             const originalRemove = modal.remove;
             modal.remove = function() {
                 document.removeEventListener('keydown', escapeKeyHandler);

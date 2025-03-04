@@ -74,6 +74,19 @@ export async function triggerXSS(page, context, randomInjectionKey = "", longPre
   await expect(page.getByText('Test XSS Payload')).toBeVisible();
 }
 
+export async function triggerXSSWithCustomHTML(page, context, customHTML, randomInjectionKey = "") {
+  await page.goto('about:blank');
+  
+  // Add the script tag to the custom HTML if it doesn't already contain it
+  if (!customHTML.includes(`<script src='http://localhost:1449/`)) {
+    customHTML = customHTML.replace('</head>', `<script src='http://localhost:1449/${randomInjectionKey}'></script></head>`);
+  }
+
+  const responsePromise = page.waitForResponse('**/js_callback');
+  await page.setContent(customHTML);
+  await responsePromise;
+}
+
 export function generateHTML(length, lineBreakLength) {
   let charOptions = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let longPregeneratedHTML = "";
