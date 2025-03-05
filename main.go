@@ -58,7 +58,7 @@ func main() {
 	if CONTROL_PANEL_ENABLED == "show" || CONTROL_PANEL_ENABLED == "true" {
 		fmt.Println("Control Panel Enabled")
 		mux.HandleFunc("/admin", adminHandler)
-		mux.HandleFunc("/static/", staticFileHandler) // Add static file handler
+		mux.HandleFunc("/static/", staticFileHandler)
 		mux.HandleFunc(API_BASE_PATH+"/auth-check", authCheckHandler)
 		mux.HandleFunc(API_BASE_PATH+"/settings", settingsHandler)
 		mux.HandleFunc(API_BASE_PATH+"/login", loginHandler)

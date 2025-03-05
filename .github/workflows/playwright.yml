@@ -50,8 +50,8 @@ jobs:
     - name: Get Password from Docker logs
       run: |
         echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
-    - name: Run Playwright tests
-      run: npx playwright test
+    - name: Run Playwright main tests
+      run: npx playwright test tests/xsshunter.spec.ts
       working-directory: e2e
     - name: Stop the xsshunter-go Docker container
       run: docker compose -f docker-compose.prod.yml down xsshunter-go
@@ -68,6 +68,61 @@ jobs:
     - name: Get Password from Docker logs for postgres test
       run: |
         echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
-    - name: Run Playwright tests with the database
-      run: npx playwright test
+    - name: Run Playwright main tests with the database
+      run: npx playwright test tests/xsshunter.spec.ts
       working-directory: e2e
+      
+    # Custom Frontend Directory Test Setup and Execution
+    - name: Stop the xsshunter-go Docker container for custom frontend test
+      run: docker compose -f docker-compose.prod.yml down xsshunter-go
+      working-directory: ./
+    - name: Create custom frontend directory
+      run: mkdir -p /tmp/xsshunter-custom-frontend
+    - name: Create custom login page
+      run: |
+        cat > /tmp/xsshunter-custom-frontend/login.html << 'EOL'
+        <!DOCTYPE html>
+        <html>
+        <head><title>Custom Login</title></head>
+        <body>
+          <h2 id="custom-login-marker">Custom Login Page</h2>
+          <form>
+            <input type="text" id="username" placeholder="Username" />
+            <input type="password" id="password" placeholder="Password" />
+            <button type="submit">Login</button>
+          </form>
+        </body>
+        </html>
+        EOL
+    - name: Create custom static test page
+      run: |
+        cat > /tmp/xsshunter-custom-frontend/test.html << 'EOL'
+        <!DOCTYPE html>
+        <html>
+        <head><title>Custom Static</title></head>
+        <body>
+          <h2 id="custom-static-marker">Custom Static File</h2>
+        </body>
+        </html>
+        EOL
+    - name: Add CUSTOM_FRONTEND_DIR to env
+      run: echo -e "\nCUSTOM_FRONTEND_DIR=/tmp/xsshunter-custom-frontend" >> .env
+      working-directory: ./
+    - name: Start Docker container with custom frontend
+      run: docker compose -f docker-compose.prod.yml --env-file .env up -d
+      working-directory: ./
+    - name: Wait for the service to start
+      run: sleep 10
+    - name: Get Password from Docker logs for custom frontend test
+      run: |
+        echo "TEMP_E2E_PLAYWRIGHT_PASSWORD=$(docker logs xsshunter-go-xsshunter-go-1 | grep -oP 'PASSWORD: \K.*')" > e2e/.env
+    - name: Run Custom Frontend Directory test
+      run: npx playwright test tests/custom-frontend.spec.ts
+      working-directory: e2e
+    - name: Clean up custom frontend test
+      run: |
+        docker compose -f docker-compose.prod.yml down xsshunter-go
+        rm -rf /tmp/xsshunter-custom-frontend
+        sed -i '/CUSTOM_FRONTEND_DIR/d' .env
+        docker compose -f docker-compose.prod.yml --env-file .env up -d
+      working-directory: ./
