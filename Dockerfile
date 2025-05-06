@@ -1,4 +1,4 @@
-FROM golang:1.24.0-alpine3.21 as builder
+FROM golang:1.24.3-alpine3.21 as builder
 
 RUN apk update && apk add --no-cache gcc musl-dev ca-certificates
 
@@ -26,7 +26,7 @@ EXPOSE 1449
 
 CMD ["./main"]
 
-FROM golang:1.24.0-alpine3.21 as dev
+FROM golang:1.24.3-alpine3.21 as dev
 
 RUN apk update && apk add --no-cache gcc musl-dev ca-certificates
 
