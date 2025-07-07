@@ -28,6 +28,7 @@ type PayloadFireResults struct {
 	Browser_timestamp     uint   `json:"browser_timestamp"`
 	Correlated_request    string `json:"correlated_request"`
 	Injection_requests_id *int   `json:"injection_requests_id"`
+	Probe_id              string `json:"probe_id"`
 }
 
 type CollectedPages struct {
@@ -65,6 +66,7 @@ func create_sqlite_tables() {
 		screenshot_id TEXT,
 		was_iframe BOOLEAN,
 		browser_timestamp UNSIGNED INT,
+		probe_id TEXT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS collected_pages (
@@ -122,6 +124,7 @@ func create_postgres_tables() {
 		screenshot_id TEXT,
 		was_iframe BOOLEAN,
 		browser_timestamp BIGINT,
+		probe_id TEXT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS collected_pages (

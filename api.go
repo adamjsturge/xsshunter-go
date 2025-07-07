@@ -133,7 +133,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 		limit := parameter_to_int(limit_string, 10)
 		offset := page * limit
 
-		rows, err := db.Query("SELECT id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp, injection_requests_id FROM payload_fire_results ORDER BY created_at DESC LIMIT $1 OFFSET $2", limit, offset)
+		rows, err := db.Query("SELECT id, url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp, injection_requests_id, probe_id FROM payload_fire_results ORDER BY created_at DESC LIMIT $1 OFFSET $2", limit, offset)
 		if err != nil {
 			http.Error(w, "Error querying database", http.StatusInternalServerError)
 			return
@@ -143,7 +143,7 @@ func payloadFiresHandler(w http.ResponseWriter, r *http.Request) {
 		payload_fires := []PayloadFireResults{}
 		for rows.Next() {
 			var payload_fire PayloadFireResults
-			err = rows.Scan(&payload_fire.ID, &payload_fire.Url, &payload_fire.Ip_address, &payload_fire.Referer, &payload_fire.User_agent, &payload_fire.Cookies, &payload_fire.Title, &payload_fire.Dom, &payload_fire.Text, &payload_fire.Origin, &payload_fire.Screenshot_id, &payload_fire.Was_iframe, &payload_fire.Browser_timestamp, &payload_fire.Injection_requests_id)
+			err = rows.Scan(&payload_fire.ID, &payload_fire.Url, &payload_fire.Ip_address, &payload_fire.Referer, &payload_fire.User_agent, &payload_fire.Cookies, &payload_fire.Title, &payload_fire.Dom, &payload_fire.Text, &payload_fire.Origin, &payload_fire.Screenshot_id, &payload_fire.Was_iframe, &payload_fire.Browser_timestamp, &payload_fire.Injection_requests_id, &payload_fire.Probe_id)
 			if err != nil {
 				http.Error(w, "Error scanning database", http.StatusInternalServerError)
 				return

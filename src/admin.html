@@ -804,6 +804,7 @@
             <tr class="payload_fires_header">
                 <th class="payload_fires_title_cell">ID</th>
                 <th class="payload_fires_title_cell">URI</th>
+                <th class="payload_fires_title_cell">Source</th>
                 <th class="payload_fires_title_cell">Image</th>
                 <th class="payload_fires_title_cell">Expand</th>
             </tr>
@@ -887,6 +888,7 @@
                     const row = make_table_row(table, 'payload_fires_row');
                     make_table_cell(item.id, row, 'payload_fires_cell');
                     make_table_cell(item.url, row, 'payload_fires_cell wrap_text');
+                    make_table_cell(item.probe_id || 'No source', row, 'payload_fires_cell wrap_text');
                     make_table_cell(null, row, 'payload_fires_cell').appendChild(make_image(item.screenshot_id, 'Screenshot', null, 'thumbnail'));
                     const actionCell = make_table_cell(null, row, 'payload_fires_cell');
  
@@ -947,6 +949,7 @@
 
             make_modal_element('b', 'p', `ID: `, payloadFire.id, modalContent);
             make_modal_element('b', 'p', `URL: `, payloadFire.url, modalContent);
+            make_modal_element('b', 'p', `Source: `, payloadFire.probe_id || 'No source', modalContent);
             
             const screenshotContainer = make_div('collapsible-image-div', modalContent);
             const img = make_image(payloadFire.screenshot_id, payloadFire.screenshot_id, screenshotContainer, 'collapsible-image');

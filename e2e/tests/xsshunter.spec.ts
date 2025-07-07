@@ -192,6 +192,34 @@ test('Failed Login Attempt', async ({ page, context }) => {
 });
 
 
+test('Probe ID Source Tracking', async ({ page, context }) => {
+  await page.goto('http://localhost:1449/');
+  await clearCookies(context);
+
+  const probeId = 'username' + crypto.randomBytes(10).toString('hex');
+  await triggerXSS(page, context, probeId);
+  
+  await page.goto('http://localhost:1449/admin');
+  await clearCookies(context);
+  await login(page);
+  
+  // Wait for the payload fires table row to appear (excluding the header row)
+  await page.waitForSelector('#payloadFiresTable tr.payload_fires_row', { timeout: 10000 });
+  
+  // Check if probe_id appears anywhere in the table
+  await expect(page.locator('#payloadFiresTable')).toContainText(probeId);
+  
+  // More specifically, find the table row containing our probe_id and check it's in the third column
+  const row = page.locator('#payloadFiresTable tr.payload_fires_row').filter({ hasText: probeId });
+  await expect(row.locator('td:nth-child(3)')).toContainText(probeId);
+  
+  // Expand the payload fire to check the modal
+  await page.locator('.action_button').filter({ hasText: 'Expand' }).first().click();
+  
+  // Verify probe_id appears in the modal
+  await expect(page.locator('.modal_div')).toContainText(`Source: ${probeId}`);
+});
+
 test('XSS with Special Characters', async ({ page, context }) => {
   await page.goto('http://localhost:1449/');
   await clearCookies(context);
