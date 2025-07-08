@@ -238,6 +238,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Browser time is too large. Ignoring.")
 			browser_time = 0
 		}
+
 		payload_fire_data := PayloadFireResults{
 			Url:                   r.FormValue("uri"),
 			Ip_address:            ip_address,
@@ -253,6 +254,7 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 			Browser_timestamp:     uint(browser_time),
 			Correlated_request:    "No correlated request found for this injection.",
 			Injection_requests_id: nil,
+			Probe_id:              r.FormValue("injection_key"),
 		}
 
 		injection_key := r.FormValue("injection_key")
@@ -285,10 +287,10 @@ func jscallbackHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		payload_query := `INSERT INTO payload_fire_results 
-				(url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp, injection_requests_id) 
-				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
+				(url, ip_address, referer, user_agent, cookies, title, dom, text, origin, screenshot_id, was_iframe, browser_timestamp, injection_requests_id, probe_id) 
+				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`
 
-		_, err = db_prepare_execute(payload_query, payload_fire_data.Url, payload_fire_data.Ip_address, payload_fire_data.Referer, payload_fire_data.User_agent, payload_fire_data.Cookies, payload_fire_data.Title, payload_fire_data.Dom, payload_fire_data.Text, payload_fire_data.Origin, payload_fire_data.Screenshot_id, payload_fire_data.Was_iframe, payload_fire_data.Browser_timestamp, payload_fire_data.Injection_requests_id)
+		_, err = db_prepare_execute(payload_query, payload_fire_data.Url, payload_fire_data.Ip_address, payload_fire_data.Referer, payload_fire_data.User_agent, payload_fire_data.Cookies, payload_fire_data.Title, payload_fire_data.Dom, payload_fire_data.Text, payload_fire_data.Origin, payload_fire_data.Screenshot_id, payload_fire_data.Was_iframe, payload_fire_data.Browser_timestamp, payload_fire_data.Injection_requests_id, payload_fire_data.Probe_id)
 		if err != nil {
 			fmt.Println("Error Inserting Payload Fire Data:", err)
 			return

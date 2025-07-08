@@ -28,6 +28,7 @@ type PayloadFireResults struct {
 	Browser_timestamp     uint   `json:"browser_timestamp"`
 	Correlated_request    string `json:"correlated_request"`
 	Injection_requests_id *int   `json:"injection_requests_id"`
+	Probe_id              string `json:"probe_id"`
 }
 
 type CollectedPages struct {

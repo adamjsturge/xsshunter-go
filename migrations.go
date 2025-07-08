@@ -4,6 +4,7 @@ import "log"
 
 func do_migrations() {
 	migration_one()
+	migration_two()
 
 }
 
@@ -54,6 +55,20 @@ func migration_one() {
 
 	sqliteStmt := `
 		ALTER TABLE payload_fire_results ADD COLUMN injection_requests_id INTEGER DEFAULT NULL;
+	`
+
+	migration_handler(name, pgStmt, sqliteStmt)
+}
+
+func migration_two() {
+	name := "20241215_add_probe_id"
+
+	pgStmt := `
+		ALTER TABLE payload_fire_results ADD COLUMN probe_id TEXT DEFAULT '';
+	`
+
+	sqliteStmt := `
+		ALTER TABLE payload_fire_results ADD COLUMN probe_id TEXT DEFAULT '';
 	`
 
 	migration_handler(name, pgStmt, sqliteStmt)
