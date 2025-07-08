@@ -66,7 +66,6 @@ func create_sqlite_tables() {
 		screenshot_id TEXT,
 		was_iframe BOOLEAN,
 		browser_timestamp UNSIGNED INT,
-		probe_id TEXT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS collected_pages (
@@ -124,7 +123,6 @@ func create_postgres_tables() {
 		screenshot_id TEXT,
 		was_iframe BOOLEAN,
 		browser_timestamp BIGINT,
-		probe_id TEXT,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 	CREATE TABLE IF NOT EXISTS collected_pages (
