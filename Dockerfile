@@ -1,4 +1,4 @@
-FROM golang:1.24.3-alpine3.21 as builder
+FROM golang:1.24.5-alpine3.21 as builder
 
 RUN apk update && apk add --no-cache gcc musl-dev ca-certificates
 
@@ -14,7 +14,7 @@ ARG GIT_BRANCH
 RUN BUILD_DATE=$(date +'%Y-%m-%dT%H:%M:%S%z') && \
     go build -ldflags "-X 'main.version=${GIT_TAG}' -X 'main.gitCommit=${GIT_COMMIT}' -X 'main.gitBranch=${GIT_BRANCH}' -X 'main.buildDate=${BUILD_DATE}'" -o main
 
-FROM alpine:3.21.3 as prod
+FROM alpine:3.22.0 as prod
 WORKDIR /app
 
 COPY --from=builder /app/main .
@@ -26,7 +26,7 @@ EXPOSE 1449
 
 CMD ["./main"]
 
-FROM golang:1.24.3-alpine3.21 as dev
+FROM golang:1.24.5-alpine3.21 as dev
 
 RUN apk update && apk add --no-cache gcc musl-dev ca-certificates
 
