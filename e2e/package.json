@@ -10,6 +10,6 @@
   "devDependencies": {
     "@playwright/test": "1.53.2",
     "@types/node": "22.16.2",
-    "dotenv": "16.6.1"
+    "dotenv": "17.2.0"
   }
 }
