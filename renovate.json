@@ -3,6 +3,7 @@
   "extends": [
     "config:recommended"
   ],
+  "platformAutomerge": true,
   "packageRules": [
     {
       "matchManagers": ["gomod"],
@@ -33,6 +34,10 @@
       "groupName": "playwright-dependencies",
       "groupSlug": "playwright",
       "schedule": ["at any time"]
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
     }
   ]
 }

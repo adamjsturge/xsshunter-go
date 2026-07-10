@@ -39,6 +39,7 @@ func check_hash(input string, hashed string) bool {
 // }
 
 func checkFileExists(filepath string) bool {
+	// #nosec G703 -- generic existence helper; callers pass regex-validated paths.
 	_, err := os.Stat(filepath)
 	return !os.IsNotExist(err)
 }
