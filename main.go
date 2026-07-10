@@ -327,6 +327,7 @@ func probeHandler(w http.ResponseWriter, r *http.Request) {
 	re = regexp.MustCompile(`\[PROBE_ID\]`)
 	xss_payload_4 := re.ReplaceAllString(xss_payload_3, probe_id)
 
+	// #nosec G705 -- probeHandler intentionally serves the XSS probe payload; that is the purpose of this endpoint.
 	_, errWrite := w.Write([]byte(xss_payload_4))
 	if errWrite != nil {
 		log.Fatal("Fatal Error on write payload:", err)
@@ -387,5 +388,6 @@ func screenshotHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	w.Header().Set("Content-Encoding", "gzip")
 
+	// #nosec G703 -- screenshotFilename is validated against a strict UUIDv4 regex above before gzImagePath is built.
 	http.ServeFile(w, r, gzImagePath)
 }

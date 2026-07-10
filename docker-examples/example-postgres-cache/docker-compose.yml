@@ -18,7 +18,7 @@ services:
             - "traefik.http.routers.xsshunter-go.tls.domains[0].main=xsshunter.example.com"
             - "traefik.http.services.xsshunter-go.loadbalancer.server.port=1449"
     traefik:
-        image: "traefik:v3.4"
+        image: "traefik:v3.7"
         container_name: "traefik"
         command:
             - "--providers.docker=true"
@@ -36,7 +36,7 @@ services:
             - "/var/run/docker.sock:/var/run/docker.sock:ro"
             - "./shared:/shared"
     postgres:
-        image: postgres:17.2-alpine3.19
+        image: postgres:17.9-alpine3.23
         environment:
             POSTGRES_USER: xsshunter
             POSTGRES_PASSWORD: xsshunter
@@ -46,7 +46,7 @@ services:
         ports:
             - "5432:5432"
     redis:
-        image: redis:7.2.5-alpine3.19
+        image: redis:7.4.9-alpine3.21
         volumes:
             - ./redis:/data
         ports:

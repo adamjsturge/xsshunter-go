@@ -248,6 +248,8 @@ func collectedPagesHandler(w http.ResponseWriter, r *http.Request) {
 func recordInjectionHandler(w http.ResponseWriter, r *http.Request) {
 	set_secure_headers(w, r)
 
+	r.Body = http.MaxBytesReader(w, r.Body, 32<<20)
+	// #nosec G120 -- request body is already bounded by http.MaxBytesReader above; the 32MB in-memory limit is intentional.
 	err := r.ParseMultipartForm(32 << 20)
 	if err != nil {
 		log.Fatal("Fatal Error Parse Multiform:", err)

@@ -33,11 +33,13 @@ func generate_and_set_jwt(w http.ResponseWriter) {
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:    "jwt",
-		Value:   jwt,
-		Expires: expiration_time,
-		Path:    "/",
-		Secure:  true, //r.TLS != nil,
+		Name:     "jwt",
+		Value:    jwt,
+		Expires:  expiration_time,
+		Path:     "/",
+		Secure:   true, //r.TLS != nil,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
 	})
 }
 
