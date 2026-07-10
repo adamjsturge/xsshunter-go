@@ -1,0 +1,72 @@
+.github/workflows/golangci-lint.yml
+  s_9b517d8aee6740::t_244f6ce01fa1ec 40
+  s_9b517d8aee6740::t_90778b9fc491bf 29-30,32
+docker-examples/example-postgres-cache/docker-compose.yml
+  s_9b517d8aee6740::t_33c27255e2cb26 39
+  s_9b517d8aee6740::t_fdb18230a6f9fd 49
+  s_9b517d8aee6740::t_85d017b5d10d32 21
+.github/workflows/playwright.yml
+  s_9b517d8aee6740::t_eaca7be127df6f 34-35
+docker-examples/docker-compose.yml
+  s_9b517d8aee6740::t_6ba31f6afcc7ce 20
+main.go
+  s_9b517d8aee6740::t_05022524de4601 330
+  s_9b517d8aee6740::t_7757cd603b81a9 391
+go.mod
+  s_9b517d8aee6740::t_20a2e0f12e83f8 3,7,9-11,18
+api.go
+  s_9b517d8aee6740::t_0d6fe374907428 251
+  s_9b517d8aee6740::t_e980d96edb23c0 252
+.github/workflows/semgrep.yml
+  s_9b517d8aee6740::t_e962eb7d148925 23
+util.go
+  s_9b517d8aee6740::t_239c8368648903 42
+.golangci.yml
+  s_9b517d8aee6740::t_ffbb84a3903a40 1-4
+e2e/package.json
+  s_9b517d8aee6740::t_d1cc810793960c 11-12
+renovate.json
+  s_9b517d8aee6740::t_d0af7a2e474836 37-40
+  s_9b517d8aee6740::t_d51126e3fcc830 6
+.github/workflows/docker-push.yml
+  s_9b517d8aee6740::t_9ce98e3a795a7a 29
+  s_9b517d8aee6740::t_cc23a1b9b9aa79 26
+  s_9b517d8aee6740::t_3e04a13c23ef17 32
+  s_9b517d8aee6740::t_c2fa96170aebf4 56
+.github/workflows/docker-test.yml
+  s_9b517d8aee6740::t_08e2796ff0d2c0 36,44
+.github/workflows/codeql.yml
+  s_9b517d8aee6740::t_9608dd0c2192e9 98
+  s_9b517d8aee6740::t_02cb7c662cfd99 67
+  s_9b517d8aee6740::t_af2b2614c26358 71
+  s_9b517d8aee6740::t_88136d00046293 85
+Dockerfile
+  s_9b517d8aee6740::t_d99a495397cea1 29
+  s_9b517d8aee6740::t_3b9fef101c1c1f 17
+  s_9b517d8aee6740::t_6c0319a9c1735d 1
+jwt.go
+  s_9b517d8aee6740::t_57dcc573ac89f5 36-42
+.github/workflows/gosec.yml
+  s_9b517d8aee6740::t_b04967ab75b077 26
+  s_9b517d8aee6740::t_743fb91d051f58 24
+e2e/package-lock.json
+  s_9b517d8aee6740::t_c29f58576de17f 12-13,18-20,24,34-36,62,72-74,78,91-93
+go.sum
+  s_9b517d8aee6740::t_a3c9928c0d0fcd 9-10,21-22,28-29,34-37,40-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "894f73acbcc85698c385a85ddde96c5f4e5f305c",
+  "prompts": {},
+  "sessions": {
+    "s_9b517d8aee6740": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "0fbd5c9c-058d-4dde-9c01-6cd059ed470e",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "adamjsturge <adamjsturge@gmail.com>"
+    }
+  }
+}
