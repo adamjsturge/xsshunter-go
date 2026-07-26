@@ -46,7 +46,7 @@ services:
         ports:
             - "5432:5432"
     redis:
-        image: redis:7.4.9-alpine3.21
+        image: redis:7.4.10-alpine3.21
         volumes:
             - ./redis:/data
         ports:
