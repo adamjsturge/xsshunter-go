@@ -88,16 +88,26 @@ func generate_screenshot_url(request *http.Request, screenshot_id string) string
 }
 
 func get_client_ip(request *http.Request) string {
-	clientIP := request.Header.Get("X-Forwarded-For")
-	if clientIP == "" {
-		return request.RemoteAddr
+	// CloudFlare specific header (most reliable when behind CF)
+	if cfIP := request.Header.Get("CF-Connecting-IP"); cfIP != "" {
+		return cfIP
 	}
-
-	ips := strings.Split(clientIP, ",")
-	if len(ips) > 0 {
-		clientIP = ips[0]
+	
+	// Standard proxy header for real IP
+	if realIP := request.Header.Get("X-Real-IP"); realIP != "" {
+		return realIP
 	}
-	return clientIP
+	
+	// X-Forwarded-For (can be comma-separated list)
+	if clientIP := request.Header.Get("X-Forwarded-For"); clientIP != "" {
+		ips := strings.Split(clientIP, ",")
+		if len(ips) > 0 {
+			return strings.TrimSpace(ips[0])
+		}
+	}
+	
+	// Fallback to direct connection
+	return request.RemoteAddr
 }
 
 // func remember(variable *string, reload bool, function func() string) string {
