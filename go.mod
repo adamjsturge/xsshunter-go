@@ -1,6 +1,6 @@
 module go-xss
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/containrrr/shoutrrr v0.8.0
@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.12.3
 	github.com/mattn/go-sqlite3 v1.14.50
-	golang.org/x/crypto v0.55.0
+	golang.org/x/crypto v0.56.0
 )
 
 require (
